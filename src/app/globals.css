@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 @plugin "daisyui" {
-  themes: coffee --default;
+  themes: cmyk --default;
   root: ':root';
   include: ;
   exclude: ;
@@ -14,17 +14,11 @@ body::-webkit-scrollbar {
   display: none;
 }
 :root {
-  /* background-color: #212121;
-  color: #d7d7d7; */
+  font-family: Rubix, Helvetica, sans-serif;
   --background: var(--background)
   --foreground: var(--foreground);
 } 
 
-
-body {
-  font-family: Rubix, Helvetica, sans-serif;
-}
-/* styles.css or global.css */
 .classic-theme {
   font-family: Arial, Helvetica, sans-serif;
   color: black;
@@ -39,4 +33,22 @@ body {
 .fancy-theme {
   border: 2px dashed #d63384;
   font-family: 'Cursive, Comic Sans MS, sans-serif';
+}
+
+.text-container {
+  font-size: clamp(0.5rem, 1.2vw, 1rem);
+}
+
+.text-title {
+  font-size: clamp(1rem, 2.5vw, 1.75rem);
+  font-weight: bold;
+}
+
+.text-subtitle {
+  font-size: clamp(0.9rem, 2vw, 1.25rem);
+}
+
+.text-body {
+  font-size: clamp(0.75rem, 1.2vw, 1rem);
+  line-height: 1.5;
 }

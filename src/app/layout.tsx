@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Rubik } from 'next/font/google';
-import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import './globals.css';
+import Navbar from '@/components/Navbar';
 
 const rubik = Rubik({ subsets: ['latin'] });
 
@@ -16,21 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
       <html lang="en">
-        <body className={`${rubik.className} antialiased`}>
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-          <main className="m-auto min-h-screen min-w-[300px] max-w-7xl p-4">{children}</main>
+        <body className={`${rubik.className} antialiased bg-base-300`}>
+          <Navbar/>
+          <main className="m-auto min-h-screen min-w-[300px] max-w-7xl bg-base-300 p-4">{children}</main>
         </body>
       </html>
-    </ClerkProvider>
   );
 }
