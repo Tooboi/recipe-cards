@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Rubik } from 'next/font/google';
-// import SessionProvider from './SessionProvider';
+import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import './globals.css';
 
 const rubik = Rubik({ subsets: ['latin'] });
@@ -16,13 +16,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    
-    <html lang="en" >
-      <body className={`${rubik.className} antialiased`}>
-        {/* <SessionProvider> */}
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${rubik.className} antialiased`}>
+          <header className="flex justify-end items-center p-4 gap-4 h-16">
+            <SignedOut>
+              <SignInButton />
+              <SignUpButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </header>
           <main className="m-auto min-h-screen min-w-[300px] max-w-7xl p-4">{children}</main>
-        {/* </SessionProvider> */}
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

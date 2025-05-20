@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SignIn } from "../components/auth/signin-button";
 
 export default function Home() {
   return (
@@ -15,6 +16,7 @@ export default function Home() {
             Make New Card
           </h1>
         </Link>
+      <SignIn></SignIn>
       </div>
     </div>
   );
