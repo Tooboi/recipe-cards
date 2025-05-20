@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Rubik } from 'next/font/google';
+// import SessionProvider from './SessionProvider';
 import './globals.css';
 
 const rubik = Rubik({ subsets: ['latin'] });
@@ -15,9 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="forest">
+    
+    <html lang="en" >
       <body className={`${rubik.className} antialiased`}>
-        <main className="m-auto min-h-screen min-w-[300px] max-w-7xl p-4">{children}</main>
+        {/* <SessionProvider> */}
+          <main className="m-auto min-h-screen min-w-[300px] max-w-7xl p-4">{children}</main>
+        {/* </SessionProvider> */}
       </body>
     </html>
   );
