@@ -54,6 +54,7 @@ export default function NewCard() {
       scale,
       useCORS: true,
       allowTaint: true,
+      foreignObjectRendering: false,
     });
 
     const imgData = canvas.toDataURL('image/png');
@@ -148,7 +149,7 @@ export default function NewCard() {
                   <textarea id="recipe-description" placeholder="Short Description" className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block " value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
                 <div>
-                  <h2 className="font-semibold">Ingredients</h2>
+                  <h2 className="font-semibold py-2">Ingredients</h2>
                   {ingredients.map((ingredient, i) => (
                     <div key={i} className="flex gap-2 mb-2 items-center">
                       {/* Quantity */}
@@ -210,7 +211,7 @@ export default function NewCard() {
                 </div>
 
                 <div>
-                  <h2 className="font-semibold">Instructions</h2>
+                  <h2 className="font-semibold py-2">Instructions</h2>
                   {instructions.map((step, i) => (
                     <div key={i} className="flex gap-2 mb-2 items-center">
                       <label htmlFor={`step-${i}`} className="sr-only">
@@ -240,7 +241,10 @@ export default function NewCard() {
                   </button>
                 </div>
 
-                <button className="w-full mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600" onClick={handlePDFExport}>
+                <button
+                  className="w-full mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
+                  onClick={handlePDFExport}
+                >
                   Export as PDF
                 </button>
               </div>
@@ -287,28 +291,28 @@ export default function NewCard() {
           <div className="w-full h-full max-h-full flex justify-center items-center overflow-auto">
             <div
               id="recipe-preview"
-              className="relative m-4 w-full max-w-full h-auto export-recipe"
-              // style={{
-              //   fontFamily: `'${font}', sans-serif`,
-              //   backgroundColor,
-              //   color: textColor,
-              //   border: `2px solid ${borderColor}`,
-              //   borderRadius: '0.5rem',
-              //   aspectRatio: pdfSize === '3x5' ? '5 / 3' : '8.5 / 11',
-              // }}
+              className="relative m-6 w-full max-w-full h-auto export-recipe"
+              style={{
+                fontFamily: `'${font}', sans-serif`,
+                // backgroundColor,
+                // color: textColor,
+                // border: `2px solid ${borderColor}`,
+                // borderRadius: '0.5rem',
+                aspectRatio: pdfSize === '3x5' ? '5 / 3' : '8.5 / 11',
+              }}
             >
-              <div className={`text-[clamp(0.5rem,1.5vw,1rem)] leading-snug p-4 box-border w-full h-full ${pdfSize === '3x5' ? 'flex flex-row gap-4' : ''}`}>
+              <div className={`text-[clamp(0.5rem,1.5vw,1rem)] leading-snug p-4 box-border w-full h-full ${pdfSize === '3x5' ? 'flex flex-row gap-4 ' : ''}`}>
                 <div className={`${pdfSize === '3x5' ? 'w-1/2' : 'w-full'}`}>
                   <h2 className="text-[clamp(1rem,3vw,1.5rem)] font-bold mb-2">{title || 'Recipe Title'}</h2>
                   <p className="mb-4">{description || 'Short description...'}</p>
 
                   <h3 className="font-semibold mb-1">Ingredients</h3>
-                  <ul className="list-disc list-inside mb-4">
+                  <ul className="list-none space-y-1 mb-4">
                     {ingredients
                       .filter((ing) => ing.item || ing.quantity)
                       .map((ing, i) => (
                         <li key={i}>
-                          {ing.quantity} {ing.unit} {ing.item}
+                          <span className="bullet">&bull;</span> {ing.quantity} {ing.unit} {ing.item}
                         </li>
                       ))}
                   </ul>
@@ -316,9 +320,12 @@ export default function NewCard() {
 
                 <div className={`${pdfSize === '3x5' ? 'w-1/2' : 'w-full'}`}>
                   <h3 className="font-semibold mb-1">Instructions</h3>
-                  <ol className="list-decimal list-inside space-y-1">
+                  <ol className="list-none  space-y-1 ">
                     {instructions.filter(Boolean).map((step, i) => (
-                      <li key={i}>{step}</li>
+                      <li className="mb-0" key={i}>
+                        <span className="bullet">{i + 1}.&nbsp;</span>
+                        {step}
+                      </li>
                     ))}
                   </ol>
                 </div>

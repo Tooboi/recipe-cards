@@ -4,7 +4,7 @@ export default function Navbar() {
 
   return (
     <div className="bg-slate-300 py-1 px-2">
-      <div className="navbar m-auto max-w-7xl flex-row gap-2">
+      <div className="navbar m-auto flex-row gap-2">
         <div className="flex-1">
           <Link
             href="/"
