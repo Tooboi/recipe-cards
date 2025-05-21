@@ -26,6 +26,8 @@ export default function NewCard() {
 
   const [font, setFont] = useState<string>('Rubik');
 
+  // console.log(title, description, instructions, ingredients, pdfSize);
+
   const [textColor, setTextColor] = useState<string>('#000000');
   const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
   const [borderColor, setBorderColor] = useState<string>('#ffffff');
@@ -79,6 +81,34 @@ export default function NewCard() {
 
     pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
     pdf.save(`${title || 'recipe'}.pdf`);
+  };
+
+  const handleSaveRecipe = async () => {
+    const card = {
+      title,
+      description,
+      instructions,
+      ingredients,
+      font,
+      pdfSize,
+    };
+
+    try {
+      const res = await fetch('/api/cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(card),
+      });
+
+      if (!res.ok) throw new Error('Failed to save');
+
+      const saved = await res.json();
+      console.log('Saved:', saved);
+      alert('Recipe saved!');
+    } catch (err) {
+      console.error(err);
+      alert('Error saving recipe');
+    }
   };
 
   const updateField = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, index: number, value: T, list: T[]) => {
@@ -176,11 +206,16 @@ export default function NewCard() {
                         <option value="tbsp">tbsp</option>
                         <option value="cup">cup</option>
                         <option value="oz">oz</option>
+                        <option value="lb">lb</option>
+                        <option value="pint">pint</option>
+                        <option value="liter">liter</option>
                         <option value="g">g</option>
                         <option value="kg">kg</option>
                         <option value="ml">ml</option>
                         <option value="pinch">pinch</option>
                         <option value="dash">dash</option>
+                        <option value="knob">knob</option>
+                        <option value="finger">finger</option>
                       </select>
 
                       {/* Name */}
@@ -240,13 +275,20 @@ export default function NewCard() {
                     + Add Step
                   </button>
                 </div>
-
-                <button
-                  className="w-full mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
-                  onClick={handlePDFExport}
-                >
-                  Export as PDF
-                </button>
+                <div className="gap-2 flex">
+                  <button
+                    className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
+                    onClick={handlePDFExport}
+                  >
+                    Export as PDF
+                  </button>
+                  <button
+                    className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
+                    onClick={handleSaveRecipe}
+                  >
+                    Save Recipe
+                  </button>
+                </div>
               </div>
             )}
 
