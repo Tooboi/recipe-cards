@@ -1,8 +1,14 @@
-import Link from "next/link"
+import { signIn } from "../../lib/auth"
  
-export function SignIn() {
+export default function SignInButton() {
   return (
-    <Link href='/signin'>Sign In
-    </Link>
+    <form
+      action={async () => {
+        "use server"
+        await signIn()
+      }}
+    >
+      <button type="submit">Sign in</button>
+    </form>
   )
 }

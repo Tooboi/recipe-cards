@@ -1,14 +1,7 @@
-import { signIn } from "../../lib/auth"
+import SignIn from "../../components/auth/signin-button"
  
-export function SignIn() {
+export default function SignInButton() {
   return (
-    <form
-      action={async () => {
-        "use server"
-        await signIn()
-      }}
-    >
-      <button type="submit">Sign in</button>
-    </form>
+    <div><SignIn></SignIn></div>
   )
 }
