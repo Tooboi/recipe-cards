@@ -21,9 +21,6 @@ body::-webkit-scrollbar {
   --foreground: var(--foreground); */
 } 
 
-
-
-
 .classic-theme {
   font-family: Arial, Helvetica, sans-serif;
   color: black;
@@ -56,4 +53,21 @@ body::-webkit-scrollbar {
 .text-body {
   font-size: clamp(0.75rem, 1.2vw, 1rem);
   line-height: 1.5;
+}
+
+#pdf-canvas ul {
+	list-style: none;
+	padding: 0;
+}
+
+#pdf-canvas ul li {
+	margin: 0 0 0 35px;
+	list-style: none;
+
+	.bullet {
+		display: inline-block;
+		opacity: 0.85;
+		font-size: 1.1em;
+		text-indent: -22px;
+	}
 }
