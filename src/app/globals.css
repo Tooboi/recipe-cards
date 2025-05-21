@@ -17,6 +17,7 @@ body::-webkit-scrollbar {
   font-family: Rubix, Helvetica, sans-serif;
   --background: var(--background)
   --foreground: var(--foreground);
+  overflow: hidden;
 } 
 
 .classic-theme {
