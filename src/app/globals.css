@@ -1,45 +1,29 @@
 @import 'tailwindcss';
-@plugin "daisyui" {
-  themes: coffee --default;
-  root: ':root';
-  include: ;
-  exclude: ;
-  prefix: ;
-  logs: true;
+/* @plugin "daisyui"; */
+
+.export-recipe {
+  background-color: #fff;
+  color: #000;
+  border-radius: 0.5rem;
+  font-family: Rubik;
 }
 
-
+.main-bg {
+  background-color: #90a1b9;
+}
 
 body::-webkit-scrollbar {
   display: none;
 }
 :root {
-  /* background-color: #212121;
-  color: #d7d7d7; */
-  --background: var(--background)
-  --foreground: var(--foreground);
-} 
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-} 
-
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
-
-body {
-  /* background: var(--background);
-  color: var(--foreground); */
   font-family: Rubix, Helvetica, sans-serif;
-}
-/* styles.css or global.css */
+  /* --background: var(--background)
+  --foreground: var(--foreground); */
+} 
+
+
+
+
 .classic-theme {
   font-family: Arial, Helvetica, sans-serif;
   color: black;
@@ -54,4 +38,22 @@ body {
 .fancy-theme {
   border: 2px dashed #d63384;
   font-family: 'Cursive, Comic Sans MS, sans-serif';
+}
+
+.text-container {
+  font-size: clamp(0.5rem, 1.2vw, 1rem);
+}
+
+.text-title {
+  font-size: clamp(1rem, 2.5vw, 1.75rem);
+  font-weight: bold;
+}
+
+.text-subtitle {
+  font-size: clamp(0.9rem, 2vw, 1.25rem);
+}
+
+.text-body {
+  font-size: clamp(0.75rem, 1.2vw, 1rem);
+  line-height: 1.5;
 }

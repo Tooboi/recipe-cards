@@ -4,6 +4,8 @@ import { useState } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+import '@fontsource/rubik';
+import '@fontsource/nunito';
 
 export default function NewCard() {
   type Ingredient = {
@@ -11,49 +13,72 @@ export default function NewCard() {
     unit: string;
     item: string;
   };
-
+  const googleFonts = [
+    { label: 'Rubik', value: 'Rubik' },
+    { label: 'Nunito', value: 'Nunito' },
+  ];
   const [tab, setTab] = useState<'editor' | 'decor'>('editor');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [ingredients, setIngredients] = useState<Ingredient[]>([{ quantity: '', unit: '', item: '' }]);
   const [instructions, setInstructions] = useState(['']);
-  const [theme, setTheme] = useState<'classic' | 'modern' | 'fancy'>('classic');
-  
+  const [pdfSize, setPdfSize] = useState<'3x5' | 'letter'>('3x5');
+  const [ingredients, setIngredients] = useState<Ingredient[]>([{ quantity: '', unit: '', item: '' }]);
 
-const handlePDFExport = async () => {
-  const card = document.getElementById('recipe-preview');
-  if (!card) return;
+  const [font, setFont] = useState<string>('Rubik');
 
-  // Force a larger canvas size (scaling)
-  const scale = 2;
-  const canvas = await html2canvas(card, {
-    scale: scale,
-    useCORS: true,
-  });
+  const [textColor, setTextColor] = useState<string>('#000000');
+  const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
+  const [borderColor, setBorderColor] = useState<string>('#ffffff');
 
-  const imgData = canvas.toDataURL('image/png');
+  const addIngredient = () => setIngredients([...ingredients, { quantity: '', unit: '', item: '' }]);
+  const removeIngredient = (index: number) => {
+    const newList = [...ingredients];
+    newList.splice(index, 1);
+    setIngredients(newList);
+  };
 
-  // Define A4 size in points (1 pt = 1/72 inch)
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'pt',
-    format: 'a4',
-  });
+  const moveIngredient = (index: number, direction: 'up' | 'down') => {
+    const newList = [...ingredients];
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= newList.length) return;
+    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
+    setIngredients(newList);
+  };
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+  const handlePDFExport = async () => {
+    const card = document.getElementById('recipe-preview');
+    if (!card) return;
 
-  const imgProps = pdf.getImageProperties(imgData);
-  const imgWidth = pageWidth;
-  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    const scale = 3;
+    const canvas = await html2canvas(card, {
+      scale,
+      useCORS: true,
+      allowTaint: true,
+    });
 
-  // Center vertically if image is shorter than page
-  const y = imgHeight < pageHeight ? (pageHeight - imgHeight) / 2 : 0;
+    const imgData = canvas.toDataURL('image/png');
 
-  pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
-  pdf.save(`${title || 'recipe'}.pdf`);
-};
- 
+    // Define page size in inches
+    const pageSize = pdfSize === '3x5' ? [3, 5] : [8.5, 11];
+
+    const pdf = new jsPDF({
+      orientation: pdfSize === '3x5' ? 'landscape' : 'portrait',
+      unit: 'in',
+      format: pageSize,
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgWidth = pageWidth;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+    const y = imgHeight < pageHeight ? (pageHeight - imgHeight) / 2 : 0;
+
+    pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
+    pdf.save(`${title || 'recipe'}.pdf`);
+  };
 
   const updateField = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, index: number, value: T, list: T[]) => {
     const newList = [...list];
@@ -80,147 +105,227 @@ const handlePDFExport = async () => {
   };
 
   return (
-    <div className="flex gap-8 p-6">
-      {/* Left Panel */}
-      <div className="w-full md:w-1/2 flex flex-col">
-        {/* Tabs at top */}
-        <div className="flex gap-4 mb-6 border-b">
-          <button className={`px-4 py-2 border-b-2 ${tab === 'editor' ? 'border-info font-semibold' : 'border-transparent'}`} onClick={() => setTab('editor')}>
-            Edit Recipe
-          </button>
-          <button className={`px-4 py-2 border-b-2 ${tab === 'decor' ? 'border-info font-semibold' : 'border-transparent'}`} onClick={() => setTab('decor')}>
-            Style
-          </button>
-        </div>
-
-        {/* Tab content */}
-        {tab === 'editor' && (
-          <div className="space-y-4 overflow-auto">
-            <h1 className="text-2xl font-bold">Create Recipe Card</h1>
-
-            <div>
-              <label htmlFor="recipe-title" className="sr-only">
-                Recipe Title
-              </label>
-              <input id="recipe-title" placeholder="Recipe Title" className="w-full border p-2 rounded-md" value={title} onChange={(e) => setTitle(e.target.value)} />
-            </div>
-
-            <div>
-              <label htmlFor="recipe-description" className="sr-only">
-                Short Description
-              </label>
-              <textarea id="recipe-description" placeholder="Short Description" className="w-full border p-2 rounded-md" value={description} onChange={(e) => setDescription(e.target.value)} />
-            </div>
-            <div>
-              <h2 className="font-semibold">Ingredients</h2>
-              {ingredients.map((ingredient, i) => (
-                <div key={i} className="flex gap-2 mb-2 items-center">
-                  {/* Quantity */}
-                  <input type="text" placeholder="Quantity" value={ingredient.quantity} onChange={(e) => updateField(setIngredients, i, { ...ingredient, quantity: e.target.value }, ingredients)} className="w-20 input p-2 rounded-md" />
-
-                  {/* Unit */}
-                  <select value={ingredient.unit} onChange={(e) => updateField(setIngredients, i, { ...ingredient, unit: e.target.value }, ingredients)} className="select p-2 rounded">
-                    <option value="">Unit</option>
-                    <option value="tsp">tsp</option>
-                    <option value="tbsp">tbsp</option>
-                    <option value="cup">cup</option>
-                    <option value="oz">oz</option>
-                    <option value="g">g</option>
-                    <option value="ml">ml</option>
-                    <option value="pinch">pinch</option>
-                    <option value="dash">dash</option>
-                  </select>
-
-                  {/* Name */}
-                  <input type="text" placeholder="Ingredient name" value={ingredient.item} onChange={(e) => updateField(setIngredients, i, { ...ingredient, item: e.target.value }, ingredients)} className="flex-grow input p-2 rounded" />
-
-                  {/* Reorder and Remove */}
-                  <button className="text-gray-500" onClick={() => moveField(setIngredients, ingredients, i, 'up')} disabled={i === 0} title="Move up">
-                    ↑
-                  </button>
-                  <button className="text-gray-500" onClick={() => moveField(setIngredients, ingredients, i, 'down')} disabled={i === ingredients.length - 1} title="Move down">
-                    ↓
-                  </button>
-                  <button onClick={() => removeField(setIngredients, ingredients, i)} className="text-warning" title="Remove">
-                    ✕
-                  </button>
-                </div>
-              ))}
-
-              <button className="text-info" onClick={() => addField(setIngredients, ingredients)}>
-                + Add Ingredient
+    <div className="h-dvh">
+      <div className="flex h-dvh p-4">
+        {/* Left Panel */}
+        <fieldset className="fieldset bg-slate-200 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
+          <div className="">
+            {/* Tabs at top */}
+            <div className="flex px-4 mb-6 border-b">
+              <button className={`px-4 py-2 border-b-2 text-md ${tab === 'editor' ? 'border-secondary font-semibold' : 'border-transparent'}`} onClick={() => setTab('editor')}>
+                Edit Recipe
+              </button>
+              <button className={`px-4 py-2 border-b-2 ${tab === 'decor' ? 'border-secondary font-semibold' : 'border-transparent'}`} onClick={() => setTab('decor')}>
+                Style
               </button>
             </div>
 
-            <div>
-              <h2 className="font-semibold">Instructions</h2>
-              {instructions.map((step, i) => (
-                <div key={i} className="flex gap-2 mb-2 items-center">
-                  <label htmlFor={`step-${i}`} className="sr-only">
-                    Step {i + 1}
+            {/* Tab content */}
+            {tab === 'editor' && (
+              <div className="space-y-2 ">
+                <h1 className="text-2xl font-bold">Create Recipe Card</h1>
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="pdf-size" className="font-semibold">
+                    Card Size:
                   </label>
-                  <input id={`step-${i}`} name={`step-${i}`} placeholder={`Step ${i + 1}`} className="flex-grow border p-2 rounded-md" value={step} onChange={(e) => updateField(setInstructions, i, e.target.value, instructions)} />
-                  <button className="text-gray-500" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
-                    ↑
-                  </button>
-                  <button className="text-gray-500" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
-                    ↓
-                  </button>
-                  <button onClick={() => removeField(setInstructions, instructions, i)} className="text-warning" title="Remove">
-                    ✕
+                  <select id="pdf-size" value={pdfSize} onChange={(e) => setPdfSize(e.target.value as '3x5' | 'letter')} className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 border ">
+                    <option value="3x5">3 x 5</option>
+                    <option value="letter">Letter</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="recipe-title" className="sr-only">
+                    Recipe Title
+                  </label>
+                  <input id="recipe-title" placeholder="Recipe Title" className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block " value={title} onChange={(e) => setTitle(e.target.value)} />
+                </div>
+
+                <div>
+                  <label htmlFor="recipe-description" className="sr-only">
+                    Short Description
+                  </label>
+                  <textarea id="recipe-description" placeholder="Short Description" className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block " value={description} onChange={(e) => setDescription(e.target.value)} />
+                </div>
+                <div>
+                  <h2 className="font-semibold">Ingredients</h2>
+                  {ingredients.map((ingredient, i) => (
+                    <div key={i} className="flex gap-2 mb-2 items-center">
+                      {/* Quantity */}
+                      <input
+                        type="text"
+                        placeholder="Quantity"
+                        value={ingredient.quantity}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, quantity: e.target.value }, ingredients)}
+                        className="w-20 bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
+                      />
+
+                      {/* Unit */}
+                      <label htmlFor={`unit-select-${i}`} className="sr-only">
+                        Ingredient unit
+                      </label>
+                      <select
+                        id={`unit-select-${i}`}
+                        value={ingredient.unit}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, unit: e.target.value }, ingredients)}
+                        className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded placeholder:text-slate-300 border w-full"
+                      >
+                        <option value="">Unit</option>
+                        <option value="tsp">tsp</option>
+                        <option value="tbsp">tbsp</option>
+                        <option value="cup">cup</option>
+                        <option value="oz">oz</option>
+                        <option value="g">g</option>
+                        <option value="kg">kg</option>
+                        <option value="ml">ml</option>
+                        <option value="pinch">pinch</option>
+                        <option value="dash">dash</option>
+                      </select>
+
+                      {/* Name */}
+                      <input
+                        type="text"
+                        placeholder="Ingredient"
+                        value={ingredient.item}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, item: e.target.value }, ingredients)}
+                        className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded"
+                      />
+
+                      {/* Reorder and Remove */}
+                      <button className="text-primary" onClick={() => moveIngredient(i, 'up')} disabled={i === 0} title="Move up">
+                        ↑
+                      </button>
+                      <button className="text-primary" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1} title="Move down">
+                        ↓
+                      </button>
+                      <button onClick={() => removeIngredient(i)} className="text-warning" title="Remove">
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+
+                  <button className="text-secondary" onClick={addIngredient}>
+                    + Add Ingredient
                   </button>
                 </div>
-              ))}
-              <button className="text-info" onClick={() => addField(setInstructions, instructions)}>
-                + Add Step
-              </button>
-            </div>
 
-            <button className="mt-4 btn btn-primary rounded-md" onClick={handlePDFExport}>
-              Export as PDF
-            </button>
-          </div>
-        )}
-
-        {tab === 'decor' && (
-          <div className="space-y-6 overflow-auto">
-            <h2 className="text-2xl font-bold">Customize Your Card</h2>
-            <div>
-              <h3 className="font-semibold mb-2">Select a Theme</h3>
-              <div className="flex gap-4">
-                {['classic', 'modern', 'fancy'].map((style) => (
-                  <button key={style} className={`px-4 py-2 border rounded-md ${theme === style ? 'bg-blue-500 text-white' : 'bg-gray-100'}`} onClick={() => setTheme(style)}>
-                    {style.charAt(0).toUpperCase() + style.slice(1)}
+                <div>
+                  <h2 className="font-semibold">Instructions</h2>
+                  {instructions.map((step, i) => (
+                    <div key={i} className="flex gap-2 mb-2 items-center">
+                      <label htmlFor={`step-${i}`} className="sr-only">
+                        Step {i + 1}
+                      </label>
+                      <input
+                        id={`step-${i}`}
+                        name={`step-${i}`}
+                        placeholder={`Step ${i + 1}`}
+                        className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block border p-2 rounded-md"
+                        value={step}
+                        onChange={(e) => updateField(setInstructions, i, e.target.value, instructions)}
+                      />
+                      <button className="text-primary" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
+                        ↑
+                      </button>
+                      <button className="text-primary" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
+                        ↓
+                      </button>
+                      <button onClick={() => removeField(setInstructions, instructions, i)} className="text-warning" title="Remove">
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <button className="text-secondary" onClick={() => addField(setInstructions, instructions)}>
+                    + Add Step
                   </button>
-                ))}
+                </div>
+
+                <button className="w-full mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600" onClick={handlePDFExport}>
+                  Export as PDF
+                </button>
+              </div>
+            )}
+
+            {tab === 'decor' && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Customize Card</h2>
+
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="font-select" className="font-semibold">
+                    Font:
+                  </label>
+                  <select id="font-select" className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 border" value={font} onChange={(e) => setFont(e.target.value)} title="Font style">
+                    {googleFonts.map((f) => (
+                      <option key={f.value} value={f.value}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="hidden">
+                  <h3 className="font-semibold mb-2">Text Color</h3>
+                  <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Text color" />
+                </div>
+
+                <div className="hidden">
+                  <h3 className="font-semibold mb-2">Background Color</h3>
+                  <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Background color" />
+                </div>
+
+                <div className="hidden">
+                  <h3 className="font-semibold mb-2">Border Color</h3>
+                  <input type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Border color" />
+                </div>
+              </div>
+            )}
+          </div>
+        </fieldset>
+
+        {/* Live Preview */}
+        <fieldset className="ml-4 h-max flex fieldset justify-center border-2 bg-slate-200 rounded-lg border-slate-800 items-center flex-3/5 drop-shadow-md">
+          <div className="w-full h-full max-h-full flex justify-center items-center overflow-auto">
+            <div
+              id="recipe-preview"
+              className="relative m-4 w-full max-w-full h-auto export-recipe"
+              // style={{
+              //   fontFamily: `'${font}', sans-serif`,
+              //   backgroundColor,
+              //   color: textColor,
+              //   border: `2px solid ${borderColor}`,
+              //   borderRadius: '0.5rem',
+              //   aspectRatio: pdfSize === '3x5' ? '5 / 3' : '8.5 / 11',
+              // }}
+            >
+              <div className={`text-[clamp(0.5rem,1.5vw,1rem)] leading-snug p-4 box-border w-full h-full ${pdfSize === '3x5' ? 'flex flex-row gap-4' : ''}`}>
+                <div className={`${pdfSize === '3x5' ? 'w-1/2' : 'w-full'}`}>
+                  <h2 className="text-[clamp(1rem,3vw,1.5rem)] font-bold mb-2">{title || 'Recipe Title'}</h2>
+                  <p className="mb-4">{description || 'Short description...'}</p>
+
+                  <h3 className="font-semibold mb-1">Ingredients</h3>
+                  <ul className="list-disc list-inside mb-4">
+                    {ingredients
+                      .filter((ing) => ing.item || ing.quantity)
+                      .map((ing, i) => (
+                        <li key={i}>
+                          {ing.quantity} {ing.unit} {ing.item}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+
+                <div className={`${pdfSize === '3x5' ? 'w-1/2' : 'w-full'}`}>
+                  <h3 className="font-semibold mb-1">Instructions</h3>
+                  <ol className="list-decimal list-inside space-y-1">
+                    {instructions.filter(Boolean).map((step, i) => (
+                      <li key={i}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
               </div>
             </div>
           </div>
-        )}
-      </div>
-
-      {/* Live Preview */}
-      <div id="recipe-preview" className={`w-full md:w-1/2 border rounded-md-lg p-6 shadow-md  ${theme}-theme`}>
-        <h2 className="text-2xl font-bold mb-2">{title || 'Recipe Title'}</h2>
-        <p className="mb-4">{description || 'Short description...'}</p>
-
-        <h3 className="font-semibold ">Ingredients</h3>
-        <ul className="list-disc list-inside mb-4">
-          {ingredients
-            .filter((ing) => ing.item || ing.quantity)
-            .map((ing, i) => (
-              <li key={i}>
-                {ing.quantity} {ing.unit} {ing.item}
-              </li>
-            ))}
-        </ul>
-
-        <h3 className="font-semibold">Instructions</h3>
-        <ol className="list-decimal list-inside space-y-1">
-          {instructions.filter(Boolean).map((step, i) => (
-            <li key={i}>{step}</li>
-          ))}
-        </ol>
+        </fieldset>
       </div>
     </div>
   );
