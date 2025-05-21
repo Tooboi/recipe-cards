@@ -49,7 +49,7 @@ export default function NewCard() {
     const card = document.getElementById('recipe-preview');
     if (!card) return;
 
-    const scale = pdfSize === '3x5' ? 2 : 3;
+    const scale = 3;
     const canvas = await html2canvas(card, {
       scale,
       useCORS: true,
@@ -62,7 +62,7 @@ export default function NewCard() {
     const pageSize = pdfSize === '3x5' ? [3, 5] : [8.5, 11];
 
     const pdf = new jsPDF({
-      orientation: 'portrait',
+      orientation: pdfSize === '3x5' ? 'landscape' : 'portrait',
       unit: 'in',
       format: pageSize,
     });
@@ -105,30 +105,30 @@ export default function NewCard() {
   };
 
   return (
-    <div className="h-screen">
-      <div className=" grid grid-cols-5 h-screen p-4 gap-4">
+    <div className="h-dvh">
+      <div className="flex h-dvh p-4">
         {/* Left Panel */}
-        <fieldset className="fieldset bg-base-200 border-primary col-span-2 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
+        <fieldset className="fieldset bg-slate-200 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
           <div className="">
             {/* Tabs at top */}
-            <div className="flex gap-4 mb-6 border-b">
-              <button className={`px-4 py-2 border-b-2 ${tab === 'editor' ? 'border-info font-semibold' : 'border-transparent'}`} onClick={() => setTab('editor')}>
+            <div className="flex px-4 mb-6 border-b">
+              <button className={`px-4 py-2 border-b-2 text-md ${tab === 'editor' ? 'border-secondary font-semibold' : 'border-transparent'}`} onClick={() => setTab('editor')}>
                 Edit Recipe
               </button>
-              <button className={`px-4 py-2 border-b-2 ${tab === 'decor' ? 'border-info font-semibold' : 'border-transparent'}`} onClick={() => setTab('decor')}>
+              <button className={`px-4 py-2 border-b-2 ${tab === 'decor' ? 'border-secondary font-semibold' : 'border-transparent'}`} onClick={() => setTab('decor')}>
                 Style
               </button>
             </div>
 
             {/* Tab content */}
             {tab === 'editor' && (
-              <div className="space-y-4 overflow-auto">
+              <div className="space-y-2 ">
                 <h1 className="text-2xl font-bold">Create Recipe Card</h1>
-                <div>
-                  <label htmlFor="pdf-size" className="mr-2 font-semibold">
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="pdf-size" className="font-semibold">
                     Card Size:
                   </label>
-                  <select id="pdf-size" value={pdfSize} onChange={(e) => setPdfSize(e.target.value as '3x5' | 'letter')} className="select select-primary">
+                  <select id="pdf-size" value={pdfSize} onChange={(e) => setPdfSize(e.target.value as '3x5' | 'letter')} className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 border ">
                     <option value="3x5">3 x 5</option>
                     <option value="letter">Letter</option>
                   </select>
@@ -138,27 +138,38 @@ export default function NewCard() {
                   <label htmlFor="recipe-title" className="sr-only">
                     Recipe Title
                   </label>
-                  <input id="recipe-title" placeholder="Recipe Title" className="w-full input input-primary border p-2 rounded-md" value={title} onChange={(e) => setTitle(e.target.value)} />
+                  <input id="recipe-title" placeholder="Recipe Title" className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block " value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>
 
                 <div>
                   <label htmlFor="recipe-description" className="sr-only">
                     Short Description
                   </label>
-                  <textarea id="recipe-description" placeholder="Short Description" className="w-full textarea textarea-primary border p-2 rounded-md" value={description} onChange={(e) => setDescription(e.target.value)} />
+                  <textarea id="recipe-description" placeholder="Short Description" className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block " value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
                 <div>
                   <h2 className="font-semibold">Ingredients</h2>
                   {ingredients.map((ingredient, i) => (
                     <div key={i} className="flex gap-2 mb-2 items-center">
                       {/* Quantity */}
-                      <input type="text" placeholder="Quantity" value={ingredient.quantity} onChange={(e) => updateField(setIngredients, i, { ...ingredient, quantity: e.target.value }, ingredients)} className="w-20 input input-primary p-2 rounded-md" />
+                      <input
+                        type="text"
+                        placeholder="Quantity"
+                        value={ingredient.quantity}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, quantity: e.target.value }, ingredients)}
+                        className="w-20 bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
+                      />
 
                       {/* Unit */}
                       <label htmlFor={`unit-select-${i}`} className="sr-only">
                         Ingredient unit
                       </label>
-                      <select id={`unit-select-${i}`} value={ingredient.unit} onChange={(e) => updateField(setIngredients, i, { ...ingredient, unit: e.target.value }, ingredients)} className="select select-primary p-2 rounded">
+                      <select
+                        id={`unit-select-${i}`}
+                        value={ingredient.unit}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, unit: e.target.value }, ingredients)}
+                        className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded placeholder:text-slate-300 border w-full"
+                      >
                         <option value="">Unit</option>
                         <option value="tsp">tsp</option>
                         <option value="tbsp">tbsp</option>
@@ -172,7 +183,13 @@ export default function NewCard() {
                       </select>
 
                       {/* Name */}
-                      <input type="text" placeholder="Ingredient" value={ingredient.item} onChange={(e) => updateField(setIngredients, i, { ...ingredient, item: e.target.value }, ingredients)} className="flex-grow input input-primary p-2 rounded" />
+                      <input
+                        type="text"
+                        placeholder="Ingredient"
+                        value={ingredient.item}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, item: e.target.value }, ingredients)}
+                        className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded"
+                      />
 
                       {/* Reorder and Remove */}
                       <button className="text-primary" onClick={() => moveIngredient(i, 'up')} disabled={i === 0} title="Move up">
@@ -187,7 +204,7 @@ export default function NewCard() {
                     </div>
                   ))}
 
-                  <button className="text-info" onClick={addIngredient}>
+                  <button className="text-secondary" onClick={addIngredient}>
                     + Add Ingredient
                   </button>
                 </div>
@@ -199,7 +216,14 @@ export default function NewCard() {
                       <label htmlFor={`step-${i}`} className="sr-only">
                         Step {i + 1}
                       </label>
-                      <input id={`step-${i}`} name={`step-${i}`} placeholder={`Step ${i + 1}`} className="flex-grow input input-primary border p-2 rounded-md" value={step} onChange={(e) => updateField(setInstructions, i, e.target.value, instructions)} />
+                      <input
+                        id={`step-${i}`}
+                        name={`step-${i}`}
+                        placeholder={`Step ${i + 1}`}
+                        className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block border p-2 rounded-md"
+                        value={step}
+                        onChange={(e) => updateField(setInstructions, i, e.target.value, instructions)}
+                      />
                       <button className="text-primary" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
                         ↑
                       </button>
@@ -211,24 +235,26 @@ export default function NewCard() {
                       </button>
                     </div>
                   ))}
-                  <button className="text-info" onClick={() => addField(setInstructions, instructions)}>
+                  <button className="text-secondary" onClick={() => addField(setInstructions, instructions)}>
                     + Add Step
                   </button>
                 </div>
 
-                <button className="mt-4 btn btn-primary rounded-md" onClick={handlePDFExport}>
+                <button className="w-full mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600" onClick={handlePDFExport}>
                   Export as PDF
                 </button>
               </div>
             )}
 
             {tab === 'decor' && (
-              <div className="space-y-6 overflow-auto">
-                <h2 className="text-2xl font-bold">Customize Your Card</h2>
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Customize Card</h2>
 
-                <div>
-                  <h3 className="font-semibold mb-2">Font</h3>
-                  <select className="select select-bordered" value={font} onChange={(e) => setFont(e.target.value)} title="Font style">
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="font-select" className="font-semibold">
+                    Font:
+                  </label>
+                  <select id="font-select" className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 border" value={font} onChange={(e) => setFont(e.target.value)} title="Font style">
                     {googleFonts.map((f) => (
                       <option key={f.value} value={f.value}>
                         {f.label}
@@ -237,17 +263,17 @@ export default function NewCard() {
                   </select>
                 </div>
 
-                <div>
+                <div className="hidden">
                   <h3 className="font-semibold mb-2">Text Color</h3>
                   <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Text color" />
                 </div>
 
-                <div>
+                <div className="hidden">
                   <h3 className="font-semibold mb-2">Background Color</h3>
                   <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Background color" />
                 </div>
 
-                <div>
+                <div className="hidden">
                   <h3 className="font-semibold mb-2">Border Color</h3>
                   <input type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Border color" />
                 </div>
@@ -257,39 +283,45 @@ export default function NewCard() {
         </fieldset>
 
         {/* Live Preview */}
-        <fieldset className="p-4 h-max flex fieldset justify-center border-2 bg-base-200 rounded-lg border-primary items-center col-span-3 flex-grow drop-shadow-md">
-          <div className="border-2 border-black rounded-lg">
+        <fieldset className="ml-4 h-max flex fieldset justify-center border-2 bg-slate-200 rounded-lg border-slate-800 items-center flex-3/5 drop-shadow-md">
+          <div className="w-full h-full max-h-full flex justify-center items-center overflow-auto">
             <div
               id="recipe-preview"
-              className={`rounded-lg relative w-full max-w-[min(100%,${pdfSize === '3x5' ? '15rem' : '44rem'})] aspect-[${pdfSize === '3x5' ? '5/3' : '11/8.5'}] p-4 scale-container`}
-              style={{
-                fontFamily: `'${font}', sans-serif`,
-                backgroundColor,
-                color: textColor,
-                border: `2px solid ${borderColor}`,
-              }}
+              className="relative m-4 w-full max-w-full h-auto export-recipe"
+              // style={{
+              //   fontFamily: `'${font}', sans-serif`,
+              //   backgroundColor,
+              //   color: textColor,
+              //   border: `2px solid ${borderColor}`,
+              //   borderRadius: '0.5rem',
+              //   aspectRatio: pdfSize === '3x5' ? '5 / 3' : '8.5 / 11',
+              // }}
             >
-              <div className="text-[clamp(0.5rem,1.5vw,1rem)] leading-snug">
-                <h2 className="text-[clamp(1rem,3vw,1.5rem)] font-bold mb-2">{title || 'Recipe Title'}</h2>
-                <p className="mb-4">{description || 'Short description...'}</p>
+              <div className={`text-[clamp(0.5rem,1.5vw,1rem)] leading-snug p-4 box-border w-full h-full ${pdfSize === '3x5' ? 'flex flex-row gap-4' : ''}`}>
+                <div className={`${pdfSize === '3x5' ? 'w-1/2' : 'w-full'}`}>
+                  <h2 className="text-[clamp(1rem,3vw,1.5rem)] font-bold mb-2">{title || 'Recipe Title'}</h2>
+                  <p className="mb-4">{description || 'Short description...'}</p>
 
-                <h3 className="font-semibold mb-1">Ingredients</h3>
-                <ul className="list-disc list-inside mb-4">
-                  {ingredients
-                    .filter((ing) => ing.item || ing.quantity)
-                    .map((ing, i) => (
-                      <li key={i}>
-                        {ing.quantity} {ing.unit} {ing.item}
-                      </li>
+                  <h3 className="font-semibold mb-1">Ingredients</h3>
+                  <ul className="list-disc list-inside mb-4">
+                    {ingredients
+                      .filter((ing) => ing.item || ing.quantity)
+                      .map((ing, i) => (
+                        <li key={i}>
+                          {ing.quantity} {ing.unit} {ing.item}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+
+                <div className={`${pdfSize === '3x5' ? 'w-1/2' : 'w-full'}`}>
+                  <h3 className="font-semibold mb-1">Instructions</h3>
+                  <ol className="list-decimal list-inside space-y-1">
+                    {instructions.filter(Boolean).map((step, i) => (
+                      <li key={i}>{step}</li>
                     ))}
-                </ul>
-
-                <h3 className="font-semibold mb-1">Instructions</h3>
-                <ol className="list-decimal list-inside space-y-1">
-                  {instructions.filter(Boolean).map((step, i) => (
-                    <li key={i}>{step}</li>
-                  ))}
-                </ol>
+                  </ol>
+                </div>
               </div>
             </div>
           </div>
