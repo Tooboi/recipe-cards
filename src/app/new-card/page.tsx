@@ -4,8 +4,12 @@ import { useState } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient({ log: ['query'] });
+
 import '@fontsource/rubik';
 import '@fontsource/nunito';
+import SaveCardForm from '@/components/AddCard/SaveCardForm';
 
 export default function NewCard() {
   type Ingredient = {
@@ -84,7 +88,7 @@ export default function NewCard() {
   };
 
   const handleSaveRecipe = async () => {
-    const card = {
+    const cardContent = {
       title,
       description,
       instructions,
@@ -93,22 +97,11 @@ export default function NewCard() {
       pdfSize,
     };
 
-    try {
-      const res = await fetch('/api/cards', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(card),
-      });
-
-      if (!res.ok) throw new Error('Failed to save');
-
-      const saved = await res.json();
-      console.log('Saved:', saved);
-      alert('Recipe saved!');
-    } catch (err) {
-      console.error(err);
-      alert('Error saving recipe');
-    }
+    const card = await prisma.user.create({
+      data: cardContent,
+    });
+    console.log(card);
+    
   };
 
   const updateField = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, index: number, value: T, list: T[]) => {
@@ -139,7 +132,7 @@ export default function NewCard() {
     <div className="h-dvh">
       <div className="flex h-dvh p-4">
         {/* Left Panel */}
-        <fieldset className="fieldset bg-slate-200 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
+        <form className=" bg-slate-200 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
           <div className="">
             {/* Tabs at top */}
             <div className="flex px-4 mb-6 border-b">
@@ -282,6 +275,7 @@ export default function NewCard() {
                   >
                     Export as PDF
                   </button>
+                  {/* <SaveRecipeButton/> */}
                   <button
                     className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
                     onClick={handleSaveRecipe}
@@ -290,6 +284,7 @@ export default function NewCard() {
                   </button>
                 </div>
               </div>
+              // <SaveCardForm/>
             )}
 
             {tab === 'decor' && (
@@ -326,7 +321,7 @@ export default function NewCard() {
               </div>
             )}
           </div>
-        </fieldset>
+        </form>
 
         {/* Live Preview */}
         <fieldset className="ml-4 h-max flex fieldset justify-center border-2 bg-slate-200 rounded-lg border-slate-800 items-center flex-3/5 drop-shadow-md">

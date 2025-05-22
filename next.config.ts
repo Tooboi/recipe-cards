@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       { hostname: "cdnb.artstation.com" },
       { hostname: "lh3.googleusercontent.com" },
       { hostname: "res.cloudinary.com" },
+      { hostname: "source.boringavatars.com" },
     ],
   }
 };

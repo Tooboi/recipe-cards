@@ -17,6 +17,7 @@
     "@fontsource/nunito": "^5.2.5",
     "@fontsource/rubik": "^5.2.5",
     "@prisma/client": "^6.8.2",
+    "boring-avatars": "^1.11.2",
     "culori": "^4.0.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
