@@ -8,7 +8,7 @@ export default function SignInButton() {
         await signIn();
       }}
     >
-      <button type="submit">Sign in</button>
+      <button className='font-semibold' type="submit">SIGN IN</button>
     </form>
   );
 }

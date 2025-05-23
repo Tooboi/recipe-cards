@@ -6,40 +6,30 @@ import SignOutButton from '@/components/auth/signout-button';
 import Avatar from 'boring-avatars';
 
 export default async function Navbar() {
-  function generateRandomString(length: number): string {
-    let result = '';
-    const characters = 'abcdefghijklmnopqrstuvwxyz';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
 
   const session = await auth();
-
   const user = session?.user;
   // console.log(user);
 
   return (
-    <div className="bg-slate-300 py-1 px-2">
-      <div className="flex mb-0 flex-row justify-between content-center">
-        <Link href="/" className="text-3xl flex-grow  normal-case hover:bg-transparent tracking-wide xs:tracking-wide ">
+    <div className="bg-slate-300 px-2 border-b-2 border-slate-800 shadow-md z-100 top-0 sticky h-12">
+      <div className="flex my-auto flex-row justify-between gap-4 content-center h-full">
+        <Link href="/" className="text-3xl my-auto">
           {/* <Image src={logo} height={40z} width={40} alt="GAMMA2DOT2" /> */}
-          RECIPE BOX
+          RECIPE CARD GENERATOR
         </Link>
-        {/* <div className=" hidden lg:flex"><Tabs /></div> */}
-        <div role="button" tabIndex={0} className="px-2 my-auto">
-          {user ? <Link href={'/new-card'}>NEW CARD</Link> : <Link href={'/new-card'}>NEW CARD</Link>}
+        <div className="flex-grow"></div>
+        <div role="button" tabIndex={0} className=" my-auto">
+          {user ? <Link className='font-semibold' href={'/new-card'}>NEW RECIPE</Link> : <Link className='font-semibold' href={'/new-card'}>NEW RECIPE</Link>}
         </div>
         <div className="flex my-auto">{!user ? <SignInButton /> : <SignOutButton />}</div>
 
-        <div className="flex flex-row pl-2 my-auto">
+        <div className="flex flex-row  my-auto">
           <div role="button" tabIndex={0} className="">
             {user ? (
               <Image src={user?.image || 'https://source.boringavatars.com/marble/40/Maria%20Mitchell'} alt="Profile picture" width={32} height={32} className="w-8 rounded-full" />
             ) : (
-              <Avatar name={generateRandomString(10)} colors={['#5b1d99', '#0074b4', '#00b34c', '#ffd41f', '#fc6e3d']} variant="marble" size={32} />
+              <Avatar name={'recipe123'} colors={['#5b1d99', '#0074b4', '#00b34c', '#ffd41f', '#fc6e3d']} variant="beam" size={32} />
             )}
           </div>
 
