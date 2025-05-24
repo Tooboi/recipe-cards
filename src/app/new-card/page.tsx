@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 // import { signIn } from '../../lib/auth';
 // import Form from 'next/form';
 
-import saveRecipeHandler from '../../utils/SaveRecipeHandler';
+// import saveRecipeHandler from '../../utils/SaveRecipeHandler';
 
 import { useState } from 'react';
 import jsPDF from 'jspdf';
@@ -294,7 +294,7 @@ export default function NewCard() {
                   {/* <SaveRecipeButton/> */}
                   <button
                     className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
-                    onClick={saveRecipeHandler}
+                    // onClick={saveRecipeHandler}
                   >
                     Save Recipe
                   </button>
