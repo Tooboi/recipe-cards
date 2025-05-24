@@ -6,9 +6,9 @@ import type { NextPage } from "next";
 // import Link from "next/link";
 
 const ForgetPassword: NextPage = () => {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [code, setCode] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+  // const [code, setCode] = useState("");
   const [successfulCreation, setSuccessfulCreation] = useState(false);
   const [complete, setComplete] = useState(false);
   const [secondFactor, setSecondFactor] = useState(false);
@@ -28,6 +28,7 @@ const ForgetPassword: NextPage = () => {
         strategy: "reset_password_email_code",
         identifier: email,
       })
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .then((_) => {
         setSuccessfulCreation(true);
       })
