@@ -104,7 +104,7 @@ export async function getUserById(id: string) {
 }
 
 // CREATE actions
-export async function createUser({ email, name }: { email: string; name?: string; }) {
+export async function createUser({ email, name, image }: { email: string; name?: string; image?: string }) {
   if (!email) {
     throw new Error('Email is required');
   }
@@ -118,7 +118,7 @@ export async function createUser({ email, name }: { email: string; name?: string
       data: {
         email,
         name,
-        // hashedPassword,
+        image
       },
     });
 
