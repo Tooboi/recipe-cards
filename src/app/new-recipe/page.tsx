@@ -1,12 +1,12 @@
-import RecipeForm from '@/components/RecipeForm';
+// import RecipeForm from '@/components/RecipeForm';
 
-import { getUsers } from '@/app/actions';
+// import { getUsers } from '@/app/actions';
 
 export default async function NewRecipe() {
-  const users = await getUsers();
+//   const users = await getUsers();
   return (
     <div>
-      <RecipeForm users={users} />
+      {/* <RecipeForm users={users} /> */}
     </div>
   );
 }

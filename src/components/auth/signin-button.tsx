@@ -1,5 +1,5 @@
 // import Link from 'next/link';
-import { signIn } from '../../lib/auth';
+// import { signIn } from '../../lib/auth';
 
 export default function SignInButton() {
   return (
@@ -10,7 +10,7 @@ export default function SignInButton() {
     <form
       action={async () => {
         'use server';
-        await signIn();
+        // await signIn();
       }}
     >
       <button className='font-semibold' type="submit">SIGN IN</button>
