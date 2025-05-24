@@ -32,7 +32,7 @@ export default function UserList({ initialUsers }: UserListProps) {
               <Link href={`/users/${user.id}`} key={user.id} className="block">
                 <div className="p-4 border border-gray-200 rounded-lg hover:bg-blue-50 transition-colors group">
                   <div className="font-medium text-lg text-gray-900 group-hover:text-blue-700">
-                    {user.name || 'No name'}
+                    {user.username || 'No username'}
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
                     {user.email}

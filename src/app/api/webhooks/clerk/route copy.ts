@@ -1,12 +1,8 @@
-import { WebhookEvent } from '@clerk/nextjs/server';
+import { clerkClient, WebhookEvent } from '@clerk/nextjs/server';
 import { headers } from 'next/headers';
-// import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { Webhook } from 'svix';
-// import { createUser } from '@/lib/actions/user.actions';
-// import { createUser } from '@/app/actions';
-
-import { createUser } from '@/lib/users'
-import { User } from '@prisma/client'
+import { createUser } from '@/lib/actions/user.actions';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -15,7 +11,7 @@ export async function POST(req: Request) {
     throw new Error('Missing WEBHOOK_SECRET in environment variables');
   }
 
-  const headerPayload = await headers(); // ✅ no await
+  const headerPayload = headers() as unknown as Headers; // ✅ no await
   const svix_id = headerPayload.get('svix-id');
   const svix_timestamp = headerPayload.get('svix-timestamp');
   const svix_signature = headerPayload.get('svix-signature');
@@ -48,22 +44,28 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   if (eventType === 'user.created') {
-    const { id, email_addresses, username, image_url } = evt.data;
+    const { email_addresses, image_url, username } = evt.data;
+    console.log('User Created Event Detected');
 
-    if (!id || !email_addresses) {
-      return new Response('Error occurred -- missing data', {
-        status: 400,
+    const user = {
+      clerkId: id,
+      email: email_addresses[0].email_address,
+      username: username || email_addresses[0].email_address,
+      image: image_url,
+    };
+
+    const client = await clerkClient();
+    const newUser = await createUser(user);
+
+    if (newUser) {
+      await client.users.updateUserMetadata(id, {
+        publicMetadata: {
+          userId: newUser._id,
+        },
       });
     }
 
-    const user = {
-      clerkUserId: id,
-      email: email_addresses[0].email_address,
-      ...(image_url ? { image: image_url } : {}),
-      ...(username ? { username: username } : {}),
-    };
-
-    await createUser(user as User);
+    return NextResponse.json({ message: 'User created', user: newUser });
   }
 
   console.log(`Unhandled webhook event type: ${eventType}`);
