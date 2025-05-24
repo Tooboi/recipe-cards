@@ -11,7 +11,7 @@ import { createUser } from '@/app/actions';
 
 export default function UserForm() {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [username, setName] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -28,7 +28,7 @@ export default function UserForm() {
 
     setLoading(true);
     try {
-      await createUser({ email, name, password });
+      await createUser({ email, username, password });
 
       // Reset form
       setEmail('');
@@ -55,10 +55,10 @@ export default function UserForm() {
       <CardContent className="p-6">
         <div className="space-y-6">
           <div>
-            <Label htmlFor="name" className="text-sm font-medium text-gray-700 mb-1.5 block">
-              Name
+            <Label htmlFor="username" className="text-sm font-medium text-gray-700 mb-1.5 block">
+              username
             </Label>
-            <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" />
+            <Input id="username" placeholder="John Doe" value={username} onChange={(e) => setName(e.target.value)} className="h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500" />
           </div>
           <div>
             <Label htmlFor="email" className="text-sm font-medium text-gray-700 mb-1.5 block">

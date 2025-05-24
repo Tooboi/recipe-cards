@@ -104,7 +104,7 @@ export async function getUserById(id: string) {
 }
 
 // CREATE actions
-export async function createUser({ email, name, password }: { email: string; name?: string; password: string }) {
+export async function createUser({ email, username, password }: { email: string; username?: string; password: string }) {
   if (!email) {
     throw new Error('Email is required');
   }
@@ -117,7 +117,7 @@ export async function createUser({ email, name, password }: { email: string; nam
     const user = await prisma.user.create({
       data: {
         email,
-        name,
+        username,
         hashedPassword,
       },
     });
