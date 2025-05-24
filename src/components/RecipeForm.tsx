@@ -222,7 +222,7 @@
 //                       ) : (
 //                         users.map((user) => (
 //                           <SelectItem key={user.id} value={user.id}>
-//                             {user.name || user.email}
+//                             {user.username || user.email}
 //                           </SelectItem>
 //                         ))
 //                       )}
