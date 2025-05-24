@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Recipe Card',
   description: 'Recipe Card Generator',
 };
-import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, ClerkLoaded, ClerkLoading } from '@clerk/nextjs';
 
 export default function RootLayout({
   children,
@@ -32,7 +32,12 @@ export default function RootLayout({
           </header>
           {/* <Navbar /> */}
           <main className="m-auto min-h-screen min-w-[300px] max-w-7xl p-4">
-            {children} <Toaster position="top-right" />
+            <ClerkLoading>
+              <div className="flex flex-col items-center text-center mt-32">LOADING...</div>
+            </ClerkLoading>
+            <ClerkLoaded>
+              {children} <Toaster position="top-right" />
+            </ClerkLoaded>
           </main>
         </body>
       </html>
