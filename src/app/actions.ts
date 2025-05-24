@@ -2,7 +2,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-// import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 
 // READ actions
@@ -104,21 +104,21 @@ export async function getUserById(id: string) {
 }
 
 // CREATE actions
-export async function createUser({ email, name, image }: { email: string; name?: string; image?: string }) {
+export async function createUser({ email, name, password }: { email: string; name?: string; password: string }) {
   if (!email) {
     throw new Error('Email is required');
   }
-  // if (!password) {
-  //   throw new Error('Password is required');
-  // }
-  // const hashedPassword = await bcrypt.hash(password, 10);
+  if (!password) {
+    throw new Error('Password is required');
+  }
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
     const user = await prisma.user.create({
       data: {
         email,
         name,
-        image
+        hashedPassword,
       },
     });
 
