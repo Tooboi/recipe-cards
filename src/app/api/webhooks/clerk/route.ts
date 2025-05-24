@@ -3,8 +3,8 @@ import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
-
-import { createUser } from "@/lib/actions/user.actions";
+import { createUser } from '@/app/actions';
+// import { createUser } from "@/lib/actions/user.actions";
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
     if (newUser) {
        client.users.updateUserMetadata(id, {
         publicMetadata: {
-          userId: newUser._id,
+          userId: newUser.id,
         },
       });
     }

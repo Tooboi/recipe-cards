@@ -28,7 +28,9 @@ export default function UserForm() {
 
     setLoading(true);
     try {
-      await createUser({ email, name, password });
+      await createUser({ email, name,
+        //  password 
+        });
 
       // Reset form
       setEmail('');
