@@ -1,9 +1,18 @@
-import NextAuth from "next-auth"
-import Google from "next-auth/providers/google"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "../lib/prisma"
- 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  providers: [Google],
-})
+import { User } from "next-auth";
+import prisma from "./prisma";
+
+import { compare } from "bcryptjs";
+
+type LoginFn = (username: string, password: string) => Promise<User>;
+
+export const login: LoginFn = async (username, password) => {
+  const user = await prisma.user.findFirst({
+    where: {
+      email: username,
+    },
+  });
+  if (user && (await compare(password, user.hashedPassword))) {
+    user.hashedPassword = "";
+    return user;
+  } else throw new Error("User Not Found!");
+};

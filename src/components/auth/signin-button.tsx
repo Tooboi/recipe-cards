@@ -1,14 +1,19 @@
-import { signIn } from "../../lib/auth"
- 
+// import Link from 'next/link';
+// import { signIn } from '../../lib/auth';
+
 export default function SignInButton() {
   return (
+    // <div>
+    //   <Link href="/signin">SIGN IN</Link>
+    // </div>
+
     <form
       action={async () => {
-        "use server"
-        await signIn()
+        'use server';
+        // await signIn();
       }}
     >
-      <button type="submit">Sign in</button>
+      <button className='font-semibold' type="submit">SIGN IN</button>
     </form>
-  )
+  );
 }

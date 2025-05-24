@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { Rubik } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/Navbar';
+// import Navbar from '@/components/Navbar';
+import { SessionProvider } from 'next-auth/react';
+import Providers from '@/components/Providers';
+import { Toaster } from '@/components/ui/sonner';
 
 const rubik = Rubik({ subsets: ['latin'] });
 
@@ -16,11 +19,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <html lang="en">
-        <body className={`${rubik.className} antialiased main-bg`}>
-          <Navbar/>
-          <main className="m-auto min-h-screen min-w-[300px] max-w-7xl p-4">{children}</main>
-        </body>
-      </html>
+    <html lang="en">
+      <SessionProvider>
+        <Providers>
+          <body className={`${rubik.className} antialiased main-bg`}>
+            {/* <Navbar /> */}
+            <main className="m-auto min-h-screen min-w-[300px] max-w-7xl p-4">
+              {children} <Toaster position="top-right" />
+            </main>
+          </body>
+        </Providers>
+      </SessionProvider>
+    </html>
   );
 }

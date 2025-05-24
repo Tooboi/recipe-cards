@@ -1,14 +1,14 @@
-import { signOut } from "../../lib/auth"
- 
-export function SignOut() {
+import { signOut } from '../../lib/auth';
+
+export default function SignOutButton() {
   return (
     <form
       action={async () => {
-        "use server"
-        await signOut()
+        'use server';
+        await signOut();
       }}
     >
-      <button type="submit">Sign Out</button>
+      <button className='font-semibold' type="submit">SIGN OUT</button>
     </form>
-  )
+  );
 }
