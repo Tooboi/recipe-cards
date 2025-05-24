@@ -1,6 +1,6 @@
 "use server"
 
-import { prisma } from "@/lib/prisma";
+import  prisma  from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
  
@@ -15,7 +15,7 @@ export default async function SaveRecipeButton() {
     const pdfSize = formData.get('pdfSize') as string;
 
     // Create the post using Prisma
-    await prisma.card.create({
+    await prisma.recipe.create({
       data: {
         title,
         description,

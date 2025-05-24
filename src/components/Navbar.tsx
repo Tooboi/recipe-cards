@@ -20,7 +20,7 @@ export default async function Navbar() {
         </Link>
         <div className="flex-grow"></div>
         <div role="button" tabIndex={0} className=" my-auto">
-          {user ? <Link className='font-semibold' href={'/new-card'}>NEW RECIPE</Link> : <Link className='font-semibold' href={'/new-card'}>NEW RECIPE</Link>}
+          {user ? <Link className='font-semibold' href={'/new-recipe'}>NEW RECIPE</Link> : <Link className='font-semibold' href={'/new-recipe'}>NEW RECIPE</Link>}
         </div>
         <div className="flex my-auto">{!user ? <SignInButton /> : <SignOutButton />}</div>
 

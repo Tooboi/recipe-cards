@@ -1,33 +1,33 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-// import { signIn } from '../../lib/auth';
-// import Form from 'next/form';
-
-import saveRecipeHandler from '../../utils/SaveRecipeHandler';
-
 import { useState } from 'react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-
-// import { PrismaClient } from '@prisma/client';
-// const prisma = new PrismaClient({ log: ['query'] });
-
 import '@fontsource/rubik';
 import '@fontsource/nunito';
-// import { redirect } from 'next/navigation';
-// import SaveCardForm from '@/components/AddCard/SaveCardForm';
+// import { Button } from '@/components/ui/button';
+// import { Input } from '@/components/ui/input';
+// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+// import { Textarea } from '@/components/ui/textarea';
+// import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { createRecipe } from '@/app/actions';
+import { User } from '@prisma/client';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { Checkbox } from '@radix-ui/react-checkbox';
 
-export default function NewCard() {
-  const { data: session } = useSession();
-  const user = session?.user;
-  console.log(user);
+interface RecipeFormProps {
+  users: User[];
+}
 
-  type Ingredient = {
-    quantity: string;
-    unit: string;
-    item: string;
-  };
+export default function RecipeForm({ users }: RecipeFormProps) {
+  // type Ingredient = {
+  //   quantity: string;
+  //   unit: string;
+  //   item: string;
+  // };
   const googleFonts = [
     { label: 'Rubik', value: 'Rubik' },
     { label: 'Nunito', value: 'Nunito' },
@@ -35,52 +35,60 @@ export default function NewCard() {
   const [tab, setTab] = useState<'editor' | 'decor'>('editor');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [instructions, setInstructions] = useState(['']);
+  const [userId, setUserId] = useState('');
   const [pdfSize, setPdfSize] = useState<'3x5' | 'letter'>('3x5');
-  const [ingredients, setIngredients] = useState<Ingredient[]>([{ quantity: '', unit: '', item: '' }]);
-  // const [public, setPublic] = useState(true)
-
+  const [instructions, setInstructions] = useState(['']);
+  const [ingredients, setIngredients] = useState([{ quantity: '', unit: '', item: '' }]);
   const [font, setFont] = useState<string>('Rubik');
+  const [hidden, setHidden] = useState(true);
 
-  // console.log(title, description, instructions, ingredients, pdfSize);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const [textColor, setTextColor] = useState<string>('#000000');
-  const [backgroundColor, setBackgroundColor] = useState<string>('#ffffff');
-  const [borderColor, setBorderColor] = useState<string>('#ffffff');
+  const transformedIngredients = ingredients.map((ing) => `${ing.quantity}_${ing.unit}_${ing.item}`);
 
-  const addIngredient = () => setIngredients([...ingredients, { quantity: '', unit: '', item: '' }]);
-  const removeIngredient = (index: number) => {
-    const newList = [...ingredients];
-    newList.splice(index, 1);
-    setIngredients(newList);
-  };
+  const handleCreateRecipe = async () => {
 
-  const moveIngredient = (index: number, direction: 'up' | 'down') => {
-    const newList = [...ingredients];
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= newList.length) return;
-    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
-    setIngredients(newList);
-  };
+    // if (!title || !userId) {
+    //   toast.error('Title and user are required');
+    //   return;
+    // }
 
-  //   const saveRecipeHandler = async () => {
-  //   const recipeData = {
-  //     title,
-  //     description,
-  //     ingredients,
-  //     instructions,
-  //     pdfSize,
-  //     font,
-  //     textColor,
-  //     backgroundColor,
-  //     borderColor,
-  //   };
-
-  //   🚨 THIS is where you pass it to another file for uploading
-  //   await uploadRecipe(recipeData);
-
+    console.log('Ingredients before saving:', transformedIngredients);
+    console.log(userId);
     
-  // };
+
+    setLoading(true);
+    try {
+      await createRecipe({
+        title,
+        description,
+        ingredients: transformedIngredients,
+        instructions,
+        pdfSize,
+        font,
+        hidden,
+        userId,
+      });
+
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setInstructions(['']);
+      setIngredients([{ quantity: '', unit: '', item: '' }]);
+      setFont('Rubik');
+      setUserId('');
+      setHidden(true);
+
+      toast.success('Post created successfully');
+      router.refresh();
+    } catch (error: any) {
+      console.error('Error creating post:', error);
+      toast.error(error.message || 'Failed to create post');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePDFExport = async () => {
     const card = document.getElementById('recipe-preview');
@@ -118,10 +126,28 @@ export default function NewCard() {
     pdf.save(`${title || 'recipe'}.pdf`);
   };
 
-  const updateField = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, index: number, value: T, list: T[]) => {
-    const newList = [...list];
-    newList[index] = value;
-    setter(newList);
+  const addIngredient = () => setIngredients([...ingredients, { quantity: '', unit: '', item: '' }]);
+
+  const removeIngredient = (index: number) => {
+    const newList = [...ingredients];
+    newList.splice(index, 1);
+    setIngredients(newList);
+  };
+
+  const moveIngredient = (index: number, direction: 'up' | 'down') => {
+    const newList = [...ingredients];
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= newList.length) return;
+    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
+    setIngredients(newList);
+  };
+
+  const updateField = <T,>(setter: React.Dispatch<React.SetStateAction<T[]>>, index: number, value: T) => {
+    setter((prev) => {
+      const newList = [...prev];
+      newList[index] = value;
+      return newList;
+    });
   };
 
   const addField = (setter: React.Dispatch<React.SetStateAction<string[]>>, list: string[]) => setter([...list, '']);
@@ -146,9 +172,10 @@ export default function NewCard() {
     <div className="h-dvh">
       <div className="flex h-dvh p-4">
         {/* Left Panel */}
-        <form 
-        // action={saveRecipeHandler}
-         className=" bg-slate-200 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
+        <section
+          // action={saveRecipeHandler}
+          className=" bg-slate-200 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md"
+        >
           <div className="">
             {/* Tabs at top */}
             <div className="flex px-4 mb-6 border-b">
@@ -182,6 +209,28 @@ export default function NewCard() {
                 </div>
 
                 <div>
+                  <Label htmlFor="author" className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    Author <span className="text-red-500">*</span>
+                  </Label>
+                  <Select value={userId} onValueChange={setUserId}>
+                    <SelectTrigger id="author" className="h-11 border-gray-300 focus:border-green-500 focus:ring-green-500 bg-white">
+                      <SelectValue placeholder="Select an author" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {users.length === 0 ? (
+                        <div className="p-3 text-sm text-gray-500">No users available. Create a user first.</div>
+                      ) : (
+                        users.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.name || user.email}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
                   <label htmlFor="recipe-description" className="sr-only">
                     Short Description
                   </label>
@@ -196,7 +245,7 @@ export default function NewCard() {
                         type="text"
                         placeholder="Quantity"
                         value={ingredient.quantity}
-                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, quantity: e.target.value }, ingredients)}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, quantity: e.target.value })}
                         className="w-20 bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
                       />
 
@@ -207,7 +256,7 @@ export default function NewCard() {
                       <select
                         id={`unit-select-${i}`}
                         value={ingredient.unit}
-                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, unit: e.target.value }, ingredients)}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, unit: e.target.value })}
                         className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded placeholder:text-slate-300 border w-full"
                       >
                         <option value="">Unit</option>
@@ -232,7 +281,7 @@ export default function NewCard() {
                         type="text"
                         placeholder="Ingredient"
                         value={ingredient.item}
-                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, item: e.target.value }, ingredients)}
+                        onChange={(e) => updateField(setIngredients, i, { ...ingredient, item: e.target.value })}
                         className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded"
                       />
 
@@ -267,7 +316,7 @@ export default function NewCard() {
                         placeholder={`Step ${i + 1}`}
                         className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block border p-2 rounded-md"
                         value={step}
-                        onChange={(e) => updateField(setInstructions, i, e.target.value, instructions)}
+                        onChange={(e) => updateField(setInstructions, i, e.target.value)}
                       />
                       <button className="text-primary" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
                         ↑
@@ -284,6 +333,12 @@ export default function NewCard() {
                     + Add Step
                   </button>
                 </div>
+                <div>
+                  <label htmlFor="hidden" className="sr-only">
+                    hidden
+                  </label>
+                  <Checkbox checked={hidden} id="public" onCheckedChange={(checked: boolean) => setHidden(checked)}></Checkbox>
+                </div>
                 <div className="gap-2 flex">
                   <button
                     className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
@@ -294,9 +349,10 @@ export default function NewCard() {
                   {/* <SaveRecipeButton/> */}
                   <button
                     className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
-                    onClick={saveRecipeHandler}
+                    disabled={loading}
+                    onClick={handleCreateRecipe}
                   >
-                    Save Recipe
+                    {loading ? 'Saving...' : 'Save Recipe'}
                   </button>
                 </div>
               </div>
@@ -320,24 +376,24 @@ export default function NewCard() {
                   </select>
                 </div>
 
-                <div className="hidden">
+                {/* <div className="hidden">
                   <h3 className="font-semibold mb-2">Text Color</h3>
                   <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Text color" />
-                </div>
+                </div> */}
 
-                <div className="hidden">
+                {/* <div className="hidden">
                   <h3 className="font-semibold mb-2">Background Color</h3>
                   <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Background color" />
-                </div>
+                </div> */}
 
-                <div className="hidden">
+                {/* <div className="hidden">
                   <h3 className="font-semibold mb-2">Border Color</h3>
                   <input type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Border color" />
-                </div>
+                </div> */}
               </div>
             )}
           </div>
-        </form>
+        </section>
 
         {/* Live Preview */}
         <fieldset className="ml-4 h-max flex fieldset justify-center border-2 bg-slate-200 rounded-lg border-slate-800 items-center flex-3/5 drop-shadow-md">
