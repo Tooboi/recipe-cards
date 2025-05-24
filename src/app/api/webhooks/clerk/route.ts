@@ -38,10 +38,14 @@ export async function POST(req: Request) {
   }
 
   const { id } = evt.data;
+  if (!id) {
+    return new Response('Missing user id', { status: 400 });
+  }
   const eventType = evt.type;
 
   if (eventType === 'user.created') {
     const { email_addresses, image_url, username } = evt.data;
+    console.log('User Created Event Detected');
 
     const user = {
       clerkId: id,
@@ -50,10 +54,11 @@ export async function POST(req: Request) {
       image: image_url,
     };
 
+    const client = await clerkClient();
     const newUser = await createUser(user);
 
     if (newUser) {
-      await clerkClient.users.updateUserMetadata(id, {
+      await client.users.updateUserMetadata(id, {
         publicMetadata: {
           userId: newUser._id,
         },
