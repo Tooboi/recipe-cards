@@ -15,7 +15,15 @@ export default async function Navbar() {
             <SignInButton />
           </SignedOut>
           <SignedIn>
-            <UserButton />
+            <div className="flex">
+              <Link className="px-2 py1 mr-2 mt-0.5 h-max bg-slate-400 hover:bg-slate-300  rounded-sm" href={'/new-recipe'}>
+                New Recipe
+              </Link>
+              <Link className="px-2 py1 mr-2 mt-0.5 h-max bg-slate-400 hover:bg-slate-300  rounded-sm" href={'/recipes'}>
+                Recipes
+              </Link>
+              <UserButton />
+            </div>
           </SignedIn>
         </div>
       </div>

@@ -4,7 +4,6 @@
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
-import { useUser } from '@clerk/nextjs';
 
 // READ actions
 export async function getUsers() {
@@ -66,10 +65,10 @@ export async function getUsers() {
 //   }
 // }
 
-export async function getUserById(email: string) {
+export async function getUserById(clerkUserId: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { email: clerkUserId },
+      where: { clerkUserId: clerkUserId },
       include: {
         Recipe: {
           orderBy: {
@@ -80,7 +79,7 @@ export async function getUserById(email: string) {
       cacheStrategy: {
         ttl: 30, // Fresh for 30 seconds
         swr: 60, // Then stale but acceptable for 60 more seconds
-        tags: [`user_${email}`], // User-specific tag
+        tags: [`user_${clerkUserId}`], // User-specific tag
       },
     });
 
@@ -90,7 +89,7 @@ export async function getUserById(email: string) {
 
     return user;
   } catch (error) {
-    console.error(`Error fetching user with ID ${email}:`, error);
+    console.error(`Error fetching user with ID ${clerkUserId}:`, error);
     throw error;
   }
 }

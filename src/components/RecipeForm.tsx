@@ -48,7 +48,7 @@ export default function RecipeForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const clerkUserId = user?.id || '';
-  console.log('clerkUserId: ' + clerkUserId);
+  // console.log('clerkUserId: ' + clerkUserId);
 
   const [showAuthor, setShowAuthor] = useState(true);
   const [showDescription, setShowDescription] = useState(true);
@@ -64,11 +64,6 @@ export default function RecipeForm() {
   const transformedIngredients = ingredients.map((ing) => `${ing.quantity}_${ing.unit}_${ing.item}`);
 
   const handleCreateRecipe = async () => {
-    // if (!title || !userId) {
-    //   toast.error('Title and user are required');
-    //   return;
-    // }
-
     console.log('Ingredients before saving:', transformedIngredients);
     console.log(clerkUserId);
 
@@ -93,7 +88,7 @@ export default function RecipeForm() {
       setFont('Rubik');
       setHidden(true);
 
-      toast.success('Post created successfully');
+      toast.success('Recipe Saved!');
       router.refresh();
     } catch (error: any) {
       console.error('Error creating post:', error);
@@ -292,19 +287,19 @@ export default function RecipeForm() {
                       />
 
                       {/* Reorder and Remove */}
-                      <button className="text-primary" onClick={() => moveIngredient(i, 'up')} disabled={i === 0} title="Move up">
+                      <button className="text-slate-700" onClick={() => moveIngredient(i, 'up')} disabled={i === 0} title="Move up">
                         ↑
                       </button>
-                      <button className="text-primary" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1} title="Move down">
+                      <button className="text-slate-700" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1} title="Move down">
                         ↓
                       </button>
-                      <button onClick={() => removeIngredient(i)} className="text-warning" title="Remove">
+                      <button onClick={() => removeIngredient(i)} className="text-rose-600" title="Remove">
                         ✕
                       </button>
                     </div>
                   ))}
 
-                  <button className="text-secondary" onClick={addIngredient}>
+                  <button className="text-slate-700" onClick={addIngredient}>
                     + Add Ingredient
                   </button>
                 </div>
@@ -324,26 +319,26 @@ export default function RecipeForm() {
                         value={step}
                         onChange={(e) => updateField(setInstructions, i, e.target.value)}
                       />
-                      <button className="text-primary" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
+                      <button className="text-slate-700" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
                         ↑
                       </button>
-                      <button className="text-primary" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
+                      <button className="text-slate-700" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
                         ↓
                       </button>
-                      <button onClick={() => removeField(setInstructions, instructions, i)} className="text-warning" title="Remove">
+                      <button onClick={() => removeField(setInstructions, instructions, i)} className="text-rose-600" title="Remove">
                         ✕
                       </button>
                     </div>
                   ))}
-                  <button className="text-secondary" onClick={() => addField(setInstructions, instructions)}>
+                  <button className="text-slate-700" onClick={() => addField(setInstructions, instructions)}>
                     + Add Step
                   </button>
                 </div>
                 <div>
-                  <label htmlFor="hidden" className="sr-only">
-                    hidden
+                  <input type="checkbox" id="hidden" checked={hidden} onChange={(e) => setHidden(e.target.checked)} />
+                  <label htmlFor="hidden" className="text-sm font-medium ml-2">
+                    Private
                   </label>
-                  {/* <Checkbox checked={hidden} id="public" onCheckedChange={(checked: boolean) => setHidden(checked)}></Checkbox> */}
                 </div>
                 <div className="gap-2 flex">
                   <button
@@ -430,7 +425,7 @@ export default function RecipeForm() {
                   {showDescription && <p className="">{description || 'Short description...'}</p>}
 
                   <h3 className="font-semibold mb-1 mt-4">Ingredients</h3>
-                  <ul className="list-none text-sm space-y-1 mb-4">
+                  <ul className="list-none text-sm mb-4">
                     {ingredients
                       .filter((ing) => ing.item || ing.quantity)
                       .map((ing, i) => (
@@ -443,9 +438,9 @@ export default function RecipeForm() {
 
                 <div className={`${pdfSize === '3x5' ? 'w-3/4' : 'w-full'}`}>
                   <h3 className="font-semibold mb-1">Instructions</h3>
-                  <ol className="list-none  space-y-1 ">
+                  <ol className="list-none test-sm">
                     {instructions.filter(Boolean).map((step, i) => (
-                      <li className="mb-0" key={i}>
+                      <li className="mb-0 text-sm" key={i}>
                         <span className="bullet">{i + 1}.&nbsp;</span>
                         {step}
                       </li>
