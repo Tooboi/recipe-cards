@@ -31,14 +31,25 @@ export async function getUserById({
   }
 }
 
-export async function UpdateUser(id: string, data: Partial<User>) {
+export async function UpdateUser(clerkUserId: string, data: Partial<User>) {
   try {
     const user = await prisma.user.update({
-      where: { id },
+      where: { clerkUserId },
       data
     })
     return { user }
   } catch (error) {
     return { error }
+  }
+}
+
+export async function deleteUser(clerkUserId: string) {
+  try {
+    const user = await prisma.user.delete({
+      where: { clerkUserId },
+    });
+    return { user };
+  } catch (error) {
+    return { error };
   }
 }

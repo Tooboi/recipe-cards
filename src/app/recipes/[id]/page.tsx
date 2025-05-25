@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'; // Adjust this path based on your setup
+import Link from 'next/link';
 // import RecipesList from '@/components/RecipesList';
 
 export default async function RecipeDetails({ params }: { params: Promise<{ id: string }> }) {
@@ -37,6 +38,7 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
           </li>
         ))}
       </ol>
+      <Link className='p-2' href={`/recipes/edit/${recipeId}`}>EDIT</Link>
     </div>
   );
 }
