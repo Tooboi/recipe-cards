@@ -1,8 +1,3 @@
-@import 'tailwindcss';
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-/* @plugin "daisyui"; */
 
 .export-recipe {
   background-color: #fff;
@@ -10,7 +5,12 @@
   border-radius: 0.5rem;
   font-family: Rubik;
 }
+@import 'tailwindcss';
+@import "tw-animate-css";
 
+
+@custom-variant dark (&:is(.dark *));
+/* @plugin "daisyui"; */
 .main-bg {
   background-color: #90a1b9;
 }
@@ -112,8 +112,8 @@ body::-webkit-scrollbar {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: #000;
+  --color-foreground: #0f172a;
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -127,7 +127,7 @@ body::-webkit-scrollbar {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-border: var(--border);
+  --color-border: #0f172a;
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);

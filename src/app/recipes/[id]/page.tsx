@@ -1,0 +1,42 @@
+import prisma from '@/lib/prisma'; // Adjust this path based on your setup
+// import RecipesList from '@/components/RecipesList';
+
+export default async function RecipeDetails({ params }: { params: Promise<{ id: string }> }) {
+  const recipeId = (await params).id;
+  const SingleRecipeById = await prisma.recipe.findUnique({
+    where: {
+      id: recipeId,
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  return (
+    <div className='bg-slate-300 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max py-4 px-6 drop-shadow-md'>
+      <p className='text-2xl font-semibold'>{SingleRecipeById?.title}</p>
+      <p>By: {SingleRecipeById?.user.username}</p>
+
+      <h2 className="text-lg font-medium mt-4">Ingredients</h2>
+      <ul className="list-disc list-inside text-sm mb-4">
+        {SingleRecipeById?.ingredients?.map((ingredientStr, i) => {
+          const [quantity = '', unit = '', item = ''] = ingredientStr.split('_');
+          return (
+            <li key={i}>
+              {quantity} {unit} {item}
+            </li>
+          );
+        })}
+      </ul>
+
+      <h2 className="text-lg font-medium mt-4">Instructions</h2>
+      <ol className="list-decimal list-inside text-sm">
+        {SingleRecipeById?.instructions.filter(Boolean).map((step, i) => (
+          <li className="mb-0" key={i}>
+            {step}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}

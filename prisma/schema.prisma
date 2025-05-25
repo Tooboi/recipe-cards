@@ -17,7 +17,7 @@ datasource db {
 model Recipe {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   title        String
-  description  String?
+  description  String @default("")
   ingredients  String[]
   instructions String[]
   font         String

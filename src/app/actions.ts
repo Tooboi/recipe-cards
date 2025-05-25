@@ -65,30 +65,21 @@ export async function getUsers() {
 //   }
 // }
 
-export async function getUserById(id: string) {
+export async function getUserById(clerkUserId: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: { clerkUserId: clerkUserId },
       include: {
         Recipe: {
           orderBy: {
             createdAt: 'desc',
           },
         },
-        // recipes: {
-        //   orderBy: {
-        //     createdAt: 'desc',
-        //   },
-        //   take: 10,
-        // },
-        // _count: {
-        //   select: { posts: true },
-        // },
       },
       cacheStrategy: {
         ttl: 30, // Fresh for 30 seconds
         swr: 60, // Then stale but acceptable for 60 more seconds
-        tags: [`user_${id}`], // User-specific tag
+        tags: [`user_${clerkUserId}`], // User-specific tag
       },
     });
 
@@ -98,10 +89,30 @@ export async function getUserById(id: string) {
 
     return user;
   } catch (error) {
-    console.error(`Error fetching user with ID ${id}:`, error);
+    console.error(`Error fetching user with ID ${clerkUserId}:`, error);
     throw error;
   }
 }
+
+export async function getUserByEmail(email: string) {
+  const user = await prisma.user.findUnique({
+    where: { email }, 
+    include: {
+      Recipe: {
+        orderBy: { createdAt: 'desc' },
+      },
+    },
+    cacheStrategy: {
+      ttl: 30,
+      swr: 60,
+      tags: [`user_${email}`],
+    },
+  });
+
+  if (!user) throw new Error('User not found');
+  return user;
+}
+
 
 // CREATE actions
 export async function createUser({ email, username, password }: { email: string; username?: string; password: string }) {
@@ -137,19 +148,16 @@ export async function createUser({ email, username, password }: { email: string;
 }
 
 // Post actions
-export async function createRecipe({ title, description, ingredients, instructions, font, pdfSize, hidden, userId }: { title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean; userId: string }) {
-  // if (!title || !userId) {
-  //   throw new Error('Title is required');
-  // }
-
+export async function createRecipe({ title, description, ingredients, instructions, font, pdfSize, hidden, clerkUserId }: { title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean; clerkUserId: string }) {
+  if (!title) {
+    throw new Error('Title is required');
+  }
   try {
     // Ensure the author exists
     const userExists = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { clerkUserId: clerkUserId },
     }
-  
-  );console.log(userExists)
-
+  )
     if (!userExists) {
       throw new Error('User not found');
     }
@@ -164,7 +172,7 @@ export async function createRecipe({ title, description, ingredients, instructio
         pdfSize,
         hidden,
         user: {
-          connect: { id: userId },
+          connect: { clerkUserId: clerkUserId },
         },
       }
     });

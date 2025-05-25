@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Rubik } from 'next/font/google';
 import './globals.css';
-// import Navbar from '@/components/Navbar';
+import Navbar from '@/components/Navbar';
 import { Toaster } from '@/components/ui/sonner';
 
 const rubik = Rubik({ subsets: ['latin'] });
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Recipe Card',
   description: 'Recipe Card Generator',
 };
-import { ClerkProvider, SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, ClerkLoaded, ClerkLoading } from '@clerk/nextjs';
+import { ClerkProvider, ClerkLoaded, ClerkLoading } from '@clerk/nextjs';
 
 export default function RootLayout({
   children,
@@ -21,16 +21,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${rubik.className} antialiased main-bg`}>
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-          {/* <Navbar /> */}
+          <Navbar />
           <main className="m-auto min-h-screen min-w-[300px] max-w-7xl p-4">
             <ClerkLoading>
               <div className="flex flex-col items-center text-center mt-32">LOADING...</div>
