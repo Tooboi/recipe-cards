@@ -10,7 +10,7 @@ export default function Home() {
       <div className="flex w-full flex-col  pt-6 transition-all sm:w-1/2">
         <Link
           className=" mx-auto mb-4 justify-center rounded-lg border-stone-600 bg-stone-700 text-lg font-medium text-stone-300 transition-all  hover:bg-tertiary-950 hover:text-tertiary-500"
-          href={"/new-card"}
+          href={"/new-recipe"}
         >
           <h1 className="text-center w-full mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-300 text-lg font-medium text-slate-900 transition-all hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 ">
             MAKE NEW RECIPE CARD
