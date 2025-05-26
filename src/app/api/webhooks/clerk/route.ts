@@ -1,12 +1,9 @@
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { headers } from 'next/headers';
-// import { NextResponse } from 'next/server';
 import { Webhook } from 'svix';
-// import { createUser } from '@/lib/actions/user.actions';
-// import { createUser } from '@/app/actions';
 
-import { createUser } from '@/lib/users'
-import { User } from '@prisma/client'
+import { createUser, UpdateUser, deleteUser } from '@/lib/users';
+import { User } from '@prisma/client';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -64,6 +61,32 @@ export async function POST(req: Request) {
     };
 
     await createUser(user as User);
+  }
+
+  if (eventType === 'user.updated') {
+    const { id, email_addresses, username, image_url } = evt.data;
+
+    if (!id || !email_addresses) {
+      return new Response('Error occurred -- missing data', {
+        status: 400,
+      });
+    }
+
+    await UpdateUser(id, {
+      email: email_addresses[0].email_address,
+      ...(image_url ? { image: image_url } : {}),
+      ...(username ? { username: username } : {}),
+    });
+  }
+
+
+  if (eventType === 'user.deleted') {
+    try {
+      await deleteUser(id);
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      return new Response('User deletion failed', { status: 500 });
+    }
   }
 
   console.log(`Unhandled webhook event type: ${eventType}`);

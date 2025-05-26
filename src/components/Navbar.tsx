@@ -11,20 +11,20 @@ export default async function Navbar() {
         <div className="flex-grow"></div>
 
         <div className="flex flex-row  my-auto">
-          <SignedOut>
-            <SignInButton />
-          </SignedOut>
-          <SignedIn>
-            <div className="flex">
-              <Link className="px-2 py1 mr-2 mt-0.5 h-max bg-slate-400 hover:bg-slate-300  rounded-sm" href={'/new-recipe'}>
-                New Recipe
-              </Link>
-              <Link className="px-2 py1 mr-2 mt-0.5 h-max bg-slate-400 hover:bg-slate-300  rounded-sm" href={'/recipes'}>
-                Recipes
-              </Link>
+          <div className="flex">
+            <Link className="px-2 py1 mr-2 mt-0.5 h-max bg-slate-400 hover:bg-slate-300  rounded-sm" href={'/new-recipe'}>
+              New Recipe
+            </Link>
+            <Link className="px-2 py1 mr-2 mt-0.5 h-max bg-slate-400 hover:bg-slate-300  rounded-sm" href={'/recipes'}>
+              Recipes
+            </Link>
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
               <UserButton />
-            </div>
-          </SignedIn>
+            </SignedIn>
+          </div>
         </div>
       </div>
     </header>
