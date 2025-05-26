@@ -1,10 +1,12 @@
 'use client';
 
-import { Prisma } from '@prisma/client';
+type SafeRecipe = {
+  id: string;
+  title: string;
+  user: { username: string | null };
+};
 
-type RecipeWithUser = Prisma.RecipeGetPayload<{ include: { user: true } }>;
-
-export default function RecipeEdit({ recipe }: { recipe: RecipeWithUser }) {
+export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
   return (
     <div>
       <h1>Edit Recipe: {recipe.title}</h1>

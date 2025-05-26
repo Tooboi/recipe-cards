@@ -1,9 +1,11 @@
 import RecipeEdit from '@/components/RecipeEdit';
 import prisma from '@/lib/prisma';
 
-export default async function EditRecipePage({ params }: { params: { id: string } }) {
+export default async function EditRecipePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   const recipe = await prisma.recipe.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { user: true },
   });
 
