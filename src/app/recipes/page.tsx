@@ -3,6 +3,7 @@ import RecipesList from '@/components/RecipesList';
 
 export default async function RecipesListPage() {
   const RecipesListCall = await prisma.recipe.findMany({
+    take: 12,
     where: {
       hidden: false,
     },
