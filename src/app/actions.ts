@@ -31,40 +31,6 @@ export async function getUsers() {
   }
 }
 
-// export async function getRecipes(limit = 5) {
-//   try {
-//     const recipes = await prisma.recipe.findMany({
-//       include: {
-//         title: true,
-//         comments: {
-//           include: {
-//             user: true,
-//           },
-//           orderBy: {
-//             createdAt: 'desc',
-//           },
-//         },
-//         _count: {
-//           select: { comments: true },
-//         },
-//       },
-//       orderBy: {
-//         createdAt: 'desc',
-//       },
-//       take: limit,
-//       //   cacheStrategy: {
-//       //     swr: 120, // Serve stale data for up to 120 seconds while revalidating
-//       //     tags: ['recipes_list'], // Tag for cache invalidation
-//       //   },
-//     });
-
-//     return recipes;
-//   } catch (error) {
-//     console.error('Error fetching recipes:', error);
-//     throw new Error('Failed to fetch recipes');
-//   }
-// }
-
 export async function getUserById(clerkUserId: string) {
   try {
     const user = await prisma.user.findUnique({
@@ -96,7 +62,7 @@ export async function getUserById(clerkUserId: string) {
 
 export async function getUserByEmail(email: string) {
   const user = await prisma.user.findUnique({
-    where: { email }, 
+    where: { email },
     include: {
       Recipe: {
         orderBy: { createdAt: 'desc' },
@@ -112,7 +78,6 @@ export async function getUserByEmail(email: string) {
   if (!user) throw new Error('User not found');
   return user;
 }
-
 
 // CREATE actions
 export async function createUser({ email, username, password }: { email: string; username?: string; password: string }) {
@@ -156,8 +121,7 @@ export async function createRecipe({ title, description, ingredients, instructio
     // Ensure the author exists
     const userExists = await prisma.user.findUnique({
       where: { clerkUserId: clerkUserId },
-    }
-  )
+    });
     if (!userExists) {
       throw new Error('User not found');
     }
@@ -174,11 +138,48 @@ export async function createRecipe({ title, description, ingredients, instructio
         user: {
           connect: { clerkUserId: clerkUserId },
         },
-      }
+      },
     });
 
     // Revalidate the home page to show the new post
     revalidatePath('/');
+
+    return post;
+  } catch (error) {
+    console.error('Error creating post:', error);
+    throw error;
+  }
+}
+
+export async function updateRecipe({ id, title, description, ingredients, instructions, font, pdfSize, hidden }: { id: string; title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean }) {
+  if (!title) {
+    throw new Error('Title is required');
+  }
+  //
+  //   // Ensure the author exists
+  //   const userExists = await prisma.user.findUnique({
+  //     where: { clerkUserId: clerkUserId },
+  //   }
+  // )
+  //   if (!userExists) {
+  //     throw new Error('User not found');
+  //   }
+  try {
+    const post = await prisma.recipe.update({
+      where: { id: id },
+      data: {
+        title,
+        description,
+        ingredients,
+        instructions,
+        font,
+        pdfSize,
+        hidden,
+      },
+    });
+
+    // Revalidate the home page to show the new post
+    revalidatePath(`/`);
 
     return post;
   } catch (error) {

@@ -1,7 +1,10 @@
 'use client';
 
+import { updateRecipe } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { redirect } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 type Ingredient = {
   quantity: string;
@@ -12,6 +15,7 @@ type Ingredient = {
 type SafeRecipe = {
   id: string;
   title: string;
+  description: string | null;
   ingredients: string[] | null;
   instructions: string[];
   user: { username: string | null };
@@ -22,17 +26,13 @@ type SafeRecipe = {
 
 export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
   const [updatedTitle, setUpdatedTitle] = useState(recipe.title || '');
-  // const initialIngredients: Ingredient[] = (recipe.ingredients || []).map((str) => {
-  //   const [quantity = '', unit = '', item = ''] = str.split('_');
-  //   return { quantity, unit, item };
-  // });
   const [ingredients, setIngredients] = useState<Ingredient[]>(
     recipe.ingredients?.map((str) => {
       const [quantity = '', unit = '', item = ''] = str.split('_');
       return { quantity, unit, item };
     }) || [],
   );
-
+  const [updatedDescription, setUpdatedDescription] = useState(recipe.description || '');
   const [instructions, setInstructions] = useState(recipe.instructions || []);
   const [hidden, setHidden] = useState(recipe.hidden || false);
   const [loading, setLoading] = useState(false);
@@ -92,16 +92,32 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
     const formattedIngredients = ingredients.map(({ quantity, unit, item }) => `${quantity}_${unit}_${item}`);
     console.log({
       updatedTitle,
+      updatedDescription,
       ingredients: formattedIngredients,
       instructions,
       hidden,
     });
-    setLoading(false);
+    try {
+      await updateRecipe({
+        id: recipe.id,
+        title: updatedTitle,
+        description: updatedDescription,
+        ingredients: formattedIngredients,
+        instructions,
+        font: recipe.font,
+        pdfSize: recipe.pdfSize,
+        hidden,
+      });
+    } finally {
+      setLoading(false);
+      toast.success('Recipe updated!');
+      redirect(`/recipes/${recipe.id}`);
+    }
   };
 
   return (
     <div>
-      <Card className="shadow-sm bg-white overflow-hidden border-0 pt-0">
+      <Card className="shadow-sm bg-white mx-auto max-w-2/3 overflow-hidden border-0 pt-0">
         <CardHeader className="bg-slate-50 border-b px-4 pt-5 rounded-none">
           <CardTitle className="text-2xl text-slate-900">Edit: {recipe.title}</CardTitle>
           <p className="pb-2">By: {recipe.user.username}</p>
@@ -112,6 +128,19 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               Recipe Title
             </label>
             <input name="title" id="title" placeholder={updatedTitle} className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block" onChange={(e) => setUpdatedTitle(e.target.value)} value={updatedTitle} />
+          </div>
+          <div className="pt-4">
+            <label htmlFor="description" className="block text-sm font-medium text-slate-700 ml-2">
+              Description
+            </label>
+            <textarea
+              name="description"
+              id="description"
+              placeholder={recipe.description || 'description'}
+              className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block"
+              onChange={(e) => setUpdatedDescription(e.target.value)}
+              value={updatedDescription}
+            />
           </div>
 
           <h2 className="font-semibold py-4">Ingredients</h2>
@@ -126,6 +155,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               />
               <select
                 id={`unit-select-${i}`}
+                title={`Select unit for ingredient ${i + 1}`}
                 value={ingredient.unit}
                 onChange={(e) => updateIngredient(i, { ...ingredient, unit: e.target.value })}
                 className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded placeholder:text-slate-300 border w-full"
@@ -166,9 +196,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
           <h2 className="font-semibold py-4">Instructions</h2>
           {instructions.map((step, i) => (
             <div key={i} className="flex gap-2 mb-2 items-center">
-              <label htmlFor={`step-${i}`} className="sr-only">
-                Step {i + 1}
-              </label>
+              <div className="text-sm text-slate-600 font-medium text-right">Step {i + 1}</div>
               <input
                 id={`step-${i}`}
                 name={`step-${i}`}
@@ -198,15 +226,15 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               Private
             </label>
           </div>
+          <button
+            className="mt-6 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-300 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-200 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
+            onClick={handleUpdateRecipe}
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Update Recipe'}
+          </button>
         </CardContent>
       </Card>
-      <button
-        className="mt-6 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-300 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-200 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
-        onClick={handleUpdateRecipe}
-        disabled={loading}
-      >
-        {loading ? 'Saving...' : 'Update Recipe'}
-      </button>
     </div>
   );
 }

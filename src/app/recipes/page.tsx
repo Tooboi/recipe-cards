@@ -11,7 +11,7 @@ export default async function RecipesListPage() {
       user: true,
     },
     orderBy: {
-      createdAt: 'desc',
+      updatedAt: 'desc',
     },
   });
   // console.log(RecipesListCall);
