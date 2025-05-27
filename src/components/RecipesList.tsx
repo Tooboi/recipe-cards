@@ -51,7 +51,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
               <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1">
                 <div className="p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors group">
                   <div className="font-medium text-lg text-slate-900 group-hover:text-slate-700">{recipe.title || 'Recipe'}</div>
-                  <div className="text-sm text-slate-600 mt-1">{formatDate(recipe.createdAt)}</div>
+                  <div className="text-sm text-slate-600 mt-1">{formatDate(recipe.updatedAt)}</div>
                   <div className="text-sm text-slate-600 mt-1">{recipe.user.username}</div>
 
                   <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">

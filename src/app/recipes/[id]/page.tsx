@@ -14,9 +14,10 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
   });
 
   return (
-    <div className='bg-slate-300 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max py-4 px-6 drop-shadow-md'>
-      <p className='text-2xl font-semibold'>{SingleRecipeById?.title}</p>
+    <div className="bg-slate-300 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max py-4 px-6 drop-shadow-md">
+      <p className="text-2xl font-semibold">{SingleRecipeById?.title}</p>
       <p>By: {SingleRecipeById?.user.username}</p>
+      <p>{SingleRecipeById?.description}</p>
 
       <h2 className="text-lg font-medium mt-4">Ingredients</h2>
       <ul className="list-disc list-inside text-sm mb-4">
@@ -38,7 +39,9 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
           </li>
         ))}
       </ol>
-      <Link className='p-2' href={`/recipes/edit/${recipeId}`}>EDIT</Link>
+      <Link className="mt-6 w-max p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-200 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600" href={`/recipes/edit/${recipeId}`}>
+        EDIT
+      </Link>
     </div>
   );
 }

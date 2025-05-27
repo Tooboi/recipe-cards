@@ -11,10 +11,10 @@ export default async function RecipesListPage() {
       user: true,
     },
     orderBy: {
-      createdAt: 'desc',
+      updatedAt: 'desc',
     },
   });
-  console.log(RecipesListCall);
+  // console.log(RecipesListCall);
 
   const cleanedRecipes = RecipesListCall.map((recipe) => ({
     id: recipe.id,
