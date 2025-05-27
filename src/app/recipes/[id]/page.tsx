@@ -14,8 +14,8 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
   });
 
   return (
-    <div className='bg-slate-300 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max py-4 px-6 drop-shadow-md'>
-      <p className='text-2xl font-semibold'>{SingleRecipeById?.title}</p>
+    <div className="bg-slate-300 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max py-4 px-6 drop-shadow-md">
+      <p className="text-2xl font-semibold">{SingleRecipeById?.title}</p>
       <p>By: {SingleRecipeById?.user.username}</p>
 
       <h2 className="text-lg font-medium mt-4">Ingredients</h2>
@@ -38,7 +38,9 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
           </li>
         ))}
       </ol>
-      <Link className='p-2' href={`/recipes/edit/${recipeId}`}>EDIT</Link>
+      <Link className="p-2" href={`/recipes/edit/${recipeId}`}>
+        EDIT
+      </Link>
     </div>
   );
 }

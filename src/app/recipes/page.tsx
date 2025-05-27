@@ -14,7 +14,7 @@ export default async function RecipesListPage() {
       createdAt: 'desc',
     },
   });
-  console.log(RecipesListCall);
+  // console.log(RecipesListCall);
 
   const cleanedRecipes = RecipesListCall.map((recipe) => ({
     id: recipe.id,
