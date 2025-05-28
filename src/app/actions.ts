@@ -6,6 +6,10 @@ import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 
 // READ actions
+export async function getUsersRecipes() {
+
+}
+
 export async function getUsers() {
   try {
     const users = await prisma.user.findMany({
