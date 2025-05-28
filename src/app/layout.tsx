@@ -27,7 +27,7 @@ export default function RootLayout({
               <div className="flex flex-col items-center text-center mt-32">LOADING...</div>
             </ClerkLoading>
             <ClerkLoaded>
-              {children} <Toaster position="top-right" />
+              {children} <Toaster position="bottom-right" />
             </ClerkLoaded>
           </main>
         </body>
