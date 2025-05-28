@@ -7,7 +7,15 @@ import { revalidatePath } from 'next/cache';
 
 // READ actions
 export async function getUsersRecipes() {
-
+  try {
+    const usersRecipes = await prisma.recipe.findMany({
+      where: {
+        
+      }
+    })
+  } catch (error) {
+    
+  }
 }
 
 export async function getUsers() {
