@@ -38,11 +38,11 @@ interface RecipesListProps {
 
 export default function RecipesList({ initialRecipes }: RecipesListProps) {
   return (
-    <Card className="shadow-sm bg-white overflow-hidden border-0 pt-0">
-      <CardHeader className="bg-slate-50 border-b px-6 py-5 rounded-none">
-        <CardTitle className="text-xl text-slate-900">Recipes</CardTitle>
-      </CardHeader>
-      <CardContent className="p-6">
+    <div className="shadow-sm bg-white overflow-hidden border-0 pt-0">
+      <div className="bg-slate-50 border-b px-6 py-5 rounded-none">
+        <div className="text-xl text-slate-900">Recipes</div>
+      </div>
+      <div className="p-6">
         {initialRecipes.length === 0 ? (
           <div className="text-center py-10 text-slate-500 italic">No recipes found. Create one now!</div>
         ) : (
@@ -65,7 +65,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
