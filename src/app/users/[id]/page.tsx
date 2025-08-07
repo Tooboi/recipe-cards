@@ -32,20 +32,20 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
   return (
     <div>
       <Card className="shadow-sm bg-white overflow-hidden border-0 pt-0">
-        <CardHeader className="bg-slate-50 border-b px-6 py-5 rounded-none">
-          <CardTitle className="text-xl text-slate-900">{user?.username}&#39;s Recipes</CardTitle>
+        <CardHeader className="bg-stone-50 border-b px-6 py-5 rounded-none">
+          <CardTitle className="text-xl text-stone-900">{user?.username}&#39;s Recipes</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           {user?.Recipe.map((recipe) => (
             <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 pb-2">
-              <div className="p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors group">
-                <div className="font-medium text-lg text-slate-900 group-hover:text-slate-700">{recipe.title || 'Recipe'}</div>
-                <div className="text-sm text-slate-600 mt-1">{formatDate(recipe.updatedAt.toISOString())}</div>
-                <div className="text-sm text-slate-600 mt-1">{user.username}</div>
-                <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
-                  <div className="flex items-center bg-slate-100 px-3 py-1 rounded-full">
+              <div className="p-4 border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors group">
+                <div className="font-medium text-lg text-stone-900 group-hover:text-stone-700">{recipe.title || 'Recipe'}</div>
+                <div className="text-sm text-stone-600 mt-1">{formatDate(recipe.updatedAt.toISOString())}</div>
+                <div className="text-sm text-stone-600 mt-1">{user.username}</div>
+                <div className="mt-3 flex items-center gap-4 text-xs text-stone-500">
+                  <div className="flex items-center bg-stone-100 px-3 py-1 rounded-full">
                     <span className="font-medium mr-1">Ingredients:</span>
-                    <span className="text-slate-600 font-medium">{recipe.ingredients.length}</span>
+                    <span className="text-stone-600 font-medium">{recipe.ingredients.length}</span>
                   </div>
                 </div>
               </div>

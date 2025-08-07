@@ -157,7 +157,7 @@ export default function RecipeForm() {
     <div className="h-dvh">
       <div className="flex h-dvh p-4">
         {/* Left Panel */}
-        <section className=" bg-slate-200 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
+        <section className=" bg-stone-200 border-stone-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
           <div className="">
             {/* Tabs at top */}
             <div className="flex px-4 mb-6 border-b">
@@ -177,7 +177,7 @@ export default function RecipeForm() {
                   <label htmlFor="pdf-size" className="font-semibold">
                     Card Size:
                   </label>
-                  <select id="pdf-size" value={pdfSize} onChange={(e) => setPdfSize(e.target.value as '3x5' | 'letter')} className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 border ">
+                  <select id="pdf-size" value={pdfSize} onChange={(e) => setPdfSize(e.target.value as '3x5' | 'letter')} className="bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 p-2 rounded-md placeholder:text-stone-300 border ">
                     <option value="3x5">3 x 5</option>
                     <option value="letter">Letter</option>
                   </select>
@@ -187,7 +187,7 @@ export default function RecipeForm() {
                   <label htmlFor="title" className="sr-only">
                     Recipe Title
                   </label>
-                  <input name="title" id="title" placeholder="Recipe Title" className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block " value={title} onChange={(e) => setTitle(e.target.value)} />
+                  <input name="title" id="title" placeholder="Recipe Title" className="w-full border p-2 rounded-md bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block " value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>
 
                 <div>
@@ -211,7 +211,7 @@ export default function RecipeForm() {
                   <label htmlFor="recipe-description" className="sr-only">
                     Short Description
                   </label>
-                  <textarea id="recipe-description" placeholder="Short Description" className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block " value={description} onChange={(e) => setDescription(e.target.value)} />
+                  <textarea id="recipe-description" placeholder="Short Description" className="w-full border p-2 rounded-md bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block " value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
                 <div>
                   <h2 className="font-semibold py-2">Ingredients</h2>
@@ -223,7 +223,7 @@ export default function RecipeForm() {
                         placeholder="Quantity"
                         value={ingredient.quantity}
                         onChange={(e) => updateField(setIngredients, i, { ...ingredient, quantity: e.target.value })}
-                        className="w-20 bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
+                        className="w-20 bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block p-2 rounded-md"
                       />
 
                       {/* Unit */}
@@ -234,7 +234,7 @@ export default function RecipeForm() {
                         id={`unit-select-${i}`}
                         value={ingredient.unit}
                         onChange={(e) => updateField(setIngredients, i, { ...ingredient, unit: e.target.value })}
-                        className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded placeholder:text-slate-300 border w-full"
+                        className="bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block p-2 rounded placeholder:text-stone-300 border w-full"
                       >
                         <option value="">Unit</option>
                         <option value="tsp">tsp</option>
@@ -260,14 +260,14 @@ export default function RecipeForm() {
                         placeholder="Ingredient"
                         value={ingredient.item}
                         onChange={(e) => updateField(setIngredients, i, { ...ingredient, item: e.target.value })}
-                        className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded"
+                        className="flex-grow bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block p-2 rounded"
                       />
 
                       {/* Reorder and Remove */}
-                      <button className="text-slate-700" onClick={() => moveIngredient(i, 'up')} disabled={i === 0} title="Move up">
+                      <button className="text-stone-700" onClick={() => moveIngredient(i, 'up')} disabled={i === 0} title="Move up">
                         ↑
                       </button>
-                      <button className="text-slate-700" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1} title="Move down">
+                      <button className="text-stone-700" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1} title="Move down">
                         ↓
                       </button>
                       <button onClick={() => removeIngredient(i)} className="text-rose-600" title="Remove">
@@ -276,7 +276,7 @@ export default function RecipeForm() {
                     </div>
                   ))}
 
-                  <button className="text-slate-700" onClick={addIngredient}>
+                  <button className="text-stone-700" onClick={addIngredient}>
                     + Add Ingredient
                   </button>
                 </div>
@@ -292,14 +292,14 @@ export default function RecipeForm() {
                         id={`step-${i}`}
                         name={`step-${i}`}
                         placeholder={`Step ${i + 1}`}
-                        className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block border p-2 rounded-md"
+                        className="flex-grow bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block border p-2 rounded-md"
                         value={step}
                         onChange={(e) => updateField(setInstructions, i, e.target.value)}
                       />
-                      <button className="text-slate-700" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
+                      <button className="text-stone-700" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
                         ↑
                       </button>
-                      <button className="text-slate-700" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
+                      <button className="text-stone-700" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
                         ↓
                       </button>
                       <button onClick={() => removeField(setInstructions, instructions, i)} className="text-rose-600" title="Remove">
@@ -307,7 +307,7 @@ export default function RecipeForm() {
                       </button>
                     </div>
                   ))}
-                  <button className="text-slate-700" onClick={() => addField(setInstructions, instructions)}>
+                  <button className="text-stone-700" onClick={() => addField(setInstructions, instructions)}>
                     + Add Step
                   </button>
                 </div>
@@ -319,14 +319,14 @@ export default function RecipeForm() {
                 </div>
                 <div className="gap-2 flex">
                   <button
-                    className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
+                    className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-stone-600 bg-stone-400 text-lg font-medium text-stone-900 transition-all hover:border-2 hover:border-stone-500 hover:bg-stone-400/80 hover:text-stone-700 active:bg-stone-500 active:text-stone-900 active:border-stone-600"
                     onClick={handlePDFExport}
                   >
                     Export as PDF
                   </button>
                   <SignedIn>
                     <button
-                      className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
+                      className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-stone-600 bg-stone-400 text-lg font-medium text-stone-900 transition-all hover:border-2 hover:border-stone-500 hover:bg-stone-400/80 hover:text-stone-700 active:bg-stone-500 active:text-stone-900 active:border-stone-600"
                       disabled={loading}
                       onClick={handleCreateRecipe}
                     >
@@ -335,7 +335,7 @@ export default function RecipeForm() {
                   </SignedIn>
                   <SignedOut>
                     <SignInButton>
-                      <button className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600">
+                      <button className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-stone-600 bg-stone-400 text-lg font-medium text-stone-900 transition-all hover:border-2 hover:border-stone-500 hover:bg-stone-400/80 hover:text-stone-700 active:bg-stone-500 active:text-stone-900 active:border-stone-600">
                         Sign In to Save
                       </button>
                     </SignInButton>
@@ -352,7 +352,7 @@ export default function RecipeForm() {
                   <label htmlFor="font-select" className="font-semibold">
                     Font:
                   </label>
-                  <select id="font-select" className="bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 border" value={font} onChange={(e) => setFont(e.target.value)} title="Font style">
+                  <select id="font-select" className="bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 p-2 rounded-md placeholder:text-stone-300 border" value={font} onChange={(e) => setFont(e.target.value)} title="Font style">
                     {googleFonts.map((f) => (
                       <option key={f.value} value={f.value}>
                         {f.label}
@@ -381,7 +381,7 @@ export default function RecipeForm() {
         </section>
 
         {/* Live Preview */}
-        <fieldset className="ml-4 h-max flex fieldset justify-center border-2 bg-slate-200 rounded-lg border-slate-800 items-center flex-3/5 drop-shadow-md">
+        <fieldset className="ml-4 h-max flex fieldset justify-center border-2 bg-stone-200 rounded-lg border-stone-800 items-center flex-3/5 drop-shadow-md">
           <div className="w-full h-full max-h-full flex justify-center items-center overflow-auto">
             <div
               id="recipe-preview"

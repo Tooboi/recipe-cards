@@ -112,7 +112,7 @@ export default function UserButton({ session }: UserButtonProps) {
             >
               {/* <UserIcon className="h-6 w-6 text-stone-400 group-hover:text-stone-500 " /> */}
 
-              <span className="ml-3 hidden group-hover:text-slate-900 md:flex">
+              <span className="ml-3 hidden group-hover:text-stone-900 md:flex">
                 Sign In
               </span>
             </button>
