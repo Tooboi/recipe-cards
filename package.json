@@ -29,6 +29,7 @@
     "culori": "^4.0.1",
     "date-fns": "^4.1.0",
     "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.9.0",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.511.0",
     "mongodb": "^6.16.0",
