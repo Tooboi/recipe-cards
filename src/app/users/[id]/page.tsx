@@ -13,7 +13,7 @@ function formatDate(createdAt: string) {
   }
 }
 
-type SortOption = 'recent' | 'oldest' | 'title-asc' | 'title-desc';
+// type SortOption = 'recent' | 'oldest' | 'title-asc' | 'title-desc';
 
 
 
