@@ -1,9 +1,22 @@
 import prisma from '@/lib/prisma'; // Adjust this path based on your setup
 import Link from 'next/link';
-// import RecipesList from '@/components/RecipesList';
+import { currentUser } from '@clerk/nextjs/server'
 
 export default async function RecipeDetails({ params }: { params: Promise<{ id: string }> }) {
+  const clerkUser = await currentUser();
+
+  let internalUserId: string | null = null;
+
+  if (clerkUser?.id) {
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkUserId: clerkUser.id },
+      select: { id: true },
+    });
+    internalUserId = dbUser?.id || null;
+  }
+
   const recipeId = (await params).id;
+
   const SingleRecipeById = await prisma.recipe.findUnique({
     where: {
       id: recipeId,
@@ -12,6 +25,11 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
       user: true,
     },
   });
+
+  const isOwner = internalUserId && SingleRecipeById?.userId === internalUserId;
+
+  console.log(isOwner);
+  
 
   return (
     <div className="bg-stone-300 border-stone-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max py-4 px-6 drop-shadow-md">
@@ -45,7 +63,7 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
         className="mt-6 w-max p-2 justify-center rounded-md border-2 border-stone-600 bg-stone-200 text-lg font-medium text-stone-900 transition-all hover:border-2 hover:border-stone-500 hover:bg-stone-300 hover:text-stone-700 active:bg-stone-500 active:text-stone-900 active:border-stone-600"
         href={`/recipes/edit/${recipeId}`}
       >
-        EDIT
+        EDIT OR SAVE
       </Link>
     </div>
   );

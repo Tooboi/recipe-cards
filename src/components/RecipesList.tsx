@@ -8,10 +8,8 @@ function formatDate(createdAt: string) {
   const daysDifference = differenceInDays(new Date(), date);
 
   if (daysDifference < 7) {
-    // Show relative time like "2 days ago"
     return formatDistanceToNow(date, { addSuffix: true });
   } else {
-    // Show formatted date like "May 25, 2025"
     return format(date, 'MMM d, yyyy');
   }
 }

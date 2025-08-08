@@ -22,6 +22,7 @@ export default function RecipeForm() {
     { label: 'Rubik', value: 'Rubik' },
     { label: 'Nunito', value: 'Nunito' },
   ];
+  const [fontScale, setFontScale] = useState(1);
   const [tab, setTab] = useState<'editor' | 'decor'>('editor');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -360,6 +361,23 @@ export default function RecipeForm() {
                     ))}
                   </select>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="font-scale" className="font-semibold">
+                    Font Scale:
+                  </label>
+                  <input
+                    id="font-scale"
+                    type="range"
+                    min="0.5"
+                    max="2"
+                    step="0.1"
+                    value={fontScale}
+                    onChange={(e) => setFontScale(parseFloat(e.target.value))}
+                    className="w-32"
+                  />
+                  <span className="text-sm">{(fontScale * 100).toFixed(0)}%</span>
+                </div>
+
 
                 {/* <div className="hidden">
                   <h3 className="font-semibold mb-2">Text Color</h3>
@@ -388,6 +406,7 @@ export default function RecipeForm() {
               className="relative m-6 w-full max-w-full h-auto export-recipe"
               style={{
                 fontFamily: `'${font}', sans-serif`,
+                fontSize: `${fontScale}rem`,
                 // backgroundColor,
                 // color: textColor,
                 // border: `2px solid ${borderColor}`,
