@@ -7,8 +7,9 @@ import '@fontsource/nunito';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { createRecipe } from '@/app/actions';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+// import jsPDF from 'jspdf';
+// import html2canvas from 'html2canvas';
+// import html2pdf from 'html2pdf.js';
 
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 
@@ -77,39 +78,46 @@ export default function RecipeForm() {
   };
 
   const handlePDFExport = async () => {
-    const card = document.getElementById('recipe-preview');
-    if (!card) return;
+    const html2pdf = await require('html2pdf.js')
+    const element = document.querySelector('#recipe-preview');
+    html2pdf(element, {
+      margin: 1,
+      filename: `${title || 'recipe'}.pdf`
+    })
 
-    const scale = 3;
-    const canvas = await html2canvas(card, {
-      scale,
-      useCORS: true,
-      allowTaint: true,
-      foreignObjectRendering: false,
-    });
+    // const card = document.getElementById('recipe-preview');
+    // if (!card) return;
 
-    const imgData = canvas.toDataURL('image/png');
+    // const scale = 3;
+    // const canvas = await html2canvas(card, {
+    //   scale,
+    //   useCORS: true,
+    //   allowTaint: true,
+    //   foreignObjectRendering: false,
+    // });
 
-    // Define page size in inches
-    const pageSize = pdfSize === '3x5' ? [3, 5] : [8.5, 11];
+    // const imgData = canvas.toDataURL('image/png');
 
-    const pdf = new jsPDF({
-      orientation: pdfSize === '3x5' ? 'landscape' : 'portrait',
-      unit: 'in',
-      format: pageSize,
-    });
+    // // Define page size in inches
+    // const pageSize = pdfSize === '3x5' ? [3, 5] : [8.5, 11];
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    // const pdf = new jsPDF({
+    //   orientation: pdfSize === '3x5' ? 'landscape' : 'portrait',
+    //   unit: 'in',
+    //   format: pageSize,
+    // });
 
-    const imgProps = pdf.getImageProperties(imgData);
-    const imgWidth = pageWidth;
-    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    // const pageWidth = pdf.internal.pageSize.getWidth();
+    // const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const y = imgHeight < pageHeight ? (pageHeight - imgHeight) / 2 : 0;
+    // const imgProps = pdf.getImageProperties(imgData);
+    // const imgWidth = pageWidth;
+    // const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
-    pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
-    pdf.save(`${title || 'recipe'}.pdf`);
+    // const y = imgHeight < pageHeight ? (pageHeight - imgHeight) / 2 : 0;
+
+    // pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
+    // pdf.save(`${title || 'recipe'}.pdf`);
   };
 
   const addIngredient = () => setIngredients([...ingredients, { quantity: '', unit: '', item: '' }]);
