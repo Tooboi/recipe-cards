@@ -31,12 +31,12 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
   console.log(user);
 
   return (
-    <div>
-      <div className="overflow-hidden pt-0">
+    <div className='flex flex-col items-center'>
+      <div className="overflow-hidden">
         <div className="px-6 py-5 rounded-none">
           <div className="text-2xl text-stone-900 font-semibold text-center">{user?.username}&#39;s Recipes</div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-4xl mx-auto px-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mx-auto px-6">
           {user?.Recipe.map((recipe) => (
             <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1">
               <div className="px-4 py-2 border border-stone-600 rounded-lg bg-stone-300 hover:bg-stone-100 transition-colors group">

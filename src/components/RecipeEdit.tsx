@@ -176,6 +176,9 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
                 <option value="dash">dash</option>
                 <option value="knob">knob</option>
                 <option value="finger">finger</option>
+                <option value="small">small</option>
+                <option value="medium">medium</option>
+                <option value="large">large</option>
               </select>
               <input type="text" placeholder="Ingredient" value={ingredient.item} onChange={(e) => updateIngredient(i, { ...ingredient, item: e.target.value })} className="flex-grow bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block p-2 rounded" />
               <button className="text-stone-700" onClick={() => moveIngredient(i, 'up')} disabled={i === 0}>

@@ -37,7 +37,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
   return (
     <div className="overflow-hidden">
       <div className="px-6 pt-5 rounded-none">
-        <div className="text-xl text-center mx-auto text-stone-900 w-full font-semibold">Explore Recent Recipes</div>
+        <div className="text-2xl text-center mx-auto text-stone-900 w-full font-semibold mb-2">Explore Recent Recipes</div>
       </div>
       <div className="pt-2">
         {initialRecipes.length === 0 ? (

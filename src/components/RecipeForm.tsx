@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { createRecipe } from '@/app/actions';
 // import jsPDF from 'jspdf';
 // import html2canvas from 'html2canvas';
-// import html2pdf from 'html2pdf.js';
+import html2pdf from 'html2pdf.js';
 
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
 
@@ -78,12 +78,18 @@ export default function RecipeForm() {
   };
 
   const handlePDFExport = async () => {
-    const html2pdf = await require('html2pdf.js')
+    // const html2pdf = await require('html2pdf.js')
     const element = document.querySelector('#recipe-preview');
-    html2pdf(element, {
+
+    if (!element) {
+      console.error("Recipe preview element not found!");
+      return;
+    }
+
+    html2pdf(element as HTMLElement, {
       margin: 1,
       filename: `${title || 'recipe'}.pdf`
-    })
+    });
 
     // const card = document.getElementById('recipe-preview');
     // if (!card) return;
@@ -261,6 +267,9 @@ export default function RecipeForm() {
                         <option value="dash">dash</option>
                         <option value="knob">knob</option>
                         <option value="finger">finger</option>
+                        <option value="small">small</option>
+                        <option value="medium">medium</option>
+                        <option value="large">large</option>
                       </select>
 
                       {/* Name */}
