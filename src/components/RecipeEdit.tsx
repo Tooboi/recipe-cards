@@ -1,7 +1,6 @@
 'use client';
 
 import { updateRecipe } from '@/app/actions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { redirect } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -117,33 +116,33 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
 
   return (
     <div>
-      <Card className="shadow-sm bg-white mx-auto max-w-2/3 overflow-hidden border-0 pt-0">
-        <CardHeader className="bg-stone-50 border-b px-4 pt-5 rounded-none">
-          <CardTitle className="text-2xl text-stone-900">Edit: {recipe.title}</CardTitle>
+      <div className="shadow-sm sm:rounded-md bg-gray-200 mx-auto sm:max-w-2/3 overflow-hidden border-0 pt-4 sm:mt-4">
+        <div className="border-b px-4 rounded-none">
+          <div className="text-2xl text-gray-900">Edit: {recipe.title}</div>
           <p className="pb-2">By: {recipe.user.username}</p>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className='p-4'>
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-stone-700 ml-2">
+            <label htmlFor="title" className="font-semibold pt-4 pb-2">
               Recipe Title
             </label>
-            <input name="title" id="title" placeholder={updatedTitle} className="w-full border p-2 rounded-md bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block" onChange={(e) => setUpdatedTitle(e.target.value)} value={updatedTitle} />
+            <input name="title" id="title" placeholder={updatedTitle} className="w-full border p-2 rounded-md bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block" onChange={(e) => setUpdatedTitle(e.target.value)} value={updatedTitle} />
           </div>
           <div className="pt-4">
-            <label htmlFor="description" className="block text-sm font-medium text-stone-700 ml-2">
+            <label htmlFor="description" className="font-semibold pt-4 pb-2">
               Description
             </label>
             <textarea
               name="description"
               id="description"
               placeholder={recipe.description || 'description'}
-              className="w-full border p-2 rounded-md bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block"
+              className="w-full border p-2 rounded-md bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block"
               onChange={(e) => setUpdatedDescription(e.target.value)}
               value={updatedDescription}
             />
           </div>
 
-          <h2 className="font-semibold py-4">Ingredients</h2>
+          <h2 className="font-semibold pt-4 pb-2">Ingredients</h2>
           {ingredients.map((ingredient, i) => (
             <div key={i} className="flex gap-2 mb-2 items-center">
               <input
@@ -151,14 +150,14 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
                 placeholder="Quantity"
                 value={ingredient.quantity}
                 onChange={(e) => updateIngredient(i, { ...ingredient, quantity: e.target.value })}
-                className="w-20 bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block p-2 rounded-md"
+                className="shrink-0 w-20 bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
               />
               <select
                 id={`unit-select-${i}`}
                 title={`Select unit for ingredient ${i + 1}`}
                 value={ingredient.unit}
                 onChange={(e) => updateIngredient(i, { ...ingredient, unit: e.target.value })}
-                className="bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block p-2 rounded placeholder:text-stone-300 border w-full"
+                className="bg-gray-50 shrink-0 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md placeholder:text-gray-300"
               >
                 <option value="">Unit</option>
                 <option value="tsp">tsp</option>
@@ -180,11 +179,11 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
                 <option value="medium">medium</option>
                 <option value="large">large</option>
               </select>
-              <input type="text" placeholder="Ingredient" value={ingredient.item} onChange={(e) => updateIngredient(i, { ...ingredient, item: e.target.value })} className="flex-grow bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block p-2 rounded" />
-              <button className="text-stone-700" onClick={() => moveIngredient(i, 'up')} disabled={i === 0}>
+              <input type="text" placeholder="Ingredient" value={ingredient.item} onChange={(e) => updateIngredient(i, { ...ingredient, item: e.target.value })} className="flex-grow bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded" />
+              <button className="text-gray-700" onClick={() => moveIngredient(i, 'up')} disabled={i === 0}>
                 ↑
               </button>
-              <button className="text-stone-700" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1}>
+              <button className="text-gray-700" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1}>
                 ↓
               </button>
               <button onClick={() => removeIngredient(i)} className="text-rose-600">
@@ -192,26 +191,26 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               </button>
             </div>
           ))}
-          <button className="text-stone-700 mt-2" onClick={addIngredient}>
+          <button className="text-gray-700 mt-2" onClick={addIngredient}>
             + Add Ingredient
           </button>
 
           <h2 className="font-semibold py-4">Instructions</h2>
           {instructions.map((step, i) => (
             <div key={i} className="flex gap-2 mb-2 items-center">
-              <div className="text-sm text-stone-600 font-medium text-right">Step {i + 1}</div>
+              <div className="text-sm text-gray-600 font-medium text-right">Step {i + 1}</div>
               <input
                 id={`step-${i}`}
                 name={`step-${i}`}
                 placeholder={`Step ${i + 1}`}
-                className="flex-grow bg-stone-50 border-stone-300 text-stone-900 text-sm focus:ring-stone-500 focus:border-stone-500 block border p-2 rounded-md"
+                className="flex-grow bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block border p-2 rounded-md"
                 value={step}
                 onChange={(e) => updateField(setInstructions, i, e.target.value)}
               />
-              <button className="text-stone-700" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
+              <button className="text-gray-700" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
                 ↑
               </button>
-              <button className="text-stone-700" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
+              <button className="text-gray-700" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
                 ↓
               </button>
               <button onClick={() => removeField(setInstructions, instructions, i)} className="text-rose-600" title="Remove">
@@ -219,7 +218,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               </button>
             </div>
           ))}
-          <button className="text-stone-700 mt-2" onClick={() => addField(setInstructions, instructions)}>
+          <button className="text-gray-700 mt-2" onClick={() => addField(setInstructions, instructions)}>
             + Add Step
           </button>
 
@@ -230,14 +229,14 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
             </label>
           </div>
           <button
-            className="mt-6 mx-auto p-2 justify-center rounded-md border-2 border-stone-600 bg-stone-300 text-lg font-medium text-stone-900 transition-all hover:border-2 hover:border-stone-500 hover:bg-stone-200 hover:text-stone-700 active:bg-stone-500 active:text-stone-900 active:border-stone-600"
+            className="mt-6 mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-200 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
             onClick={handleUpdateRecipe}
             disabled={loading}
           >
             {loading ? 'Saving...' : 'Update Recipe'}
           </button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

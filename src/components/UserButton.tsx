@@ -56,41 +56,41 @@ export default function UserButton({ session }: UserButtonProps) {
           <ul
             tabIndex={0}
             role="list"
-            className="dropdown-content menu menu-sm z-30 mt-2 w-52 gap-2 rounded-lg border-2 border-stone-700 bg-stone-900 p-2 shadow"
+            className="dropdown-content menu menu-sm z-30 mt-2 w-52 gap-2 rounded-lg border-2 border-gray-700 bg-gray-900 p-2 shadow"
           >
-            <li className="group rounded-lg transition-all hover:bg-stone-800 active:bg-stone-900 active:ring-2 active:ring-inset active:ring-stone-700">
+            <li className="group rounded-lg transition-all hover:bg-gray-800 active:bg-gray-900 active:ring-2 active:ring-inset active:ring-gray-700">
               <Link
                 href="/add-render"
-                className="z-30 flex items-center rounded-lg p-2 text-stone-300 transition group-hover:bg-stone-800 group-active:bg-stone-900"
+                className="z-30 flex items-center rounded-lg p-2 text-gray-300 transition group-hover:bg-gray-800 group-active:bg-gray-900"
                 role="button"
               >
-                {/* <PhotoIcon className="h-6 w-6 text-stone-400 group-hover:text-stone-500" /> */}
-                <span className="ml-3 flex group-hover:text-stone-200">
+                {/* <PhotoIcon className="h-6 w-6 text-gray-400 group-hover:text-gray-500" /> */}
+                <span className="ml-3 flex group-hover:text-gray-200">
                   Add Render
                 </span>
               </Link>
             </li>
-            <li className="group rounded-lg transition-all hover:bg-stone-800 active:bg-stone-900 active:ring-2 active:ring-inset active:ring-stone-700">
+            <li className="group rounded-lg transition-all hover:bg-gray-800 active:bg-gray-900 active:ring-2 active:ring-inset active:ring-gray-700">
               <Link
                 href="/edit"
-                className="z-30 flex items-center rounded-lg p-2 text-stone-300 transition group-hover:bg-stone-800 group-active:bg-stone-900"
+                className="z-30 flex items-center rounded-lg p-2 text-gray-300 transition group-hover:bg-gray-800 group-active:bg-gray-900"
                 role="button"
               >
-                {/* <PencilSquareIcon className="h-6 w-6 text-stone-400 group-hover:text-stone-500" /> */}
-                <span className="ml-3 flex group-hover:text-stone-200">
+                {/* <PencilSquareIcon className="h-6 w-6 text-gray-400 group-hover:text-gray-500" /> */}
+                <span className="ml-3 flex group-hover:text-gray-200">
                   Edit Renders
                 </span>
               </Link>
             </li>
             <div className="w-full border border-brand-700"></div>
-            <li className="group rounded-lg transition-all hover:bg-stone-800 active:bg-stone-900 active:ring-2 active:ring-inset active:ring-stone-700">
+            <li className="group rounded-lg transition-all hover:bg-gray-800 active:bg-gray-900 active:ring-2 active:ring-inset active:ring-gray-700">
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="text  flex w-full items-center rounded-lg p-2 text-stone-300 transition "
+                className="text  flex w-full items-center rounded-lg p-2 text-gray-300 transition "
               >
-                {/* <ArrowRightStartOnRectangleIcon className="h-6 w-6 text-stone-400 group-hover:text-stone-500" /> */}
+                {/* <ArrowRightStartOnRectangleIcon className="h-6 w-6 text-gray-400 group-hover:text-gray-500" /> */}
 
-                <span className="ml-3 flex group-hover:text-stone-200">
+                <span className="ml-3 flex group-hover:text-gray-200">
                   Sign Out
                 </span>
               </button>
@@ -103,16 +103,16 @@ export default function UserButton({ session }: UserButtonProps) {
         <ul
           tabIndex={0}
           role="list"
-          className="dropdown-content menu menu-sm z-30 mt-2 w-52 rounded-lg border-2 border-stone-700 bg-stone-900 p-2 shadow "
+          className="dropdown-content menu menu-sm z-30 mt-2 w-52 rounded-lg border-2 border-gray-700 bg-gray-900 p-2 shadow "
         >
-          <li className="group rounded-lg transition-all hover:bg-stone-800 active:bg-stone-900 active:ring-2 active:ring-inset active:ring-stone-700">
+          <li className="group rounded-lg transition-all hover:bg-gray-800 active:bg-gray-900 active:ring-2 active:ring-inset active:ring-gray-700">
             <button
               onClick={() => signIn()}
-              className="text flex w-full items-center rounded-lg p-2 text-stone-300 transition active:bg-stone-900 group-hover:bg-stone-800"
+              className="text flex w-full items-center rounded-lg p-2 text-gray-300 transition active:bg-gray-900 group-hover:bg-gray-800"
             >
-              {/* <UserIcon className="h-6 w-6 text-stone-400 group-hover:text-stone-500 " /> */}
+              {/* <UserIcon className="h-6 w-6 text-gray-400 group-hover:text-gray-500 " /> */}
 
-              <span className="ml-3 hidden group-hover:text-stone-900 md:flex">
+              <span className="ml-3 hidden group-hover:text-gray-900 md:flex">
                 Sign In
               </span>
             </button>
