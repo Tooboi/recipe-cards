@@ -49,7 +49,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
               <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1">
                 <div className="border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
                   <div className="relative">
-                    <Image className="w-full"
+                    <Image className="w-full" width={100} height={100} unoptimized
                       src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
                       // src={`https://picsum.photos/id/${recipe.ingredients.length}/300/200`}
                       alt={recipe.id}>

@@ -22,10 +22,10 @@ export default async function Navbar() {
     <div className="bg-gray-400 px-2 border-b-2 border-gray-800 z-100 top-0 sticky h-12">
       <div className="flex my-auto flex-row justify-between gap-4 content-center h-full">
         <Link href="/" className="text-3xl  sm:block hidden my-auto">
-          RECIPE CARD GENERATOR
+          RECIPE CARD EDITOR
         </Link>
         <Link href="/" className="text-3xl  sm:hidden block my-auto">
-          RCG
+          RCE
         </Link>
         <div className="flex-grow"></div>
 
@@ -54,7 +54,7 @@ export default async function Navbar() {
               <UserButton />
             </SignedIn>
             <SignedOut>
-              <div className="cursor-pointer px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 rounded-sm"><SignInButton /></div>
+              <SignInButton><button className='cursor-pointer px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 rounded-sm'>Sign In</button></SignInButton>
             </SignedOut>
           </div>
         </div>

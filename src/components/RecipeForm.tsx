@@ -444,7 +444,7 @@ export default function RecipeForm() {
               className="relative m-6 w-full max-w-full h-auto export-recipe"
               style={{
                 fontFamily: `'${font}', sans-serif`,
-                fontSize: `${fontScale}rem`,
+                // fontSize: `${fontScale}rem`,
                 // backgroundColor,
                 // color: textColor,
                 // border: `2px solid ${borderColor}`,
