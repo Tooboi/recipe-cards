@@ -44,7 +44,7 @@ export default async function Home() {
           className=" mx-auto mb-4 justify-center rounded-lg border-gray-600 bg-gray-700 text-lg font-medium text-gray-300 transition-all  hover:bg-tertiary-950 hover:text-tertiary-500"
           href={"/new-recipe"}
         >
-          <h1 className="text-center w-full mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 ">
+          <h1 className="text-center w-full mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:bg-gray-400/80 hover:text-gray-800 active:bg-gray-500 active:text-gray-900 ">
             MAKE NEW RECIPE CARD
           </h1>
         </Link>

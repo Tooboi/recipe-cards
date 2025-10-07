@@ -31,7 +31,7 @@ export default function RecipeForm() {
 
   const [showAuthor, setShowAuthor] = useState(true);
   const [showDescription, setShowDescription] = useState(true);
-  const [pdfSize, setPdfSize] = useState<'3x5' | 'letter'>('3x5');
+  const [pdfSize, setPdfSize] = useState<'3x5' | 'letter'>('letter');
   const [instructions, setInstructions] = useState(['']);
   const [ingredients, setIngredients] = useState([{ quantity: '', unit: '', item: '' }]);
   const [font, setFont] = useState<string>('Rubik');
@@ -399,7 +399,7 @@ export default function RecipeForm() {
                     ))}
                   </select>
                 </div>
-                <div className="flex items-center space-x-2">
+                {/* <div className="flex items-center space-x-2">
                   <label htmlFor="font-scale" className="font-semibold">
                     Font Scale:
                   </label>
@@ -414,7 +414,7 @@ export default function RecipeForm() {
                     className="w-32"
                   />
                   <span className="text-sm">{(fontScale * 100).toFixed(0)}%</span>
-                </div>
+                </div> */}
 
 
                 {/* <div className="hidden">
@@ -437,7 +437,7 @@ export default function RecipeForm() {
         </section>
 
         {/* Live Preview */}
-        <fieldset className="ml-4 h-max flex fieldset justify-center border-2 bg-gray-200 rounded-lg border-gray-800 items-center flex-3/5 drop-shadow-md ">
+        <fieldset className="hidden lg:block ml-4 h-max flex fieldset justify-center border-2 bg-gray-200 rounded-lg border-gray-800 items-center flex-3/5 drop-shadow-md ">
           <div className="w-full h-full max-h-full flex justify-center items-center overflow-auto">
             <div
               id="recipe-preview"

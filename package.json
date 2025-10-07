@@ -25,7 +25,7 @@
     "@react-pdf/renderer": "^4.3.0",
     "bcryptjs": "^3.0.2",
     "boring-avatars": "^1.11.2",
-    "class-variance-authority": "^0.7.1",
+    "className-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "culori": "^4.0.1",
     "date-fns": "^4.1.0",
