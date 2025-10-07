@@ -50,8 +50,8 @@ export default async function RecipeDetails({ params }: { params: Promise<{ id: 
             </Link>) : null}
         </div>
         <div className='px-4 pb-4'>
-          <p>{SingleRecipeById?.description}</p>
-          <h2 className="text-lg font-medium mt-4">Ingredients</h2>
+          <p className='pt-4 text-gray-700 pb-2'>{SingleRecipeById?.description}</p>
+          <h2 className="text-lg font-medium">Ingredients</h2>
           <ul className="list-disc list-inside text-sm mb-4">
             {SingleRecipeById?.ingredients?.map((ingredientStr, i) => {
               const [quantity = '', unit = '', item = ''] = ingredientStr.split('_');

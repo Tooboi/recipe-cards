@@ -22,10 +22,10 @@ export default async function Navbar() {
     <div className="bg-gray-400 px-2 border-b-2 border-gray-800 z-100 top-0 sticky h-12">
       <div className="flex my-auto flex-row justify-between gap-4 content-center h-full">
         <Link href="/" className="text-3xl  sm:block hidden my-auto">
-          RECIPE CARD EDITOR
+          RECIPE CARD MAKER
         </Link>
         <Link href="/" className="text-3xl  sm:hidden block my-auto">
-          RCE
+          RCM
         </Link>
         <div className="flex-grow"></div>
 
