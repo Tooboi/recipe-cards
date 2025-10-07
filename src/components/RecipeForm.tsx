@@ -23,7 +23,7 @@ export default function RecipeForm() {
     { label: 'Rubik', value: 'Rubik' },
     { label: 'Nunito', value: 'Nunito' },
   ];
-  const [fontScale, setFontScale] = useState(1);
+  // const [fontScale, setFontScale] = useState(1);
   const [tab, setTab] = useState<'editor' | 'decor'>('editor');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

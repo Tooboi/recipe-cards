@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import { formatDistanceToNow, differenceInDays, format } from 'date-fns';
+import Image from 'next/image';
 import Link from 'next/link';
 
 function formatDate(createdAt: string) {
@@ -41,12 +42,12 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
             <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1">
                 <div className="border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
                   <div className="relative">
-                    <img className="w-full"
+                    <Image className="w-full"
                       src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
                       // src={`https://picsum.photos/id/${recipe.ingredients.length}/300/200`}
                       alt={recipe.id}>
 
-                    </img>
+                    </Image>
                     {/* <div >
                       <div
                         className="text-xs absolute top-0 right-0 bg-indigo-600 px-4 py-2 text-white mt-3 mr-3 hover:bg-white hover:text-indigo-600 transition duration-500 ease-in-out">
