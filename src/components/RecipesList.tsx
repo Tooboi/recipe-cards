@@ -50,12 +50,14 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                 <div className="h-full flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
 
                   <div className="relative">
-                    <Image className="w-full" width={100} height={100} unoptimized
+                    <Image
+                      className="w-full"
+                      width={100}
+                      height={100}
+                      unoptimized
                       src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
-                      // src={`https://picsum.photos/id/${recipe.ingredients.length}/300/200`}
-                      alt={recipe.id}>
-
-                    </Image>
+                      alt={recipe.id}
+                    />
                     {/* <div >
                       <div
                         className="text-xs absolute top-0 right-0 bg-indigo-600 px-4 py-2 text-white mt-3 mr-3 hover:bg-white hover:text-indigo-600 transition duration-500 ease-in-out">
