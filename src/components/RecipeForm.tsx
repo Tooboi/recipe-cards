@@ -312,7 +312,7 @@ export default function RecipeForm() {
                 )}
 
 
-                {/* <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2">
                   <label htmlFor="pdf-size" className="font-semibold">
                     Card Size:
                   </label>
@@ -320,7 +320,7 @@ export default function RecipeForm() {
                     <option value="3x5">3 x 5</option>
                     <option value="letter">Letter</option>
                   </select>
-                </div> */}
+                </div>
 
                 <div>
                   <label htmlFor="title" className="sr-only">
