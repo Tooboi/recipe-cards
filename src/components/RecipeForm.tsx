@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import '@fontsource/rubik';
 import '@fontsource/nunito';
 import { toast } from 'sonner';
@@ -35,6 +35,12 @@ export default function RecipeForm() {
     console.log('not signed in');
   }
 
+  useEffect(() => {
+    if (user?.username && !authorName) {
+      setAuthorName(user.username);
+    }
+  }, [user?.username]);
+
   const googleFonts = [
     { label: 'Rubik', value: 'Rubik' },
     { label: 'Nunito', value: 'Nunito' },
@@ -46,8 +52,12 @@ export default function RecipeForm() {
   const clerkUserId = user?.id || '';
 
   const [imageId, setImageId] = useState('');
+  const [includeImage, setIncludeImage] = useState(false);
 
+  const defaultAuthor = user?.username || '';
   const [showAuthor, setShowAuthor] = useState(true);
+  const [authorName, setAuthorName] = useState(defaultAuthor);
+
   const [showDescription, setShowDescription] = useState(true);
   const [pdfSize, setPdfSize] = useState<'3x5' | 'letter'>('letter');
   const [instructions, setInstructions] = useState(['']);
@@ -75,7 +85,8 @@ export default function RecipeForm() {
         font,
         hidden,
         clerkUserId,
-        imageId
+        imageId: includeImage ? imageId : '',
+        author: showAuthor ? authorName : '',
       });
 
       // Reset form
@@ -106,10 +117,23 @@ export default function RecipeForm() {
       return;
     }
 
-    html2pdf(element as HTMLElement, {
-      margin: 1,
-      filename: `${title || 'recipe'}.pdf`
-    });
+    html2pdf()
+      .from(element as HTMLElement)
+      .set({
+        filename: `${title || 'recipe'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          useCORS: true,
+          scale: 2,
+        },
+        jsPDF: {
+          unit: 'in',
+          format: pdfSize === '3x5' ? [5, 3] : 'letter',
+          orientation: pdfSize === '3x5' ? 'landscape' : 'portrait',
+        },
+      })
+      .save();
+
 
     // const card = document.getElementById('recipe-preview');
     // if (!card) return;
@@ -189,18 +213,18 @@ export default function RecipeForm() {
   };
 
   const maxFileSize = 41943040; // 40MB in B
-    const [buttonClassName, setButtonClassName] = useState(
-    "w-full mx-auto p-1 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
+  const [buttonClassName, setButtonClassName] = useState(
+    "w-full mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
   );
 
   return (
     <div className="h-dvh">
       <div className="flex h-dvh p-4">
         {/* Left Panel */}
-        <section className=" bg-gray-200 border-gray-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
+        <section className=" bg-gray-300 border-gray-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
           <div className="">
             {/* Tabs at top */}
-            <div className="flex px-4 mb-6 border-b">
+            <div className="flex px-4 mb-6 border-b-2">
               <button className={`px-4 py-2 text-md ${tab === 'editor' ? 'border-secondary font-semibold' : 'border-transparent'}`} onClick={() => setTab('editor')}>
                 Edit Recipe
               </button>
@@ -213,120 +237,150 @@ export default function RecipeForm() {
             {tab === 'editor' && (
               <div className="space-y-2 ">
                 <h1 className="text-2xl font-bold mx-auto">Create Recipe Card</h1>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="include-image"
+                    checked={includeImage}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setIncludeImage(checked);
+                      if (!checked) {
+                        setImageId('');
+                        setButtonClassName(
+                          "w-full mx-auto p-1 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900"
+                        );
+                      }
+                    }}
+                  />
+                  <label htmlFor="include-image" className="text-sm font-medium">
+                    Include image
+                  </label>
+                </div>
+                {includeImage && (
+                  <>
+                    {imageId ? (
+                      <div className="h-full w-full flex">
+                        <div className="overflow-hidden lg:mx-auto">
+                          <CldImage
+                            alt="Thumbnail"
+                            src={imageId}
+                            width="200"
+                            height="200"
+                            crop="fill"
+                            aspectRatio="1:1"
+                            sizes="100vw"
+                            className="mx-auto rounded-lg border-2 border-gray-700"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-2 w-full rounded-lg border-2 border-gray-700 bg-gray-400 mx-auto">
+                        <PhotoIcon className="mx-auto w-36 text-gray-700" />
+                        <p className="mt-[-1rem] select-none pb-2 text-center text-xs text-gray-700 lg:text-sm">
+                          Max {formatBytes(maxFileSize)}
+                        </p>
+                      </div>
+                    )}
 
-                {imageId ? (
-                  <div className="h-full w-full flex ">
-                    <div className=" overflow-hidden mx-auto">
-                      <CldImage
-                        alt="Thumbnail"
-                        src={imageId}
-                        width="270"
-                        height="270"
-                        crop="fill"
-                        aspectRatio="1:1"
-                        sizes="100vw"
-                        className="mx-auto rounded-lg border-2 border-gray-700"
-
-                      />
-                    </div>
-                    <input
-                      required
-                      readOnly
-                      placeholder={imageId}
-                      className="border-byte-500 focus:border-byte-600 input-disabled input mb-3 hidden w-full rounded-lg border-2 bg-transparent text-gray-600 backdrop-blur-sm placeholder:text-gray-600 focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 focus:ring-offset-gray-950"
-                      name="publicId"
-                      value={imageId}
-                    />
-                  </div>
-                ) : (
-                  <div className="mt-2 w-full rounded-lg border-2 border-gray-700 bg-gray-400 mx-auto">
-                    <PhotoIcon className="mx-auto w-36 text-gray-700" />
-                    <p className="mt-[-1rem] select-none pb-2 text-center text-xs text-gray-700 lg:text-sm">
-                      Max {formatBytes(maxFileSize)}
-                    </p>
-
-                  </div>
-                )}
-                <CldUploadWidget
-                  uploadPreset="recipe"
-                  options={{
-                    maxImageFileSize: maxFileSize,
-                    maxFiles: 1,
-                    sources: [
-                      "local",
-                      "dropbox",
-                      "google_drive",
-                      "instagram",
-                      "unsplash",
-                    ],
-                    autoMinimize: true,
-                  }}
-                  onSuccess={(result: any) => {
-                    const publicId = result.info.public_id;
-                    setImageId(publicId);
-                    setButtonClassName("hidden");
-                  }}
-                >
-                  {({ open }) => {
-                    return (
-                      
-                        <button className={buttonClassName} onClick={(e) => { e.preventDefault(); open() }}>
+                    <CldUploadWidget
+                      uploadPreset="recipe"
+                      options={{
+                        maxImageFileSize: maxFileSize,
+                        maxFiles: 1,
+                        sources: ["local", "dropbox", "google_drive", "instagram", "unsplash"],
+                        autoMinimize: true,
+                      }}
+                      onSuccess={(result: any) => {
+                        setImageId(result.info.public_id);
+                        setButtonClassName("hidden");
+                      }}
+                    >
+                      {({ open }) => (
+                        <button
+                          className={buttonClassName}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            open();
+                          }}
+                        >
                           Add Image
                         </button>
-                    );
-                  }}
-                </CldUploadWidget>
-                <div className="flex items-center space-x-2">
+                      )}
+                    </CldUploadWidget>
+                  </>
+                )}
+
+
+                {/* <div className="flex items-center space-x-2">
                   <label htmlFor="pdf-size" className="font-semibold">
                     Card Size:
                   </label>
-                  <select id="pdf-size" value={pdfSize} onChange={(e) => setPdfSize(e.target.value as '3x5' | 'letter')} className="bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 p-2 rounded-md placeholder:text-gray-300 ">
+                  <select id="pdf-size" value={pdfSize} onChange={(e) => setPdfSize(e.target.value as '3x5' | 'letter')} className="bg-gray-50 border-gray-400 border-2 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 p-2 rounded-md placeholder:text-gray-300 ">
                     <option value="3x5">3 x 5</option>
                     <option value="letter">Letter</option>
                   </select>
-                </div>
+                </div> */}
 
                 <div>
                   <label htmlFor="title" className="sr-only">
-                    Recipe Title
+                    Recipe title
                   </label>
-                  <input name="title" id="title" placeholder="Recipe Title" className="w-full border p-2 rounded-md bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block " value={title} onChange={(e) => setTitle(e.target.value)} />
+                  <input name="title" id="title" placeholder="Recipe Title" className="w-full border-2 p-2 rounded-md bg-gray-50 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block " value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>
 
                 <div>
                   <SignedIn>
-                    <div>
-                      <input type="checkbox" id="show-author" checked={showAuthor} onChange={(e) => setShowAuthor(e.target.checked)} />
-                      <label htmlFor="show-author" className="text-sm font-medium ml-2">
-                        Show Author: {user?.username}
-                      </label>
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="show-author"
+                          checked={showAuthor}
+                          onChange={(e) => setShowAuthor(e.target.checked)}
+                        />
+                        <label htmlFor="show-author" className="text-sm font-medium ml-2">
+                          Show author
+                        </label>
+                      </div>
+
+                      {showAuthor && (
+                        <input
+                          type="text"
+                          value={authorName}
+                          onChange={(e) => setAuthorName(e.target.value)}
+                          placeholder="Author name"
+                          className="w-full border-2 p-2 rounded-md bg-gray-50 border-gray-400 text-sm focus:ring-gray-500 focus:border-gray-500"
+                        />
+                      )}
                     </div>
                   </SignedIn>
+
                 </div>
 
                 <div>
                   <div>
                     <input type="checkbox" id="show-description" checked={showDescription} onChange={(e) => setShowDescription(e.target.checked)} />
                     <label htmlFor="show-description" className="text-sm font-medium ml-2">
-                      Show Description
+                      Show description
                     </label>
                   </div>
                   <label htmlFor="recipe-description" className="sr-only">
-                    Short Description
+                    Short description
                   </label>
-                  <textarea id="recipe-description" placeholder="Short Description" className="w-full border p-2 rounded-md bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block " value={description} onChange={(e) => setDescription(e.target.value)} />
+                  <textarea id="recipe-description" placeholder="Short Description" className="w-full border-2 p-2 rounded-md bg-gray-50 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block " value={description} onChange={(e) => setDescription(e.target.value)} />
                 </div>
                 <div>
                   <h2 className="font-semibold py-2">Ingredients</h2>
                   {ingredients.map((ingredient, i) => (
-                    <div key={i} className="flex gap-1 mb-2 items-center">
+                    <div key={i} className="grid grid-flow-col grid-cols-6 gap-1 mb-2 items-center justify-between">
                       {/* Quantity */}
                       <input
                         type="text"
                         placeholder="Quantity"
                         value={ingredient.quantity}
                         onChange={(e) => updateField(setIngredients, i, { ...ingredient, quantity: e.target.value })}
-                        className="w-20 bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
+                        className="col-span-1 bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
                       />
 
                       {/* Unit */}
@@ -337,7 +391,7 @@ export default function RecipeForm() {
                         id={`unit-select-${i}`}
                         value={ingredient.unit}
                         onChange={(e) => updateField(setIngredients, i, { ...ingredient, unit: e.target.value })}
-                        className="bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md placeholder:text-gray-300 shrink-0"
+                        className="col-span-1 bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md placeholder:text-gray-300 "
                       >
                         <option value="">Unit</option>
                         <option value="tsp">tsp</option>
@@ -366,33 +420,35 @@ export default function RecipeForm() {
                         placeholder="Ingredient"
                         value={ingredient.item}
                         onChange={(e) => updateField(setIngredients, i, { ...ingredient, item: e.target.value })}
-                        className="flex-grow bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
+                        className="col-span-3 bg-gray-50 border-gray-400 border-2 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
                       />
 
                       {/* Reorder and Remove */}
-                      <button className="text-gray-700" onClick={() => moveIngredient(i, 'up')} disabled={i === 0} title="Move up">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
-                          <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
-                        </svg>
+                      <div className=' flex justify-start'>
+                        <button className="text-gray-700" onClick={() => moveIngredient(i, 'up')} disabled={i === 0} title="Move up">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                            <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
+                          </svg>
 
-                      </button>
-                      <button className="text-gray-700" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1} title="Move down">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
-                          <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
-                        </svg>
+                        </button>
+                        <button className="text-gray-700" onClick={() => moveIngredient(i, 'down')} disabled={i === ingredients.length - 1} title="Move down">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                            <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
+                          </svg>
 
-                      </button>
-                      <button onClick={() => removeIngredient(i)} className="text-rose-600" title="Remove">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
-                          <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clipRule="evenodd" />
-                        </svg>
+                        </button>
+                        <button onClick={() => removeIngredient(i)} className="text-rose-600" title="Remove">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                            <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clipRule="evenodd" />
+                          </svg>
 
 
-                      </button>
+                        </button>
+                      </div>
                     </div>
                   ))}
 
-                  <button className="text-gray-800 flex-row flex px-1 pr-2 py-0.5 bg-gray-300 hover:bg-gray-200 active:bg-gray-400 transition-all rounded border-gray-400 border" onClick={addIngredient}>
+                  <button className="text-gray-800 flex-row flex px-1 pr-2 py-0.5 bg-gray-400 hover:bg-gray-200 active:bg-gray-400 transition-all rounded border-gray-400 border-2" onClick={addIngredient}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5 mt-0.25  mr-1">
                       <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
                     </svg>
@@ -403,7 +459,7 @@ export default function RecipeForm() {
                 <div>
                   <h2 className="font-semibold py-2">Instructions</h2>
                   {instructions.map((step, i) => (
-                    <div key={i} className="flex gap-1 mb-2 items-center">
+                    <div key={i} className="grid grid-flow-col grid-cols-6 gap-1 mb-2 items-center">
                       <label htmlFor={`step-${i}`} className="sr-only">
                         Step {i + 1}
                       </label>
@@ -411,28 +467,30 @@ export default function RecipeForm() {
                         id={`step-${i}`}
                         name={`step-${i}`}
                         placeholder={`Step ${i + 1}`}
-                        className="flex-grow bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block border p-2 rounded-md"
+                        className="col-span-5 bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
                         value={step}
                         onChange={(e) => updateField(setInstructions, i, e.target.value)}
                       />
-                      <button className="text-gray-700" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
-                          <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                      <button className="text-gray-700" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
-                          <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                      <button onClick={() => removeField(setInstructions, instructions, i)} className="text-rose-600" title="Remove">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
-                          <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clipRule="evenodd" />
-                        </svg>
-                      </button>
+                      <div className='flex justify-start'>
+                        <button className="text-gray-700" onClick={() => moveField(setInstructions, instructions, i, 'up')} disabled={i === 0} title="Move up">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                            <path fillRule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        <button className="text-gray-700" onClick={() => moveField(setInstructions, instructions, i, 'down')} disabled={i === instructions.length - 1} title="Move down">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                            <path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                        <button onClick={() => removeField(setInstructions, instructions, i)} className="text-rose-600" title="Remove">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                            <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   ))}
-                  <button className="text-gray-800 flex-row flex px-1 pr-2 py-0.5 bg-gray-400 hover:bg-gray-300 active:bg-gray-500 transition-all rounded" onClick={() => addField(setInstructions, instructions)}>
+                  <button className="text-gray-800 flex-row flex px-1 pr-2 py-0.5 bg-gray-400 hover:bg-gray-200 active:bg-gray-400 transition-all rounded border-gray-400 border-2" onClick={() => addField(setInstructions, instructions)}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5 mt-0.25 mr-1">
                       <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
                     </svg> Add Step
@@ -479,7 +537,7 @@ export default function RecipeForm() {
                   <label htmlFor="font-select" className="font-semibold">
                     Font:
                   </label>
-                  <select id="font-select" className="bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 p-2 rounded-md placeholder:text-gray-300 border" value={font} onChange={(e) => setFont(e.target.value)} title="Font style">
+                  <select id="font-select" className="bg-gray-50 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 p-2 rounded-md placeholder:text-gray-300 border" value={font} onChange={(e) => setFont(e.target.value)} title="Font style">
                     {googleFonts.map((f) => (
                       <option key={f.value} value={f.value}>
                         {f.label}
@@ -529,7 +587,7 @@ export default function RecipeForm() {
           <div className="w-full h-full max-h-full flex justify-center items-center overflow-auto">
             <div
               id="recipe-preview"
-              className="relative m-6 w-full max-w-full h-auto export-recipe"
+              className="relative w-full max-w-full h-auto rounded-lg export-recipe"
               style={{
                 fontFamily: `'${font}', sans-serif`,
                 // fontSize: `${fontScale}rem`,
@@ -541,28 +599,55 @@ export default function RecipeForm() {
               }}
             >
               <div className={`text-[clamp(0.5rem,1.5vw,1rem)] leading-snug p-4 box-border w-full h-full ${pdfSize === '3x5' ? 'flex flex-row gap-4 ' : ''}`}>
-                <div className={`${pdfSize === '3x5' ? 'h-[3in] w-[5in] overflow-hidden' : 'w-full'}`}>
-                  <h2 className="text-[clamp(1rem,3vw,1.5rem)] font-bold">{title || 'Recipe Title'}</h2>
-                  {showAuthor && <p className="italic text-sm mb-2">By {user?.username || ''}</p>}
-                  {showDescription && <p className="">{description || 'Short description...'}</p>}
+                <div className={`${pdfSize === '3x5' ? 'h-[3in] w-[5in] ' : 'w-full'}`}>
+                  <div className='flex justify-between'>
+                    <div>
+                      <h2 className="text-[clamp(1rem,3vw,1.5rem)] font-bold">{title || 'Recipe Title'}</h2>
+                      {showAuthor && authorName && (
+                        <p className="italic text-[clamp(0.5rem,1.5vw,1rem)] mb-2">By {authorName}</p>
+                      )}
+                      {showDescription && <p className="text-[clamp(0.5rem,1.5vw,1rem)]">{description || 'Short description...'}</p>}
+                    </div>
+                    {includeImage && (
+                      <>
+                        {!imageId && <PhotoIcon className="w-24 text-gray-700 p-0" />}
+                        {imageId && (
+                          <CldImage
+                            alt="Thumbnail"
+                            src={imageId}
+                            width="100"
+                            height="100"
+                            crop="fill"
+                            aspectRatio="1:1"
+                            format="jpg"
+                            sizes="100vw"
+                            className="w-32 h-32 block rounded-md"
+                          />
+                        )}
+                      </>
+                    )}
 
-                  <h3 className="font-semibold mb-1 mt-4">Ingredients</h3>
-                  <ul className="list-none text-sm mb-4">
+                  </div>
+
+
+                  <h2 className="font-semibold mb-1 text-lg mt-4">Ingredients</h2>
+                  <ol className="list-none text-[clamp(0.5rem,1.5vw,1rem)]">
                     {ingredients
                       .filter((ing) => ing.item || ing.quantity)
                       .map((ing, i) => (
-                        <li key={i}>
-                          <span className="bullet">&bull;</span> {ing.quantity} {ing.unit} {ing.item}
+                        <li className="mb-0 text-[clamp(0.5rem,1.5vw,1rem)]" key={i}>
+                          <span className="bullet">&bull;</span>
+                           {ing.quantity} {ing.unit} {ing.item}
                         </li>
                       ))}
-                  </ul>
+                  </ol>
                 </div>
 
                 <div className={`${pdfSize === '3x5' ? 'w-3/4' : 'w-full'}`}>
-                  <h3 className="font-semibold mb-1">Instructions</h3>
-                  <ol className="list-none test-sm">
+                  <h2 className="font-semibold text-lg mb-1">Instructions</h2>
+                  <ol className="list-none text-[clamp(0.5rem,1.5vw,1rem)]">
                     {instructions.filter(Boolean).map((step, i) => (
-                      <li className="mb-0 text-sm" key={i}>
+                      <li className="mb-0 text-[clamp(0.5rem,1.5vw,1rem)]" key={i}>
                         <span className="bullet">{i + 1}.&nbsp;</span>
                         {step}
                       </li>

@@ -33,6 +33,7 @@ export default async function Home() {
       username: recipe.user.username ?? 'Unknown',
     },
     imageId: recipe.imageId ?? '',
+    author: recipe.author ?? '',
   }));
 
   return (

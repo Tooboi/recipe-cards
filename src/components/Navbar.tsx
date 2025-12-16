@@ -19,7 +19,7 @@ export default async function Navbar() {
   }
 
   return (
-    <div className="bg-gray-400 px-2 border-b-2 border-gray-800 z-100 top-0 sticky h-12">
+    <div className="bg-gray-400 px-2 border-b-2 border-gray-700 z-100 top-0 sticky h-12 drop-shadow-lg">
       <div className="flex my-auto flex-row justify-between gap-4 content-center h-full">
         <Link href="/" className="text-3xl  sm:block hidden my-auto">
           RECIPE CARD MAKER

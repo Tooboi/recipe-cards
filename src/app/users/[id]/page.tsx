@@ -38,14 +38,18 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
   return (
     <div className='flex flex-col items-center'>
       <div className="overflow-hidden">
-        <div className="px-6 py-5 rounded-none">
-          <div className="text-2xl text-gray-900 font-semibold text-center">{user?.username}&#39;s Recipes</div>
+        <div className="px-6 pt-4 pb-2 rounded-b-lg bg-gray-400 w-full md:w-1/2 mx-auto border-b-2 border-x-2 border-gray-700">
+          <div className="text-2xl text-center mx-auto text-gray-900 w-full font-semibold mb-2">{user?.username}&#39;s Recipes</div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pt-2">
           {user?.Recipe.map((recipe) => (
-            <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1">
+            <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">
               <div className="h-full flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
-                <div className="relative">
+                <div className="px-3 py-2">
+                  <p className="font-medium text-lg/5 line-clamp-2 ">
+                    {recipe.title || 'Recipe'}</p>
+                </div>
+                <div className="relative h-full">
                   {recipe.imageId && recipe.imageId.length > 0 ? (
                     <div className="h-full w-full flex ">
                       <div className=" overflow-hidden mx-auto">
@@ -57,28 +61,25 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
                           crop="fill"
                           aspectRatio="1:1"
                           sizes="100vw"
-                          className="mx-auto w-72 h-72 border-b-2 border-gray-600 overflow-hidden"
+                          className="mx-auto w-full h-full border-t-2 group-hover:brightness-110 transition-all border-gray-600 overflow-hidden"
                         />
                       </div>
                     </div>
-
                   ) : (
-                    <Image
-                      className="w-full border-b-2 border-gray-600 bg-gray-400/50"
-                      width={100}
-                      height={100}
-                      unoptimized
-                      src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
-                      alt={recipe.id}
-                    />
+                    <div className='bg-gray-400/50 h-full flex w-full'>
+                      <Image
+                        className="w-full h-full grow border-t-2 border-gray-600 "
+                        width={100}
+                        height={100}
+                        unoptimized
+                        src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
+                        alt={recipe.id}
+                      />
+                    </div>
                   )}
                 </div>
-                <div className="px-3 py-2 flex-grow">
-                  <p className="font-medium text-lg line-clamp-2">
-                    {recipe.title || 'Recipe'}
-                  </p>
-                </div>
-                <div className="px-2 py-2 flex flex-row items-center justify-between bg-gray-400 group-hover:bg-gray-300 transition-colors border-t-2 border-gray-600">
+
+                <div className="px-2 py-2 flex flex-row items-center justify-between bg-gray-400 group-hover:bg-gray-400/70 transition-colors border-t-2 border-gray-600">
                   <span className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
                       <path d="M5.75 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM5 10.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM10.25 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM7.25 8.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM8 9.5A.75.75 0 1 0 8 11a.75.75 0 0 0 0-1.5Z" />
