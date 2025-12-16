@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { formatDistanceToNow, differenceInDays, format } from 'date-fns';
 import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 
 function formatDate(createdAt: string) {
   const date = new Date(createdAt);
@@ -31,8 +32,11 @@ interface RecipesListProps {
     user: {
       username: string;
     };
+    imageId: string | null;
   }[];
 }
+
+
 
 export default function RecipesList({ initialRecipes }: RecipesListProps) {
   return (
@@ -50,14 +54,32 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                 <div className="h-full flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
 
                   <div className="relative">
-                    <Image
-                      className="w-full"
-                      width={100}
-                      height={100}
-                      unoptimized
-                      src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
-                      alt={recipe.id}
-                    />
+                    {recipe.imageId && recipe.imageId.length > 0 ? (
+                      <div className="h-full w-full flex ">
+                        <div className=" overflow-hidden mx-auto">
+                          <CldImage
+                            alt="Thumbnail"
+                            src={recipe.imageId}
+                            width="100"
+                            height="100"
+                            crop="fill"
+                            aspectRatio="1:1"
+                            sizes="100vw"
+                            className="mx-auto w-72 h-72 border-b-2 border-gray-600 overflow-hidden"
+                          />
+                        </div>
+                      </div>
+                      
+                    ) : (
+                      <Image
+                        className="w-full"
+                        width={100}
+                        height={100}
+                        unoptimized
+                        src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
+                        alt={recipe.id}
+                      />
+                    )}
                     {/* <div >
                       <div
                         className="text-xs absolute top-0 right-0 bg-indigo-600 px-4 py-2 text-white mt-3 mr-3 hover:bg-white hover:text-indigo-600 transition duration-500 ease-in-out">
@@ -65,7 +87,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                       </div>
                     </div> */}
                   </div>
-                  <div className="px-3 pb-2 flex-grow">
+                  <div className="px-3 py-2 flex-grow">
                     <p className="font-medium text-lg line-clamp-2">
                       {recipe.title || 'Recipe'}</p>
                     <p className="text-gray-500 text-sm">

@@ -21,6 +21,7 @@ type SafeRecipe = {
   pdfSize: string;
   font: string;
   hidden: boolean;
+  imageId: string | null;
 };
 
 export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {

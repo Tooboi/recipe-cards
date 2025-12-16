@@ -21,7 +21,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={`${rubik.className} antialiased main-bg`}>
-          <main className="m-auto min-h-screen min-w-[300px]">
+          <main className="m-auto min-h-screen min-w-[300px] pb-8">
             <Navbar />
             <ClerkLoading>
               <div className="flex flex-col items-center text-center mt-32">LOADING...</div>

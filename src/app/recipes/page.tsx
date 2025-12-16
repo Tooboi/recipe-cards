@@ -31,6 +31,7 @@ export default async function RecipesListPage() {
     user: {
       username: recipe.user.username ?? 'Unknown',
     },
+    imageId: recipe.imageId ?? '',
   }));
 
   return <RecipesList initialRecipes={cleanedRecipes} />;

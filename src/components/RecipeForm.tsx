@@ -7,11 +7,27 @@ import '@fontsource/nunito';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { createRecipe } from '@/app/actions';
-// import jsPDF from 'jspdf';
-// import html2canvas from 'html2canvas';
+import { CldImage, CldUploadWidget } from "next-cloudinary";
 import html2pdf from 'html2pdf.js';
+import { PhotoIcon } from "@heroicons/react/24/solid";
 
 import { SignedIn, SignedOut, SignInButton, useUser } from '@clerk/nextjs';
+
+function formatBytes(fileSize: number): string {
+  const sizes = ["B", "KB", "MB"];
+
+  if (fileSize === 0) return "0 B";
+
+  const i = Math.floor(Math.log(fileSize) / Math.log(1024));
+  const formattedSize = (fileSize / Math.pow(1024, i)).toFixed(1);
+
+  // Check if the decimal part is .0, and remove it in that case
+  const formattedSizeWithoutDecimal = formattedSize.endsWith(".0")
+    ? formattedSize.split(".")[0]
+    : formattedSize;
+
+  return `${formattedSizeWithoutDecimal} ${sizes[i]}`;
+}
 
 export default function RecipeForm() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -28,6 +44,8 @@ export default function RecipeForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const clerkUserId = user?.id || '';
+
+  const [imageId, setImageId] = useState('');
 
   const [showAuthor, setShowAuthor] = useState(true);
   const [showDescription, setShowDescription] = useState(true);
@@ -57,6 +75,7 @@ export default function RecipeForm() {
         font,
         hidden,
         clerkUserId,
+        imageId
       });
 
       // Reset form
@@ -66,6 +85,7 @@ export default function RecipeForm() {
       setIngredients([{ quantity: '', unit: '', item: '' }]);
       setFont('Rubik');
       setHidden(true);
+      setImageId('');
 
       toast.success('Recipe Saved!');
       router.refresh();
@@ -168,6 +188,11 @@ export default function RecipeForm() {
     setter(newList);
   };
 
+  const maxFileSize = 41943040; // 40MB in B
+    const [buttonClassName, setButtonClassName] = useState(
+    "w-full mx-auto p-1 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
+  );
+
   return (
     <div className="h-dvh">
       <div className="flex h-dvh p-4">
@@ -187,7 +212,70 @@ export default function RecipeForm() {
             {/* Tab content */}
             {tab === 'editor' && (
               <div className="space-y-2 ">
-                <h1 className="text-2xl font-bold">Create Recipe Card</h1>
+                <h1 className="text-2xl font-bold mx-auto">Create Recipe Card</h1>
+
+                {imageId ? (
+                  <div className="h-full w-full flex ">
+                    <div className=" overflow-hidden mx-auto">
+                      <CldImage
+                        alt="Thumbnail"
+                        src={imageId}
+                        width="270"
+                        height="270"
+                        crop="fill"
+                        aspectRatio="1:1"
+                        sizes="100vw"
+                        className="mx-auto rounded-lg border-2 border-gray-700"
+
+                      />
+                    </div>
+                    <input
+                      required
+                      readOnly
+                      placeholder={imageId}
+                      className="border-byte-500 focus:border-byte-600 input-disabled input mb-3 hidden w-full rounded-lg border-2 bg-transparent text-gray-600 backdrop-blur-sm placeholder:text-gray-600 focus:ring-2 focus:ring-gray-600 focus:ring-offset-2 focus:ring-offset-gray-950"
+                      name="publicId"
+                      value={imageId}
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-2 w-full rounded-lg border-2 border-gray-700 bg-gray-400 mx-auto">
+                    <PhotoIcon className="mx-auto w-36 text-gray-700" />
+                    <p className="mt-[-1rem] select-none pb-2 text-center text-xs text-gray-700 lg:text-sm">
+                      Max {formatBytes(maxFileSize)}
+                    </p>
+
+                  </div>
+                )}
+                <CldUploadWidget
+                  uploadPreset="recipe"
+                  options={{
+                    maxImageFileSize: maxFileSize,
+                    maxFiles: 1,
+                    sources: [
+                      "local",
+                      "dropbox",
+                      "google_drive",
+                      "instagram",
+                      "unsplash",
+                    ],
+                    autoMinimize: true,
+                  }}
+                  onSuccess={(result: any) => {
+                    const publicId = result.info.public_id;
+                    setImageId(publicId);
+                    setButtonClassName("hidden");
+                  }}
+                >
+                  {({ open }) => {
+                    return (
+                      
+                        <button className={buttonClassName} onClick={(e) => { e.preventDefault(); open() }}>
+                          Add Image
+                        </button>
+                    );
+                  }}
+                </CldUploadWidget>
                 <div className="flex items-center space-x-2">
                   <label htmlFor="pdf-size" className="font-semibold">
                     Card Size:
