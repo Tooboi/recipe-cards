@@ -37,7 +37,7 @@ export default async function Home() {
   }));
 
   return (
-    <div className="flex flex-col items-center mx-4">
+    <div className="flex flex-col">
       <RecipesList initialRecipes={cleanedRecipes} />
     </div>
   );
