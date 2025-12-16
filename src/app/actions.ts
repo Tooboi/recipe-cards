@@ -125,7 +125,7 @@ export async function createUser({ email, username, password }: { email: string;
 }
 
 // Post actions
-export async function createRecipe({ title, description, ingredients, instructions, font, pdfSize, hidden, clerkUserId }: { title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean; clerkUserId: string }) {
+export async function createRecipe({ title, description, ingredients, instructions, font, pdfSize, hidden, clerkUserId, imageId }: { title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean; clerkUserId: string; imageId?: string; }) {
   if (!title) {
     throw new Error('Title is required');
   }
@@ -150,6 +150,7 @@ export async function createRecipe({ title, description, ingredients, instructio
         user: {
           connect: { clerkUserId: clerkUserId },
         },
+        imageId,
       },
     });
 
@@ -163,7 +164,7 @@ export async function createRecipe({ title, description, ingredients, instructio
   }
 }
 
-export async function updateRecipe({ id, title, description, ingredients, instructions, font, pdfSize, hidden }: { id: string; title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean }) {
+export async function updateRecipe({ id, title, description, ingredients, instructions, font, pdfSize, hidden, }: { id: string; title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean }) {
   if (!title) {
     throw new Error('Title is required');
   }
