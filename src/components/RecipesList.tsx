@@ -68,6 +68,15 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
     <div className="overflow-hidden ">
       <div className="px-6 pt-4 pb-2 rounded-b-lg bg-gray-400 w-full md:w-1/2 mx-auto border-b-2 border-x-2 border-gray-700">
         <div className="text-2xl text-center mx-auto text-gray-900 w-full font-semibold mb-2">Explore Recent Recipes</div>
+          <Link
+            className=" mx-auto mb-4 justify-center rounded-lg border-gray-600 bg-gray-700 text-lg font-medium text-gray-300 transition-all "
+            href={"/new-recipe"}
+          >
+            <h1 className="text-center w-full mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:bg-gray-500 hover:text-gray-200 active:bg-gray-600 active:text-gray-300 ">
+              MAKE NEW RECIPE CARD
+            </h1>
+          </Link>
+        
       </div>
       <div className="pt-2">
         {initialRecipes.length === 0 ? (
