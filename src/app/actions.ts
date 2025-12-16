@@ -165,7 +165,7 @@ export async function createRecipe({ title, description, ingredients, instructio
   }
 }
 
-export async function updateRecipe({ id, title, description, ingredients, instructions, font, pdfSize, hidden, }: { id: string; title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean }) {
+export async function updateRecipe({ id, title, description, ingredients, instructions, font, pdfSize, hidden, imageId, author }: { id: string; title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean; imageId?: string; author?: string; }) {
   if (!title) {
     throw new Error('Title is required');
   }
@@ -189,6 +189,9 @@ export async function updateRecipe({ id, title, description, ingredients, instru
         font,
         pdfSize,
         hidden,
+        imageId,
+        author,
+
       },
     });
 
