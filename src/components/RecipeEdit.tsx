@@ -22,6 +22,7 @@ type SafeRecipe = {
   font: string;
   hidden: boolean;
   imageId: string | null;
+  author: string | null;
 };
 
 export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
