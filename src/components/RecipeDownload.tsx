@@ -1,10 +1,10 @@
 "use client";
 
-import { updateRecipe } from "@/app/actions";
-import { redirect } from "next/navigation";
+// import { updateRecipe } from "@/app/actions";
+// import { redirect } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
 
 type Ingredient = {
   quantity: string;
@@ -40,8 +40,8 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
     recipe.description || ""
   );
   const [instructions, setInstructions] = useState(recipe.instructions || []);
-  const [hidden, setHidden] = useState(recipe.hidden || false);
-  const [loading, setLoading] = useState(false);
+  // const [hidden, setHidden] = useState(recipe.hidden || false);
+  // const [loading, setLoading] = useState(false);
 
   const updateField = (
     setter: React.Dispatch<React.SetStateAction<string[]>>,
@@ -322,9 +322,11 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
           <button
             className="mt-6 p-2 rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-200 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
             onClick={handlePDFExport}
-            disabled={loading}
+            // disabled={loading}
           >
-            {loading ? "Saving..." : "Download Recipe"}
+            {/* {loading ? "Saving..." :  */}
+            Download Recipe
+            {/* } */}
           </button></div>
           
         </div>
