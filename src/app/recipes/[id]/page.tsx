@@ -1,11 +1,10 @@
-
-
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
-import html2pdf from "html2pdf.js";
-import { CldImage } from "next-cloudinary";
-import { PhotoIcon } from "@heroicons/react/24/solid";
+// import html2pdf from "html2pdf.js";
+import Image from 'next/image';
+import CldImage from "@/components/wrappers/CldImageWrapper";
+// import { PhotoIcon } from "@heroicons/react/24/solid";
 
 export default async function RecipeDetails({
   params,
@@ -33,7 +32,6 @@ export default async function RecipeDetails({
 
   const isOwner = internalUserId && SingleRecipeById?.userId === internalUserId;
 
-
   return (
     <div className="sm:m-4 m-2">
       <div className="bg-gray-400 border-gray-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max drop-shadow-md overflow-hidden">
@@ -50,15 +48,15 @@ export default async function RecipeDetails({
 
           {/* Only show if the logged-in user owns this recipe */}
           {isOwner ? (
-            <div className="items-center">
+            <div className="items-center flex flex-col">
               <Link
-                className="w-max p-2 mr-2 self-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+                className="w-max py-1 px-2 self-center rounded-md mb-2 border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
                 href={`/recipes/download/${recipeId}`}
               >
                 DOWNLOAD
               </Link>
               <Link
-                className="w-max p-2 self-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+                className="w-full text-center py-1 px-2 self-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
                 href={`/recipes/edit/${recipeId}`}
               >
                 EDIT
@@ -66,7 +64,7 @@ export default async function RecipeDetails({
             </div>
           ) : (
             <Link
-              className="w-max p-2 mr-2 self-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+              className="w-max py-1 px-2 mr-2 self-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
               href={`/recipes/download/${recipeId}`}
             >
               DOWNLOAD
@@ -74,6 +72,33 @@ export default async function RecipeDetails({
           )}
         </div>
         <div className="px-4 pb-4">
+          {SingleRecipeById?.imageId && SingleRecipeById?.imageId.length > 0 ? (
+            <div className="h-full w-full flex ">
+              <div className="mt-4">
+                <CldImage
+                  alt="Thumbnail"
+                  src={SingleRecipeById?.imageId}
+                  width="100"
+                  height="100"
+                  crop="fill"
+                  aspectRatio="1:1"
+                  sizes="100vw"
+                  className="rounded-sm border-2 border-gray-800"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className=" h-full flex w-full">
+              <Image
+                className=" mt-4 rounded-sm border-2 border-gray-800 bg-gray-500/50"
+                width={100}
+                height={100}
+                unoptimized
+                src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${SingleRecipeById?.id}&backgroundType[]&backgroundColor=transparent`}
+                alt={SingleRecipeById?.id ?? ""}
+              />
+            </div>
+          )}
           <p className="pt-4 text-gray-700 pb-2">
             {SingleRecipeById?.description}
           </p>
@@ -99,7 +124,6 @@ export default async function RecipeDetails({
           </ol>
         </div>
       </div>
-      
     </div>
   );
 }
