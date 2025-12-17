@@ -1,7 +1,8 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
-import { currentUser } from '@clerk/nextjs/server'
-import Link from 'next/link';
-import prisma from '@/lib/prisma';
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
+import Link from "next/link";
+import prisma from "@/lib/prisma";
+import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
 
 export default async function Navbar() {
   const clerkUser = await currentUser();
@@ -12,9 +13,6 @@ export default async function Navbar() {
       where: { clerkUserId: clerkUser.id },
       select: { id: true },
     });
-    console.log();
-
-
     internalUserId = dbUser?.id || null;
   }
 
@@ -29,32 +27,60 @@ export default async function Navbar() {
         </Link>
         <div className="flex-grow"></div>
 
-
         <div className="flex flex-row  my-auto">
           <div className="flex">
-            <Link className="px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:block hidden rounded-sm" href={'/explore'}>
+            <Link
+              className="px-2 py-1 mr-1 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:block hidden rounded-sm"
+              href={"/explore"}
+            >
               Explore
             </Link>
-            <Link className="px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:hidden block  rounded-sm" href={'/explore'}>
+            <Link
+              className="px-1 py-1 mr-1 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:hidden block  rounded-sm"
+              href={"/explore"}
+            >
               All
             </Link>
-            <Link className="px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:block hidden rounded-sm" href={'/new-recipe'}>
+            <Link
+              className="px-1 py-1 mr-1 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:block hidden rounded-sm"
+              href={"/new-recipe"}
+            >
               New Recipe
             </Link>
-            <Link className="px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:hidden block rounded-sm" href={'/new-recipe'}>
+            <Link
+              className="px-1 py-1 mr-1 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:hidden block rounded-sm"
+              href={"/new-recipe"}
+            >
               New
             </Link>
             <SignedIn>
-              <Link className="px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:block hidden rounded-sm" href={`/users/${internalUserId}`}>
+              <Link
+                className="px-1 py-1 mr-1 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:block hidden rounded-sm"
+                href={`/users/${internalUserId}`}
+              >
                 My Recipes
               </Link>
-              <Link className="px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:hidden block rounded-sm" href={`/users/${internalUserId}`}>
+              
+              <Link
+                className="px-1 py-1 mr-1 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 md:hidden block rounded-sm"
+                href={`/users/${internalUserId}`}
+              >
                 Mine
+              </Link>
+              <Link
+                className="pr-4 pl-1 py-1  h-max rounded-sm"
+                href={`/users/${internalUserId}/bookmarks`}
+              >
+                <BookmarkSolidIcon className="w-7 h-7 text-gray-700 bg-gray-400 hover:text-amber-900 hover:stroke-2 hover:stroke-amber-600 hover:infill-amber-500 transition-all active:scale-95" />
               </Link>
               <UserButton />
             </SignedIn>
             <SignedOut>
-              <SignInButton><button className='cursor-pointer px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 rounded-sm'>Sign In</button></SignInButton>
+              <SignInButton>
+                <button className="cursor-pointer px-2 py-1 mr-2 mt-0.5 h-max bg-gray-400 hover:bg-gray-300 rounded-sm">
+                  Sign In
+                </button>
+              </SignInButton>
             </SignedOut>
           </div>
         </div>

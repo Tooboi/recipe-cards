@@ -101,8 +101,8 @@ export default function RecipeForm() {
       toast.success('Recipe Saved!');
       router.refresh();
     } catch (error: any) {
-      console.error('Error creating post:', error);
-      toast.error(error.message || 'Failed to create post');
+      console.error('Error creating recipe:', error);
+      toast.error(error.message || 'Failed to create recipe');
     } finally {
       setLoading(false);
     }

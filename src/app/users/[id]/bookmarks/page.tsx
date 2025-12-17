@@ -1,19 +1,19 @@
-import CldImageWrapper from '@/components/wrappers/CldImageWrapper';
+import CldImageWrapper from "@/components/wrappers/CldImageWrapper";
 // import { BookmarkIcon as BookmarkOutlineIcon } from '@heroicons/react/24/outline';
 // import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
 // import { toggleBookmark } from '@/components/wrappers/BookmarkAction';
 // import { getBookmarks } from '@/components/wrappers/GetBookmarks';
-import prisma from '@/lib/prisma';
+import prisma from "@/lib/prisma";
 import {
   differenceInMinutes,
   differenceInHours,
   differenceInDays,
   format,
   differenceInYears,
-} from 'date-fns';
-import Image from 'next/image';
-import Link from 'next/link';
-import BookmarkButton from '@/components/wrappers/BookmarkButton';
+} from "date-fns";
+import Image from "next/image";
+import Link from "next/link";
+import BookmarkButton from "@/components/wrappers/BookmarkButton";
 
 function formatDate(createdAt: string) {
   const date = new Date(createdAt);
@@ -25,7 +25,7 @@ function formatDate(createdAt: string) {
   const years = differenceInYears(now, date);
 
   if (minutes < 1) {
-    return 'Just now';
+    return "Just now";
   }
 
   if (minutes < 60) {
@@ -37,7 +37,7 @@ function formatDate(createdAt: string) {
   }
 
   if (days === 1) {
-    return 'Yesterday';
+    return "Yesterday";
   }
 
   if (days < 7) {
@@ -52,54 +52,66 @@ function formatDate(createdAt: string) {
     return `${years} years ago`;
   }
 
-  return format(date, 'MMM d, yyyy');
+  return format(date, "MMM d, yyyy");
 }
 
 // type SortOption = 'recent' | 'oldest' | 'title-asc' | 'title-desc';
 
-
-
-export default async function UserIDpage({ params }: { params: Promise<{ id: string }> }) {
-
+export default async function UserIDpage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const selectedUser = (await params).id;
+
+  if (!selectedUser) return <div>User ID not provided</div>;
 
   const user = await prisma.user.findUnique({
     where: { id: selectedUser },
-    include: {
-      Recipe: {
-        orderBy: {
-          updatedAt: 'desc',
-        },
-      },
+    select: {
+      username: true,
+      bookmarkedRecipeIds: true,
     },
   });
 
-  console.log(user);
+  if (!user) return <div>User not found</div>;
+
+  const bookmarkedRecipes = await prisma.recipe.findMany({
+    where: {
+      id: { in: user.bookmarkedRecipeIds },
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
 
   return (
-
     <div className="overflow-hidden">
       <div className="px-6 py-2 sm:rounded-b-lg bg-gray-400 w-full md:w-1/2 mx-auto border-b-2 sm:border-x-2 border-gray-700">
-        <div className="text-2xl text-center mx-auto text-gray-900 w-full font-semibold sm:mb-2">{user?.username}&#39;s Recipes</div>
+        <div className="text-2xl text-center mx-auto text-gray-900 w-full font-semibold sm:mb-2">
+          {user.username}&#39;s Bookmarks
+        </div>
       </div>
-      {user?.Recipe.length === 0 ?
-        (
-          <>
-            <div className="text-center py-4 text-gray-800 italic">No recipes found. Create one now!</div>
-            <Link
-              className="sm:mx-8 mx-6  flex sm:mb-4 rounded-lg border-gray-600 bg-gray-700 text-lg font-medium text-gray-300 transition-all "
-              href={"/new-recipe"}
-            >
-              <h1 className="justify-center w-full text-center p-2  rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:bg-gray-500 hover:text-gray-200 active:bg-gray-600 active:text-gray-300 ">
-                MAKE NEW RECIPE CARD
-              </h1>
-            </Link>
-          </>
-        ) : (
-          <div className='flex justify-center'>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 gap-2 sm:px-4 px-2 pt-2">
-              {user?.Recipe.map((recipe) => (
-                <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">
+
+      {bookmarkedRecipes.length === 0 ? (
+        <>
+          <div className="text-center py-4 text-gray-800 italic">
+            No bookmarked recipes found.
+          </div>
+          <Link
+            className="sm:mx-8 mx-6 flex sm:mb-4 rounded-lg border-gray-600 bg-gray-700 text-lg font-medium text-gray-300 transition-all"
+            href="/new-recipe"
+          >
+            <h1 className="justify-center w-full text-center p-2 rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:bg-gray-500 hover:text-gray-200 active:bg-gray-600 active:text-gray-300">
+              MAKE NEW RECIPE CARD
+            </h1>
+          </Link>
+        </>
+      ) : (
+        <div className="flex justify-center">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 gap-2 sm:px-4 px-2 pt-2">
+            {bookmarkedRecipes.map((recipe) => (
+              <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">
                   <div className="h-full flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
                     <div className="flex justify-between items-start p-2">
                       <p className="font-medium text-lg/5 line-clamp-2 ">
@@ -152,22 +164,10 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
                     </div>
                   </div>
                 </Link>
-              ))}</div>
+            ))}
           </div>
-        )}
+        </div>
+      )}
     </div>
-
   );
 }
-{/* <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1">
-              <div className="px-4 py-2 border border-gray-600 rounded-lg bg-gray-300 hover:bg-gray-100 transition-colors group">
-                <div className="font-medium text-lg text-gray-900 group-hover:text-gray-700">{recipe.title || 'Recipe'}</div>
-                <div className="text-sm text-gray-600">{formatDate(recipe.updatedAt.toISOString())}</div>
-                <div className="mt-3 flex items-center gap-4 text-xs text-gray-600">
-                  <div className="flex items-center bg-gray-100 border border-gray-400 px-3 py-1 rounded-full">
-                    <span className="font-medium mr-1">Ingredients:</span>
-                    <span className="text-gray-600 font-medium">{recipe.ingredients.length}</span>
-                  </div>
-                </div>
-              </div>
-            </Link> */}

@@ -11,6 +11,12 @@ import {
 import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
 
+import { toggleBookmark } from './wrappers/BookmarkAction';
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { getBookmarks } from './wrappers/GetBookmarks';
+import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
+
 function formatDate(createdAt: string) {
   const date = new Date(createdAt);
   const now = new Date();
@@ -74,6 +80,23 @@ interface RecipesListProps {
 
 
 export default function RecipesList({ initialRecipes }: RecipesListProps) {
+  const [bookmarks, setBookmarks] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    async function fetchBookmarks() {
+      try {
+        const bookmarkedIds = await getBookmarks();
+        const map: Record<string, boolean> = {};
+        bookmarkedIds.forEach((id: string) => {
+          map[id] = true;
+        });
+        setBookmarks(map);
+      } catch (error) {
+        console.error('Failed to fetch bookmarks', error);
+      }
+    }
+
+    fetchBookmarks();
+  }, []);
   return (
     <div className='flex flex-col'>
       <div className="overflow-hidden ">
@@ -89,7 +112,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
           </Link>
 
         </div>
-        <div className="pt-2">
+        <div className="pt-2 flex justify-center">
           {initialRecipes.length === 0 ? (
             <div className="text-center py-10 text-gray-500 italic">No recipes found. Create one now!</div>
           ) : (
@@ -97,12 +120,41 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
               {initialRecipes.map((recipe) => (
                 <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">
                   <div className="h-full flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
-                    <div className="px-3 py-2">
-                      <p className="font-medium text-lg/5 line-clamp-2 ">
-                        {recipe.title || 'Recipe'}</p>
-                      <p className="text-gray-500 text-sm">
-                        {recipe.user.username}
-                      </p>
+                    <div className=" flex justify-between items-start p-2">
+                      <div className='flex flex-col'>
+                        <p className="font-medium text-lg/5 line-clamp-2 ">
+                          {recipe.title || 'Recipe'}</p>
+                        <p className="text-gray-500 text-sm">
+                          {recipe.user.username}
+                        </p>
+                      </div>
+                      <button
+                        className=" transition-colors"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          setBookmarks(prev => ({
+                            ...prev,
+                            [recipe.id]: !prev[recipe.id],
+                          }));
+
+                          try {
+                            await toggleBookmark(recipe.id);
+                          } catch {
+                            // rollback on error
+                            setBookmarks(prev => ({
+                              ...prev,
+                              [recipe.id]: !prev[recipe.id],
+                            }));
+                          }
+                        }}
+                      >
+                        {bookmarks[recipe.id] ? (
+                          <BookmarkSolidIcon className="w-9 h-10 text-amber-600 hover:text-amber-500 bg-amber-400 hover:bg-amber-300  border-2 border-amber-600 hover:stroke-2 hover:stroke-amber-600 hover:border-amber-300 rounded-sm p-1 transition-all active:scale-95 active:drop-shadow-none drop-shadow-sm" />
+                        ) : (
+                          <BookmarkSolidIcon className="w-9 h-10 text-gray-700 bg-gray-400 hover:text-amber-900 hover:stroke-2 hover:stroke-amber-600 hover:infill-amber-500 rounded-sm p-1 transition-all active:scale-95 active:drop-shadow-none drop-shadow-sm" />
+                        )}
+                      </button>
+
                     </div>
                     <div className="relative h-full">
                       {recipe.imageId && recipe.imageId.length > 0 ? (
@@ -132,6 +184,20 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                           />
                         </div>
                       )}
+
+
+
+
+                      {/* <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleBookmark(recipe.id);
+                        }}
+                        className="absolute top-2 right-2 p-2 rounded-sm bg-yellow-600 border-2 border-gray-700 hover:bg-gray-800"
+                      >
+                        <svg className="w-4 h-4 text-yellow-400" />
+                      </button> */}
+
                       {/* <div >
                       <div
                         className="text-xs absolute top-0 right-0 bg-indigo-600 px-4 py-2 text-white mt-3 mr-3 hover:bg-white hover:text-indigo-600 transition duration-500 ease-in-out">
