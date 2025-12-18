@@ -35,12 +35,6 @@ export default function RecipeForm() {
     console.log("not signed in");
   }
 
-  useEffect(() => {
-    if (user?.username && !authorName) {
-      setAuthorName(user.username);
-    }
-  }, [user?.username]);
-
   const googleFonts = [
     { label: "Rubik", value: "Rubik" },
     { label: "Nunito", value: "Nunito" },
@@ -57,6 +51,12 @@ export default function RecipeForm() {
   const defaultAuthor = user?.username || "";
   const [showAuthor, setShowAuthor] = useState(true);
   const [authorName, setAuthorName] = useState(defaultAuthor);
+
+  useEffect(() => {
+    if (user?.username && !authorName) {
+      setAuthorName(user.username);
+    }
+  }, [user?.username, authorName]);
   const [yieldAmount, setYieldAmount] = useState("1");
   const [yieldUnit, setYieldUnit] = useState("Serving");
 
@@ -93,8 +93,7 @@ export default function RecipeForm() {
         clerkUserId,
         imageId: includeImage ? imageId : "",
         author: showAuthor ? authorName : "",
-        serving:
-          yieldAmount && yieldUnit ? `${yieldAmount} ${yieldUnit}` : "",
+        serving: yieldAmount && yieldUnit ? `${yieldAmount} ${yieldUnit}` : "",
       });
 
       // Reset form

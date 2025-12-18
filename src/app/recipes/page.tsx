@@ -33,6 +33,7 @@ export default async function RecipesListPage() {
     },
     imageId: recipe.imageId ?? '',
     author: recipe.author ?? '',
+    serving: recipe.serving,
   }));
 
   return <RecipesList initialRecipes={cleanedRecipes} />;
