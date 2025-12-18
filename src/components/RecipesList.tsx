@@ -10,12 +10,11 @@ import {
 } from 'date-fns';
 import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
-
-import { toggleBookmark } from './wrappers/BookmarkAction';
-import { useState } from 'react';
-import { useEffect } from 'react';
-import { getBookmarks } from './wrappers/GetBookmarks';
-import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
+// import { toggleBookmark } from './wrappers/BookmarkAction';
+// import { useState } from 'react';
+// import { useEffect } from 'react';
+// import { getBookmarks } from './wrappers/GetBookmarks';
+// import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
 
 function formatDate(createdAt: string) {
   const date = new Date(createdAt);
@@ -80,23 +79,23 @@ interface RecipesListProps {
 
 
 export default function RecipesList({ initialRecipes }: RecipesListProps) {
-  const [bookmarks, setBookmarks] = useState<Record<string, boolean>>({});
-  useEffect(() => {
-    async function fetchBookmarks() {
-      try {
-        const bookmarkedIds = await getBookmarks();
-        const map: Record<string, boolean> = {};
-        bookmarkedIds.forEach((id: string) => {
-          map[id] = true;
-        });
-        setBookmarks(map);
-      } catch (error) {
-        console.error('Failed to fetch bookmarks', error);
-      }
-    }
+  // const [bookmarks, setBookmarks] = useState<Record<string, boolean>>({});
+  // useEffect(() => {
+  //   async function fetchBookmarks() {
+  //     try {
+  //       const bookmarkedIds = await getBookmarks();
+  //       const map: Record<string, boolean> = {};
+  //       bookmarkedIds.forEach((id: string) => {
+  //         map[id] = true;
+  //       });
+  //       setBookmarks(map);
+  //     } catch (error) {
+  //       console.error('Failed to fetch bookmarks', error);
+  //     }
+  //   }
 
-    fetchBookmarks();
-  }, []);
+  //   fetchBookmarks();
+  // }, []);
   return (
     <div className='flex flex-col'>
       <div className="overflow-hidden ">
@@ -128,7 +127,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                           {recipe.user.username}
                         </p>
                       </div>
-                      <button
+                      {/* <button
                         className=" transition-colors"
                         onClick={async (e) => {
                           e.preventDefault();
@@ -153,8 +152,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                         ) : (
                           <BookmarkSolidIcon className="w-9 h-10 text-gray-700 bg-gray-400 hover:text-amber-900 hover:stroke-2 hover:stroke-amber-600 hover:infill-amber-500 rounded-sm p-1 transition-all active:scale-95 active:drop-shadow-none drop-shadow-sm" />
                         )}
-                      </button>
-
+                      </button> */}
                     </div>
                     <div className="relative h-full">
                       {recipe.imageId && recipe.imageId.length > 0 ? (
@@ -184,10 +182,6 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                           />
                         </div>
                       )}
-
-
-
-
                       {/* <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -205,7 +199,6 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                       </div>
                     </div> */}
                     </div>
-
                     <div className=" px-2 py-2 flex flex-row items-center justify-between bg-gray-400 group-hover:bg-gray-400/70 transition-colors border-t-2 border-gray-600">
                       <span className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
@@ -218,7 +211,6 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
                           <path d="M3 4.75a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6.25 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM6.25 7.25a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM6.25 11.5a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM4 12.25a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM3 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />
                         </svg>
-
                         <span className="ml-1 hidden sm:block">{recipe.ingredients.length} Ingredients</span>
                         <span className="ml-1 sm:hidden block">{recipe.ingredients.length}</span>
                       </span>

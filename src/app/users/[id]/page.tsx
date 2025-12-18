@@ -13,7 +13,7 @@ import {
 } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
-import BookmarkButton from '@/components/wrappers/BookmarkButton';
+// import BookmarkButton from '@/components/wrappers/BookmarkButton';
 
 function formatDate(createdAt: string) {
   const date = new Date(createdAt);
@@ -104,7 +104,8 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
                     <div className="flex justify-between items-start p-2">
                       <p className="font-medium text-lg/5 line-clamp-2 ">
                         {recipe.title || 'Recipe'}</p>
-                      <div><BookmarkButton recipeId={recipe.id} /></div>
+
+                      {/* <div><BookmarkButton recipeId={recipe.id} /></div> */}
 
                     </div>
                     <div className="relative h-full">
