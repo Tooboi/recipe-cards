@@ -1,16 +1,16 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
-// import html2pdf from "html2pdf.js";
-import Image from 'next/image';
+import Image from "next/image";
 import CldImage from "@/components/wrappers/CldImageWrapper";
-// import { PhotoIcon } from "@heroicons/react/24/solid";
+import BookmarkButton from "@/components/wrappers/BookmarkButton";
 
 export default async function RecipeDetails({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  // const [b
   const clerkUser = await currentUser();
 
   let internalUserId: string | null = null;
@@ -36,14 +36,19 @@ export default async function RecipeDetails({
     <div className="sm:m-4 m-2">
       <div className="bg-gray-400 border-gray-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max drop-shadow-md overflow-hidden">
         <div className="w-full bg-gray-300 py-2 px-4 border-b-2 border-gray-800 flex justify-between items-center">
-          <div>
-            <p className="text-2xl font-semibold">{SingleRecipeById?.title}</p>
-            <p>
-              By:{" "}
-              <Link href={`/users/${SingleRecipeById?.userId}`}>
-                {SingleRecipeById?.user.username}
-              </Link>
-            </p>
+          <div className="flex flex-row">
+            <BookmarkButton recipeId={SingleRecipeById?.id || ""} />
+            <div className="flex flex-col px-3">
+              <p className="text-2xl font-semibold">
+                {SingleRecipeById?.title}
+              </p>
+              <p>
+                By:{" "}
+                <Link href={`/users/${SingleRecipeById?.userId}`}>
+                  {SingleRecipeById?.user.username}
+                </Link>
+              </p>
+            </div>
           </div>
 
           {/* Only show if the logged-in user owns this recipe */}
