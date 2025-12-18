@@ -34,6 +34,7 @@ export default async function Home() {
     },
     imageId: recipe.imageId ?? '',
     author: recipe.author ?? '',
+    serving: recipe.serving,
   }));
 
   return (

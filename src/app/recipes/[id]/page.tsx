@@ -42,11 +42,14 @@ export default async function RecipeDetails({
               <p className="text-2xl font-semibold">
                 {SingleRecipeById?.title}
               </p>
-              <p>
+              <p className="text-sm">
                 By:{" "}
                 <Link href={`/users/${SingleRecipeById?.userId}`}>
                   {SingleRecipeById?.user.username}
                 </Link>
+              </p>
+              <p className="text-sm">
+                Yield: {SingleRecipeById?.serving}
               </p>
             </div>
           </div>

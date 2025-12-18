@@ -29,6 +29,7 @@ model Recipe {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   imageId      String?  @default("")
   author       String?  @default("")
+  serving      String  
 }
 
 model User {
