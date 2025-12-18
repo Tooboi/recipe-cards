@@ -24,11 +24,10 @@ type SafeRecipe = {
   hidden: boolean;
   imageId: string | null;
   author: string | null;
+  serving: string;
 };
 
 export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
-  
-
   const [updatedTitle, setUpdatedTitle] = useState(recipe.title || "");
   const [ingredients, setIngredients] = useState<Ingredient[]>(
     recipe.ingredients?.map((str) => {
@@ -42,6 +41,14 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
   const [instructions, setInstructions] = useState(recipe.instructions || []);
   // const [hidden, setHidden] = useState(recipe.hidden || false);
   // const [loading, setLoading] = useState(false);
+
+  const [yieldAmount, setYieldAmount] = useState(
+    recipe.serving ? recipe.serving.split(" ")[0] : ""
+  );
+
+  const [yieldUnit, setYieldUnit] = useState(
+    recipe.serving ? recipe.serving.split(" ").slice(1).join(" ") : ""
+  );
 
   const updateField = (
     setter: React.Dispatch<React.SetStateAction<string[]>>,
@@ -176,6 +183,28 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
             />
           </div>
 
+          <div>
+            <h2 className="font-semibold pt-2">Yield</h2>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Amount"
+                value={yieldAmount}
+                onChange={(e) => setYieldAmount(e.target.value)}
+                className="w-1/5 bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm p-2 rounded-md "
+              />
+
+              <input
+                type="text"
+                placeholder="Unit"
+                value={yieldUnit}
+                onChange={(e) => setYieldUnit(e.target.value)}
+                className="w-full bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm p-2 rounded-md"
+              ></input>
+            </div>
+          </div>
+
           <h2 className="font-semibold pt-4 pb-2">Ingredients</h2>
           {ingredients.map((ingredient, i) => (
             <div key={i} className="flex gap-2 mb-2 items-center">
@@ -191,7 +220,9 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 }
                 className="shrink-0 w-20 bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
               />
-              <select
+              <input
+                type="text"
+                placeholder="Unit"
                 id={`unit-select-${i}`}
                 title={`Select unit for ingredient ${i + 1}`}
                 value={ingredient.unit}
@@ -200,7 +231,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 }
                 className="bg-gray-50 shrink-0 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md placeholder:text-gray-300"
               >
-                <option value="">Unit</option>
+                {/* <option value="">Unit</option>
                 <option value="tsp">tsp</option>
                 <option value="tbsp">tbsp</option>
                 <option value="cup">cup</option>
@@ -218,8 +249,8 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 <option value="finger">finger</option>
                 <option value="small">small</option>
                 <option value="medium">medium</option>
-                <option value="large">large</option>
-              </select>
+                <option value="large">large</option> */}
+              </input>
               <input
                 type="text"
                 placeholder="Ingredient"
@@ -306,7 +337,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
           >
             + Add Step
           </button>
-{/* 
+          {/* 
           <div className="mt-4">
             <input
               type="checkbox"
@@ -319,16 +350,16 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
             </label>
           </div> */}
           <div>
-          <button
-            className="mt-6 p-2 rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-200 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
-            onClick={handlePDFExport}
-            // disabled={loading}
-          >
-            {/* {loading ? "Saving..." :  */}
-            Download Recipe
-            {/* } */}
-          </button></div>
-          
+            <button
+              className="mt-6 p-2 rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-200 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
+              onClick={handlePDFExport}
+              // disabled={loading}
+            >
+              {/* {loading ? "Saving..." :  */}
+              Download Recipe
+              {/* } */}
+            </button>
+          </div>
         </div>
       </div>
       <div className="hidden">
@@ -342,6 +373,11 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
         >
           <div className="p-4">
             <h1 className="text-xl font-bold">{updatedTitle}</h1>
+            {yieldAmount && yieldUnit && (
+              <p className="font-medium italic mt-1">
+                Yield: {yieldAmount} {yieldUnit}
+              </p>
+            )}
 
             {updatedDescription && (
               <p className="italic mb-2">{updatedDescription}</p>
