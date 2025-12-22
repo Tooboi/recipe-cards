@@ -37,11 +37,7 @@ export default async function Home() {
   }));
 
   return (
-    <div className="flex flex-col items-center">
-      {/* <div className="flex w-full flex-col rounded-xl border-4 border-gray-600 bg-gray-700 py-4 transition-all sm:w-1/2">
-        <h1 className="text-center text-3xl tracking-wide">Recipe Card Generator</h1>
-      </div> */}
-      
+    <div className="flex flex-col">      
       <RecipesList initialRecipes={cleanedRecipes} />
     </div>
   );
