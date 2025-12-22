@@ -187,13 +187,13 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                               </span>
                             </span>
                             <div>
-                              <span className="h-full py-1 border-l-2 border-gray-600 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
+                              <span className="h-full py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
                                 <div>
-                                  <span className="ml-1  line-clamp-1">
-                                    Yield: {recipe.serving}
+                                  <span className="ml-1 line-clamp-1 text-end">
+                                    {recipe.serving}
                                   </span>
 
-                                  <span className="ml-1 line-clamp-1">
+                                  <span className="ml-1 line-clamp-1 text-end">
                                     {recipe.ingredients.length}{" "}
                                     {recipe.ingredients.length === 1
                                       ? "Ingredient"
@@ -211,7 +211,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                   <div className="hidden sm:h-full sm:flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
                     <div className=" flex justify-between items-start p-2">
                       <div className="flex flex-col">
-                        <p className="font-medium text-lg/5 line-clamp-2 ">
+                        <p className="font-medium text-lg/5 line-clamp-1 ">
                           {recipe.title || "Recipe"}
                         </p>
                         <p className="text-gray-500 text-sm">
@@ -311,17 +311,14 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                       </span>
                       <span className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
                         <div>
-                          <span className="ml-1 hidden sm:block line-clamp-1">
+                          <span className="ml-1 hidden sm:block line-clamp-1 text-end">
                             Yield: {recipe.serving}
                           </span>
-                          <span className="ml-1 sm:hidden block line-clamp-1">
-                            {recipe.serving}
-                          </span>
-                          <span className="ml-1 hidden sm:block line-clamp-1">
-                            {recipe.ingredients.length} Ingredients
-                          </span>
-                          <span className="ml-1 sm:hidden block line-clamp-1">
-                            {recipe.ingredients.length} Items
+                          <span className="ml-1 line-clamp-1 text-end">
+                            {recipe.ingredients.length}{" "}
+                            {recipe.ingredients.length === 1
+                              ? "Ingredient"
+                              : "Ingredients"}
                           </span>
                         </div>
                       </span>
