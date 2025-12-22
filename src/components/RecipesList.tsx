@@ -111,20 +111,104 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
             </h1>
           </Link>
         </div>
-        <div className="pt-2 flex justify-center">
+        <div className="pt-2 flex sm:justify-center">
           {initialRecipes.length === 0 ? (
             <div className="text-center py-10 text-gray-500 italic">
               No recipes found. Create one now!
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 gap-2 sm:px-4 px-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 gap-2 px-4 w-full sm:w-max">
               {initialRecipes.map((recipe) => (
                 <Link
                   href={`/recipes/${recipe.id}`}
                   key={recipe.id}
-                  className="block col-span-1 max-w-72"
+                  className="block col-span-1 w-full sm:max-w-72"
                 >
-                  <div className="h-full flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
+                  <div className="sm:h-full flex sm:hidden flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
+                    <div className="flex flex-row">
+                      <div className="w-1/4">
+                        {recipe.imageId && recipe.imageId.length > 0 ? (
+                          <div className="h-full w-full flex ">
+                            <div className="overflow-hidden mx-auto">
+                              <CldImage
+                                alt="Thumbnail"
+                                src={recipe.imageId}
+                                width="100"
+                                height="100"
+                                crop="fill"
+                                aspectRatio="1:1"
+                                sizes="100vw"
+                                className="mx-auto w-full h-full border-r-2 group-hover:brightness-110 transition-all border-gray-600 overflow-hidden"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="bg-gray-400/50 h-full flex w-full">
+                            <Image
+                              className="w-full h-full grow border-r-2 border-gray-600 "
+                              width={100}
+                              height={100}
+                              unoptimized
+                              src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
+                              alt={recipe.id}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className=" w-3/4 flex flex-col ">
+                        <div className="pl-2  bg-gray-200 border-b-2 border-gray-600 h-1/2">
+                          <div className="flex flex-col ">
+                            <p className="font-medium text-md/5 line-clamp-1 ">
+                              {recipe.title || "Recipe"}
+                            </p>
+                            <p className="text-gray-500 text-sm -mt-1">
+                              {recipe.user.username}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="h-1/2">
+                          <div className="flex justify-between h-full">
+                            <span className=" py-1 pl-1 h-full text-xs font-regular text-gray-900 mr-1 flex flex-row items-end">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 16 16"
+                                fill="currentColor"
+                                className="size-4"
+                              >
+                                <path d="M5.75 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM5 10.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM10.25 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM7.25 8.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM8 9.5A.75.75 0 1 0 8 11a.75.75 0 0 0 0-1.5Z" />
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4.75 1a.75.75 0 0 0-.75.75V3a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2V1.75a.75.75 0 0 0-1.5 0V3h-5V1.75A.75.75 0 0 0 4.75 1ZM3.5 7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v4.5a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V7Z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              <span className="ml-1">
+                                {formatDate(recipe.updatedAt)}
+                              </span>
+                            </span>
+                            <div>
+                              <span className="h-full py-1 border-l-2 border-gray-600 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
+                                <div>
+                                  <span className="ml-1  line-clamp-1">
+                                    Yield: {recipe.serving}
+                                  </span>
+
+                                  <span className="ml-1 line-clamp-1">
+                                    {recipe.ingredients.length}{" "}
+                                    {recipe.ingredients.length === 1
+                                      ? "Ingredient"
+                                      : "Ingredients"}
+                                  </span>
+                                </div>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="hidden sm:h-full sm:flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
                     <div className=" flex justify-between items-start p-2">
                       <div className="flex flex-col">
                         <p className="font-medium text-lg/5 line-clamp-2 ">
