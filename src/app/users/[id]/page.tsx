@@ -99,6 +99,7 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 gap-2 sm:px-4 px-2 pt-2">
               {user?.Recipe.map((recipe) => (
                 <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">
+                  
                   <div className="h-full flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
                     <div className="flex justify-between items-start p-2">
                       <p className="font-medium text-lg/5 line-clamp-2 ">
