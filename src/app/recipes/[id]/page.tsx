@@ -86,7 +86,7 @@ export default async function RecipeDetails({
   return (
     <div className="sm:m-4 m-2">
       {/* MOBILE */}
-      <div className="sm:hidden bg-gray-400 border-gray-800  rounded-lg border-2 w-full flex flex-col h-max drop-shadow-md overflow-hidden">
+      <div className=" bg-gray-400 border-gray-800  rounded-lg border-2 w-full flex flex-col h-max drop-shadow-md overflow-hidden">
         <div className="flex sm:hidden flex-col border-b-2 border-gray-700 overflow-hidden  bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
           <div className="flex flex-row">
             <div className="flex flex-col w-full">
