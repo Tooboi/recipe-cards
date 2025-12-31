@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
       { hostname: "res.cloudinary.com" },
       { hostname: "source.boringavatars.com" },
       { hostname: "api.dicebear.com" },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+      }
     ],
   }
 };

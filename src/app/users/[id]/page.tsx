@@ -15,6 +15,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 // import BookmarkButton from '@/components/wrappers/BookmarkButton';
 
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+
 function formatDate(createdAt: string) {
   const date = new Date(createdAt);
   const now = new Date();
@@ -62,6 +65,9 @@ function formatDate(createdAt: string) {
 export default async function UserIDpage({ params }: { params: Promise<{ id: string }> }) {
 
   const selectedUser = (await params).id;
+  const session = await auth();
+
+  if (!session?.user) redirect("/")
 
   const user = await prisma.user.findUnique({
     where: { id: selectedUser },
@@ -96,6 +102,7 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
           </>
         ) : (
           <div className='flex justify-center'>
+            <h1>{session?.user?.name}</h1>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 gap-2 sm:px-4 px-2 pt-2">
               {user?.Recipe.map((recipe) => (
                 <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">
