@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import prisma from "@/lib/prisma";
-import { currentUser } from "@clerk/nextjs/server";
-import { SignOutButton, UserAvatar } from "@clerk/nextjs";
+// import { currentUser } from "@clerk/nextjs/server";
+// import { SignOutButton, UserAvatar } from "@clerk/nextjs";
+import Logout from "@/components/Logout";
 import { BookmarkIcon, PlusIcon } from "@heroicons/react/24/solid";
 import {
   DropdownMenu,
@@ -17,21 +19,19 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
 
 export default async function Navbar() {
+  // Find user object ID from session
   const session = await auth();
   const isSignedIn = !!session?.user;
-  const userId = session?.user?.id;
-  console.log(userId);
-  
 
-  const clerkUser = await currentUser();
   let internalUserId: string | null = null;
 
-  if (clerkUser?.id) {
+  if (session?.user?.email) {
     const dbUser = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUser.id },
+      where: { email: session.user.email },
       select: { id: true },
     });
     internalUserId = dbUser?.id ?? null;
+    console.log(internalUserId);
   }
 
   return (
@@ -62,7 +62,7 @@ export default async function Navbar() {
           </Link>
 
           {/* ================= SIGNED IN ================= */}
-          {isSignedIn && internalUserId && (
+          {isSignedIn && (
             <>
               <Link
                 href={`/users/${internalUserId}`}
@@ -77,9 +77,16 @@ export default async function Navbar() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="rounded-full ml-2">
                     <div className="border-2 border-gray-800 rounded-full">
-                      <UserAvatar />
+                      <Image
+                        className="w-full h-full grow bg-gray-500/50 rounded-full"
+                        width={80}
+                        height={80}
+                        unoptimized
+                        src={`https://api.dicebear.com/9.x/identicon/svg?size=80&scale=80&seed=${session?.user?.id}&backgroundType[]&backgroundColor=transparent`}
+                        alt={session?.user?.id || "user"}
+                      />
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
@@ -119,13 +126,11 @@ export default async function Navbar() {
 
                   <DropdownMenuGroup>
                     <DropdownMenuItem asChild>
-                      <Link href="/profile">
-                        {session?.user?.email}
-                      </Link>
+                      <Link href="/profile">{session?.user?.name}</Link>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem>
-                      <SignOutButton />
+                      <Logout />
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>

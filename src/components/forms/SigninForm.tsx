@@ -20,6 +20,7 @@ export default function SigninForm() {
         console.error(response.error);
       } else {
         router.push("/");
+        router.refresh();
       }
     } catch (e) {
       console.error(e);
