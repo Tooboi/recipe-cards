@@ -1,4 +1,4 @@
-import { doLogout } from "@/app/actions";
+import { doLogout } from "../app/actions/index.js";
 
 export default function Logout() {
   return (

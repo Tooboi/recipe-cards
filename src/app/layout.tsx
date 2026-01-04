@@ -1,24 +1,27 @@
-import type { Metadata } from 'next';
-import { Rubik } from 'next/font/google';
-import './globals.css';
-import Navbar from '@/components/Navbar';
-import { Toaster } from '@/components/ui/sonner';
+import type { Metadata } from "next";
+import { Rubik } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/Navbar";
+import { Toaster } from "@/components/ui/sonner";
 // import { SessionProvider } from "next-auth/react"
+import {connectToDatabase} from "@/lib/mongo";
 
-
-const rubik = Rubik({ subsets: ['latin'] });
+const rubik = Rubik({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Recipe Card',
-  description: 'Recipe Card Generator',
+  title: "Recipe Card",
+  description: "Recipe Card Generator",
 };
-import { ClerkProvider, ClerkLoaded, ClerkLoading } from '@clerk/nextjs';
+import { ClerkProvider, ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+await connectToDatabase;
+  
+
   return (
     <ClerkProvider>
       <html lang="en">
@@ -26,7 +29,9 @@ export default function RootLayout({
           <main className="m-auto min-h-screen min-w-[300px] pb-8">
             <Navbar />
             <ClerkLoading>
-              <div className="flex flex-col items-center text-center mt-32">LOADING...</div>
+              <div className="flex flex-col items-center text-center mt-32">
+                LOADING...
+              </div>
             </ClerkLoading>
             <ClerkLoaded>
               {children} <Toaster position="bottom-right" />

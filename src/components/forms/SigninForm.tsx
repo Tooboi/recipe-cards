@@ -1,18 +1,33 @@
-// import Image from "next/image";
-import { doSocialLogin } from "../app/actions/index.js";
-import Link from "next/link";
+"use client";
 
-export default function LoginForm() {
+// import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { doCredentialLogin } from "../../app/actions/index.js";
+import Link from "next/link";
+// import { useState } from "react";
+
+export default function SigninForm() {
+  const router = useRouter();
+
+  async function onSubmit(event: { preventDefault: () => void; currentTarget: HTMLFormElement | undefined; }) {
+    event.preventDefault();
+    try {
+      const formData = new FormData(event.currentTarget);
+
+      const response = await doCredentialLogin(formData);
+
+      if (!!response.error) {
+        console.error(response.error);
+      } else {
+        router.push("/");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-900">
-        <body class="h-full">
-        ```
-      */}
       <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           {/* <Image
@@ -23,14 +38,19 @@ export default function LoginForm() {
             width={100}
             height={100}
           /> */}
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Sign in</h2>
+          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">
+            Sign In
+          </h2>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action={doSocialLogin} className="space-y-6">
+          <form onSubmit={onSubmit}  className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-100">
-                Email address
+              <label
+                htmlFor="email"
+                className="block text-sm/6 font-medium text-gray-100"
+              >
+                Email
               </label>
               <div className="mt-2">
                 <input
@@ -46,7 +66,10 @@ export default function LoginForm() {
 
             <div>
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-100">
+                <label
+                  htmlFor="password"
+                  className="block text-sm/6 font-medium text-gray-100"
+                >
                   Password
                 </label>
                 {/* <div className="text-sm">
@@ -67,7 +90,7 @@ export default function LoginForm() {
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <button
                 type="submit"
                 name="action"
@@ -84,17 +107,27 @@ export default function LoginForm() {
               >
                 Sign in With GitHub
               </button>
-            </div>
+            </div> */}
+
+            <button
+              type="submit"
+              className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            >
+              Sign In
+            </button>
           </form>
 
           <p className="mt-10 text-center text-sm/6 text-gray-400">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-semibold text-gray-200 hover:text-gray-300">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/signup"
+              className="font-semibold text-gray-200 hover:text-gray-300"
+            >
               Sign Up
             </Link>
           </p>
         </div>
       </div>
     </>
-  )
+  );
 }
