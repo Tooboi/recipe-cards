@@ -69,4 +69,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      // Runs on sign-in
+      if (user) {
+        token.id = user.id; // persist MongoDB ObjectId
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user && token.id) {
+        session.user.id = String(token.id);
+      }
+      return session;
+    },
+  },
 });

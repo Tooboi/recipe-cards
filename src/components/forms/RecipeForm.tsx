@@ -8,10 +8,12 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { createRecipe } from "@/app/actions";
 import { CldImage, CldUploadWidget } from "next-cloudinary";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 
 import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs";
+// import GetUserID from "../GetUserId";
+import { useSession } from "next-auth/react";
 
 function formatBytes(fileSize: number): string {
   const sizes = ["B", "KB", "MB"];
@@ -29,13 +31,35 @@ function formatBytes(fileSize: number): string {
   return `${formattedSizeWithoutDecimal} ${sizes[i]}`;
 }
 
-export default function RecipeForm() {
-  const { isLoaded, isSignedIn, user } = useUser();
-  if (!isLoaded || !isSignedIn) {
-    console.log("not signed in");
-  }
+export default function  RecipeForm() {
+  const user = useUser().user;
 
+  const { data: session, status } = useSession();
+  console.log(status);
   
+  // const { isLoaded, isSignedIn, user } = useUser();
+  // if (!isLoaded || !isSignedIn) {
+  //   console.log("not signed in");
+  // }
+
+    // Find user object ID from session
+  // const { data: session } = useSession()
+  // const authUser = session?.user;
+  // const isSignedIn = !!session?.user;
+  // console.log(authUser, isSignedIn);
+
+
+
+  // let internalUserId: string | null = null;
+
+  // if (session?.user?.email) {
+  //   const dbUser = await prisma.user.findUnique({
+  //     where: { email: session.user.email },
+  //     select: { id: true },
+  //   });
+  //   internalUserId = dbUser?.id ?? null;
+  //   console.log(internalUserId);
+  // }
 
   const googleFonts = [
     { label: "Rubik", value: "Rubik" },
@@ -127,6 +151,8 @@ export default function RecipeForm() {
       console.error("Recipe preview element not found!");
       return;
     }
+
+    const html2pdf = (await import("html2pdf.js")).default;
 
     html2pdf()
       .from(element as HTMLElement)
@@ -243,10 +269,13 @@ export default function RecipeForm() {
   const [buttonClassName, setButtonClassName] = useState(
     "w-full mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
   );
+console.log(session);
 
   return (
     <div className="h-dvh">
       <div className="flex h-dvh p-4">
+        <p>{session?.user?.name}</p>
+        <p>{session?.expires}</p>
         {/* Left Panel */}
         <section className=" bg-gray-300 border-gray-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
           <div className="">

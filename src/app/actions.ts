@@ -4,6 +4,7 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import crypto from "crypto";
 
 // READ actions
 // export async function getUsersRecipes() {
@@ -17,6 +18,9 @@ import { revalidatePath } from "next/cache";
 
 //   }
 // }
+
+const tempClerkUserId = `temp_${crypto.randomUUID()}`;
+
 
 export async function getUsers() {
   try {
@@ -109,12 +113,15 @@ export async function createUser({
   }
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  const clerkUserId = `temp_${crypto.randomUUID()}`;
+
   try {
     const user = await prisma.user.create({
       data: {
         email,
         username,
         hashedPassword,
+        clerkUserId
       },
     });
 

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createUser } from "@/app/actions";
 // import { useRouter } from "next/navigation";
-import { doSocialLogin } from "../../app/actions/index.js";
+// import { doSocialLogin } from "../../app/actions/index.js";
 // import Link from "next/link";
 
 export default function SignupForm() {
@@ -94,7 +94,7 @@ export default function SignupForm() {
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form
-            action={doSocialLogin}
+            // action={doSocialLogin}
             onSubmit={handleSignup}
             className="space-y-6"
           >
