@@ -102,7 +102,6 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
           </>
         ) : (
           <div className='flex justify-center'>
-            <h1>{session?.user?.name}</h1>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 gap-2 sm:px-4 px-2 pt-2">
               {user?.Recipe.map((recipe) => (
                 <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">

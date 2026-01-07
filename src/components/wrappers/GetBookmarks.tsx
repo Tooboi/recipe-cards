@@ -2,14 +2,15 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { currentUser } from '@clerk/nextjs/server';
+import { getServerSession  } from "next-auth/react";
 
 export async function getBookmarks() {
-  const clerkUser = await currentUser();
-  if (!clerkUser?.id) throw new Error('Not logged in');
+    const { data: session } = getServerSession ();
+  const AuthUser = session?.user;
+  if (!AuthUser?.id) throw new Error('Not logged in');
 
   const user = await prisma.user.findUnique({
-    where: { clerkUserId: clerkUser.id },
+    where: { id: AuthUser.id },
     select: { bookmarkedRecipeIds: true } as any,
   });
 
@@ -17,11 +18,12 @@ export async function getBookmarks() {
 }
 
 export async function getBookmarkedRecipes() {
-  const clerkUser = await currentUser();
-  if (!clerkUser?.id) throw new Error('Not logged in');
+  const { data: session } = useSession();
+  const AuthUser = session?.user;
+  if (!AuthUser?.id) throw new Error('Not logged in');
 
   const user = await prisma.user.findUnique({
-    where: { clerkUserId: clerkUser.id },
+    where: { id: AuthUser.id },
     select: { bookmarkedRecipeIds: true },
   });
 

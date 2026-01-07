@@ -10,10 +10,8 @@ import { createRecipe } from "@/app/actions";
 import { CldImage, CldUploadWidget } from "next-cloudinary";
 // import html2pdf from "html2pdf.js";
 import { PhotoIcon } from "@heroicons/react/24/solid";
-
-import { SignedIn, SignedOut, SignInButton, useUser } from "@clerk/nextjs";
-// import GetUserID from "../GetUserId";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 function formatBytes(fileSize: number): string {
   const sizes = ["B", "KB", "MB"];
@@ -31,35 +29,13 @@ function formatBytes(fileSize: number): string {
   return `${formattedSizeWithoutDecimal} ${sizes[i]}`;
 }
 
-export default function  RecipeForm() {
-  const user = useUser().user;
+export default function RecipeForm() {
 
   const { data: session, status } = useSession();
+  const user = session?.user;
+  const isSignedIn = !!session?.user;
   console.log(status);
-  
-  // const { isLoaded, isSignedIn, user } = useUser();
-  // if (!isLoaded || !isSignedIn) {
-  //   console.log("not signed in");
-  // }
 
-    // Find user object ID from session
-  // const { data: session } = useSession()
-  // const authUser = session?.user;
-  // const isSignedIn = !!session?.user;
-  // console.log(authUser, isSignedIn);
-
-
-
-  // let internalUserId: string | null = null;
-
-  // if (session?.user?.email) {
-  //   const dbUser = await prisma.user.findUnique({
-  //     where: { email: session.user.email },
-  //     select: { id: true },
-  //   });
-  //   internalUserId = dbUser?.id ?? null;
-  //   console.log(internalUserId);
-  // }
 
   const googleFonts = [
     { label: "Rubik", value: "Rubik" },
@@ -69,20 +45,20 @@ export default function  RecipeForm() {
   const [tab, setTab] = useState<"editor" | "decor">("editor");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const clerkUserId = user?.id || "";
+  const id = user?.id || "";
 
   const [imageId, setImageId] = useState("");
   const [includeImage, setIncludeImage] = useState(false);
 
-  const defaultAuthor = user?.username || "";
+  const defaultAuthor = user?.name || "";
   const [showAuthor, setShowAuthor] = useState(true);
   const [authorName, setAuthorName] = useState(defaultAuthor);
 
   useEffect(() => {
-    if (user?.username && !authorName) {
-      setAuthorName(user.username);
+    if (user?.name && !authorName) {
+      setAuthorName(user.name);
     }
-  }, [user?.username, authorName]);
+  }, [user?.name, authorName]);
   const [yieldAmount, setYieldAmount] = useState("1");
   const [yieldUnit, setYieldUnit] = useState("Serving");
 
@@ -103,8 +79,8 @@ export default function  RecipeForm() {
   );
 
   const handleCreateRecipe = async () => {
-    console.log("Ingredients before saving:", transformedIngredients);
-    console.log(clerkUserId);
+    // console.log("Ingredients before saving:", transformedIngredients);
+    // console.log(clerkUserId);
 
     setLoading(true);
     try {
@@ -116,7 +92,7 @@ export default function  RecipeForm() {
         pdfSize,
         font,
         hidden,
-        clerkUserId,
+        id,
         imageId: includeImage ? imageId : "",
         author: showAuthor ? authorName : "",
         serving: yieldAmount && yieldUnit ? `${yieldAmount} ${yieldUnit}` : "",
@@ -269,13 +245,11 @@ export default function  RecipeForm() {
   const [buttonClassName, setButtonClassName] = useState(
     "w-full mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
   );
-console.log(session);
+  console.log(session);
 
   return (
     <div className="h-dvh">
       <div className="flex h-dvh p-4">
-        <p>{session?.user?.name}</p>
-        <p>{session?.expires}</p>
         {/* Left Panel */}
         <section className=" bg-gray-300 border-gray-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
           <div className="">
@@ -422,7 +396,7 @@ console.log(session);
                 </div>
 
                 <div>
-                  <SignedIn>
+                  {isSignedIn && (
                     <div className=" flex flex-col">
                       <div className="flex flex-col items-start">
                         <h2 className="font-semibold pt-2">Author</h2>
@@ -450,7 +424,7 @@ console.log(session);
                         className="w-full border-2 p-2 rounded-md bg-gray-50 border-gray-400 text-sm focus:ring-gray-500 focus:border-gray-500"
                       />
                     </div>
-                  </SignedIn>
+                  )}
                 </div>
 
                 <div>
@@ -770,7 +744,7 @@ console.log(session);
                   >
                     Export as PDF
                   </button>
-                  <SignedIn>
+                    {isSignedIn && (
                     <button
                       className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
                       disabled={loading}
@@ -778,14 +752,12 @@ console.log(session);
                     >
                       {loading ? "Saving..." : "Save Recipe"}
                     </button>
-                  </SignedIn>
-                  <SignedOut>
-                    <SignInButton>
-                      <button className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600">
+                    )}
+                    {!isSignedIn && (
+                      <Link href="/signin" className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600">
                         Sign In to Save
-                      </button>
-                    </SignInButton>
-                  </SignedOut>
+                      </Link>
+                    )}
                 </div>
               </div>
             )}

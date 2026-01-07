@@ -148,7 +148,7 @@ export async function createRecipe({
   font,
   pdfSize,
   hidden,
-  clerkUserId,
+  id,
   imageId,
   author,
   serving,
@@ -160,7 +160,7 @@ export async function createRecipe({
   font: string;
   pdfSize: string;
   hidden: boolean;
-  clerkUserId: string;
+  id: string;
   imageId?: string;
   author?: string;
   serving: string;
@@ -171,7 +171,7 @@ export async function createRecipe({
   try {
     // Ensure the author exists
     const userExists = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId },
+      where: { id: id },
     });
     if (!userExists) {
       throw new Error("User not found");
@@ -187,7 +187,7 @@ export async function createRecipe({
         pdfSize,
         hidden,
         user: {
-          connect: { clerkUserId: clerkUserId },
+          connect: { id: id },
         },
         imageId,
         author,
