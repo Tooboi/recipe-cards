@@ -1,38 +1,45 @@
-# Recipe Card Maker
 
--------------------------
+# Recipe Card Vault
 
-## Getting Started
+Website for posting and storing recipies as well as exporting them as pdf documents on mobile and desktop.
 
-First, run the development server:
+
+
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+
+![GitHub Created At](https://img.shields.io/github/created-at/Tooboi/recipe-cards)
+
+
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/Tooboi/recipe-cards/main)
+
+## Installation
+
+Install recipe-cards with npm
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+  npm install
 ```
+    
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Mobile/Desktop
+- Live pdf previews
+- Add images
+- Cross platform
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tech Stack
 
-## Learn More
+**Client/Server:** Next.js app router, TailwindCSS, Prisma, Cloudinary
 
-To learn more about Next.js, take a look at the following resources:
+**Auth:** NextAuth
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Deployment:** Vercel, MongoDB
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Demo
+
+https://recipe-cards-two.vercel.app/
+
