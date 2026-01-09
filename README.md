@@ -25,7 +25,8 @@ Install recipe-cards with npm
 - Mobile/Desktop
 - Live pdf previews
 - Add images
-- Cross platform
+- Bookmark favorite recipes
+- User authentication
 
 
 ## Tech Stack
