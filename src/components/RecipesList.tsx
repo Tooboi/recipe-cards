@@ -4,12 +4,11 @@ import Link from "next/link";
 import {
   differenceInMinutes,
   differenceInHours,
-  differenceInDays,
   format,
-  differenceInYears,
 } from "date-fns";
 import Image from "next/image";
 import { CldImage } from "next-cloudinary";
+// import Avatar from "boring-avatars";
 // import { toggleBookmark } from './wrappers/BookmarkAction';
 // import { useState } from 'react';
 // import { useEffect } from 'react';
@@ -22,8 +21,6 @@ function formatDate(createdAt: string) {
 
   const minutes = differenceInMinutes(now, date);
   const hours = differenceInHours(now, date);
-  const days = differenceInDays(now, date);
-  const years = differenceInYears(now, date);
 
   if (minutes < 1) {
     return "Just now";
@@ -37,23 +34,8 @@ function formatDate(createdAt: string) {
     return `${hours}h ago`;
   }
 
-  if (days === 1) {
-    return "Yesterday";
-  }
 
-  if (days < 7) {
-    return `${days} days ago`;
-  }
-
-  if (years > 1) {
-    return `${years} year ago`;
-  }
-
-  if (years > 2) {
-    return `${years} years ago`;
-  }
-
-  return format(date, "MMM d, yyyy");
+  return format(date, "M/d/yy");
 }
 
 interface RecipesListProps {
@@ -263,6 +245,18 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                         </div>
                       ) : (
                         <div className="bg-gray-400/50 h-full flex w-full">
+                          {/* <Avatar
+                            name={recipe?.id}
+                            variant="pixel"
+                            size={256}
+                            square
+                            colors={[
+                              "#d1d5db",
+                              "#4b5563",
+                              // "#111827",
+                              // "#030712",
+                            ]}
+                          /> */}
                           <Image
                             className="w-full h-full grow border-t-2 border-gray-600 "
                             width={100}
@@ -290,7 +284,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                       </div>
                     </div> */}
                     </div>
-                    <div className=" px-2 py-2 flex flex-row items-center justify-between bg-gray-400 group-hover:bg-gray-400/70 transition-colors border-t-2 border-gray-600">
+                    <div className=" px-2 py-1 flex flex-row items-center justify-between bg-gray-400 group-hover:bg-gray-400/70 transition-colors border-t-2 border-gray-600">
                       <span className="py-1 h-full text-xs font-regular text-gray-900 mr-1 flex flex-row items-end">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -312,7 +306,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
                       <span className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
                         <div>
                           <span className="ml-1 hidden sm:block line-clamp-1 text-end">
-                            Yield: {recipe.serving}
+                            {recipe.serving}
                           </span>
                           <span className="ml-1 line-clamp-1 text-end">
                             {recipe.ingredients.length}{" "}

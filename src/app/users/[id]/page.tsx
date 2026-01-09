@@ -7,9 +7,7 @@ import prisma from '@/lib/prisma';
 import {
   differenceInMinutes,
   differenceInHours,
-  differenceInDays,
   format,
-  differenceInYears,
 } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -24,8 +22,6 @@ function formatDate(createdAt: string) {
 
   const minutes = differenceInMinutes(now, date);
   const hours = differenceInHours(now, date);
-  const days = differenceInDays(now, date);
-  const years = differenceInYears(now, date);
 
   if (minutes < 1) {
     return 'Just now';
@@ -39,23 +35,9 @@ function formatDate(createdAt: string) {
     return `${hours}h ago`;
   }
 
-  if (days === 1) {
-    return 'Yesterday';
-  }
 
-  if (days < 7) {
-    return `${days} days ago`;
-  }
 
-  if (years > 1) {
-    return `${years} year ago`;
-  }
-
-  if (years > 2) {
-    return `${years} years ago`;
-  }
-
-  return format(date, 'MMM d, yyyy');
+  return format(date, 'M/d/yy');
 }
 
 // type SortOption = 'recent' | 'oldest' | 'title-asc' | 'title-desc';

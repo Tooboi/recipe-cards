@@ -244,7 +244,7 @@ export default function RecipeForm() {
   const [buttonClassName, setButtonClassName] = useState(
     "w-full mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
   );
-  console.log(session);
+  // console.log(session);
 
   return (
     <div className="h-dvh">

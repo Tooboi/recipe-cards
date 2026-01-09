@@ -15,9 +15,9 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
-
+// import Avatar from "boring-avatars";
 
 export default async function Navbar() {
   // Find user object ID from session
@@ -73,23 +73,31 @@ export default async function Navbar() {
               </Link>
 
               <Link href={`/users/${internalUserId}/bookmarks`}>
-                <BookmarkIcon className="w-7 h-7 text-gray-700 hover:text-amber-700 transition" />
+                <BookmarkIcon className="w-7 h-7 text-gray-700 hover:text-amber-600 active:text-amber-700 transition" />
               </Link>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full ml-2">
-                    <div className="border-2 border-gray-800 rounded-full">
-                      <Image
-                        className="w-full h-full grow bg-gray-500/50 rounded-full"
-                        width={80}
-                        height={80}
-                        unoptimized
-                        src={`https://api.dicebear.com/9.x/identicon/svg?size=80&scale=80&seed=${session?.user?.id}&backgroundType[]&backgroundColor=transparent`}
-                        alt={session?.user?.id || "user"}
-                      />
-                    </div>
-                  </Button>
+                  <button
+                    id="avatar"
+                    aria-label="Avatar"
+                    className="rounded-full ml-2 hover:brightness-105 active:brightness-100 hover:rotate-8 transition-all"
+                  >
+                    {/* <Avatar
+                      name={session?.user?.id}
+                      variant="beam"
+                      size={32}
+                      colors={["#d1d5db", "#4b5563", "#111827", "#030712"]}
+                    /> */}
+                    <Image
+                      className="w-full h-full grow border-2 border-gray-600 bg-gray-500/60 rounded-full overflow-hidden"
+                      width={100}
+                      height={100}
+                      unoptimized
+                      src={`https://api.dicebear.com/9.x/pixel-art/svg?size=32&seed=${internalUserId}`}
+                      alt={internalUserId || 'null'}
+                    />
+                  </button>
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent sideOffset={12}>

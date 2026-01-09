@@ -35,7 +35,7 @@ export default function Profile() {
 
   return (
     <div className="flex min-h-128 justify-center px-4">
-      <div className="w-full max-w-xl mt-10 bg-gray-300 border-2 border-gray-700 rounded-lg p-6 shadow-md">
+      <div className="flexw-full max-w-xl mt-10 bg-gray-300 border-2 border-gray-700 rounded-lg p-6 shadow-md">
         <h1 className="text-2xl font-semibold mb-4">Profile</h1>
 
         {/* Profile Header */}
@@ -50,17 +50,21 @@ export default function Profile() {
             />
           ) : (
             <div className="w-20 h-20 rounded-full bg-gray-400 flex items-center justify-center border-2 border-gray-700">
-              <span className="text-xl font-semibold">
-                {user.name?.charAt(0) ?? "U"}
-              </span>
+              <Image
+                className="w-full h-full grow bg-gray-500/60 rounded-full overflow-hidden"
+                width={100}
+                height={100}
+                unoptimized
+                src={`https://api.dicebear.com/9.x/pixel-art/svg?size=64&seed=${user.id}`}
+                alt={user.id || "null"}
+              />
             </div>
           )}
 
           <div>
-            <p className="text-lg font-medium">
-              {user.name ?? "Unnamed User"}
-            </p>
+            <p className="text-lg font-medium">{user.name ?? "Unnamed User"}</p>
             <p className="text-sm text-gray-700">{user.email}</p>
+            <div className="text-[0.6rem] text-gray-500">{user.id}</div>
           </div>
         </div>
 
@@ -80,6 +84,7 @@ export default function Profile() {
             Change Password
           </Link>
         </div>
+        
       </div>
     </div>
   );
