@@ -1,37 +1,47 @@
-import type { Metadata } from 'next';
-import { Rubik } from 'next/font/google';
-import './globals.css';
-import Navbar from '@/components/Navbar';
-import { Toaster } from '@/components/ui/sonner';
+import type { Metadata } from "next";
+import { Rubik } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/Navbar";
+import { Toaster } from "@/components/ui/sonner";
+// import { SessionProvider } from "next-auth/react";
+import { connectToDatabase } from "@/lib/mongo";
+import AuthSessionProvider from "@/components/SessionProvider";
+// import { getServerSession } from "next-auth";
 
-const rubik = Rubik({ subsets: ['latin'] });
+const rubik = Rubik({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Recipe Card',
-  description: 'Recipe Card Generator',
+  title: "Recipe Card Vault",
+  description: "Recipe Card Vault",
 };
-import { ClerkProvider, ClerkLoaded, ClerkLoading } from '@clerk/nextjs';
+import { ClerkProvider, 
+  // ClerkLoaded, ClerkLoading
+ } from "@clerk/nextjs";
 
-export default function RootLayout({
+
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  
+  await connectToDatabase;
+
   return (
     <ClerkProvider>
+      {/* <SessionProvider session={session}>  */}
       <html lang="en">
-        <body className={`${rubik.className} antialiased main-bg`}>
+      <body className={`${rubik.className} antialiased main-bg`}>
+        <AuthSessionProvider>
           <main className="m-auto min-h-screen min-w-[300px] pb-8">
             <Navbar />
-            <ClerkLoading>
-              <div className="flex flex-col items-center text-center mt-32">LOADING...</div>
-            </ClerkLoading>
-            <ClerkLoaded>
-              {children} <Toaster position="bottom-right" />
-            </ClerkLoaded>
+            {children}
+            <Toaster position="bottom-right" />
           </main>
-        </body>
-      </html>
-    </ClerkProvider>
+        </AuthSessionProvider>
+      </body>
+    </html>
+     {/* // </SessionProvider>  */}
+     </ClerkProvider>
   );
 }

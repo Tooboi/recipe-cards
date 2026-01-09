@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { currentUser } from "@clerk/nextjs/server";
+// import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import CldImage from "@/components/wrappers/CldImageWrapper";
 import BookmarkButton from "@/components/wrappers/BookmarkButton";
@@ -11,6 +11,10 @@ import {
   format,
   differenceInYears,
 } from "date-fns";
+// import { useSession } from "next-auth/react";
+import { auth } from "@/auth"; // next-auth v5
+
+// import RecipeDetailsClient from "@/components/wrappers/RecipeDetailsClient";
 
 function formatDate(createdAt: string | Date | undefined) {
   if (!createdAt) {
@@ -61,18 +65,11 @@ export default async function RecipeDetails({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // const [b
-  const clerkUser = await currentUser();
-
-  let internalUserId: string | null = null;
-
-  if (clerkUser?.id) {
-    const dbUser = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUser.id },
-      select: { id: true },
-    });
-    internalUserId = dbUser?.id || null;
-  }
+  // const clerkUser = await currentUser();
+  const session = await auth();
+  const internalUserId = session?.user?.id ?? null;
+  const AuthUser = session?.user;
+  console.log(AuthUser, "AuthUser in recipe details page");
 
   const recipeId = (await params).id;
 
@@ -82,6 +79,12 @@ export default async function RecipeDetails({
   });
 
   const isOwner = internalUserId && SingleRecipeById?.userId === internalUserId;
+
+  if (!SingleRecipeById) {
+    return <div>Recipe not found</div>;
+  }
+
+  // <RecipeDetailsClient recipe={SingleRecipeById} />;
 
   return (
     <div className="sm:m-4 m-2">

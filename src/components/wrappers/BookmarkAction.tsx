@@ -2,15 +2,16 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/auth';
 
 export async function toggleBookmark(recipeId: string) {
-  const clerkUser = await currentUser();
-  if (!clerkUser?.id) throw new Error('Not logged in');
+  const session = await auth();
+  const AuthUser = session?.user;
+  if (!AuthUser?.id) throw new Error('Not logged in');
 
   // find internal user id and current bookmarks
   const user = await prisma.user.findUnique({
-    where: { clerkUserId: clerkUser.id },
+    where: { id: AuthUser.id },
     // cast to any because bookmarkedRecipeIds isn't present in the generated types
     select: { id: true, bookmarkedRecipeIds: true } as any,
   });

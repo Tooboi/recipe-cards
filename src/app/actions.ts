@@ -1,22 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use server';
+"use server";
 
-import prisma from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
-import { revalidatePath } from 'next/cache';
+import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
+import { revalidatePath, revalidateTag } from "next/cache";
+// import crypto from "crypto";
 
 // READ actions
 // export async function getUsersRecipes() {
 //   try {
 //     const usersRecipes = await prisma.recipe.findMany({
 //       where: {
-        
+
 //       }
 //     })
 //   } catch (error) {
-    
+
 //   }
 // }
+
+// const tempClerkUserId = `temp_${crypto.randomUUID()}`;
 
 export async function getUsers() {
   try {
@@ -28,46 +31,46 @@ export async function getUsers() {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
       cacheStrategy: {
         ttl: 60, // Cache is fresh for 60 seconds
-        tags: ['users_list'], // Tag for cache invalidation
+        tags: ["users_list"], // Tag for cache invalidation
       },
     });
 
     return users;
   } catch (error) {
-    console.error('Error fetching users:', error);
-    throw new Error('Failed to fetch users');
+    console.error("Error fetching users:", error);
+    throw new Error("Failed to fetch users");
   }
 }
 
-export async function getUserById(clerkUserId: string) {
+export async function getUserById(id: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId },
+      where: { id: id },
       include: {
         Recipe: {
           orderBy: {
-            createdAt: 'desc',
+            createdAt: "desc",
           },
         },
       },
       cacheStrategy: {
         ttl: 30, // Fresh for 30 seconds
         swr: 60, // Then stale but acceptable for 60 more seconds
-        tags: [`user_${clerkUserId}`], // User-specific tag
+        tags: [`user_${id}`], // User-specific tag
       },
     });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     return user;
   } catch (error) {
-    console.error(`Error fetching user with ID ${clerkUserId}:`, error);
+    console.error(`Error fetching user with ID ${id}:`, error);
     throw error;
   }
 }
@@ -77,7 +80,7 @@ export async function getUserByEmail(email: string) {
     where: { email },
     include: {
       Recipe: {
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       },
     },
     cacheStrategy: {
@@ -87,55 +90,95 @@ export async function getUserByEmail(email: string) {
     },
   });
 
-  if (!user) throw new Error('User not found');
+  if (!user) throw new Error("User not found");
   return user;
 }
 
 // CREATE actions
-export async function createUser({ email, username, password }: { email: string; username?: string; password: string }) {
+export async function createUser({
+  email,
+  username,
+  password,
+  image,
+}: {
+  email: string;
+  username: string;
+  password: string;
+  image: string;
+}) {
   if (!email) {
-    throw new Error('Email is required');
+    throw new Error("Email is required");
   }
   if (!password) {
-    throw new Error('Password is required');
+    throw new Error("Password is required");
   }
   const hashedPassword = await bcrypt.hash(password, 10);
+  const normalizedEmail = email.toLowerCase().trim();
 
   try {
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         username,
         hashedPassword,
+        image,
       },
     });
 
     // Revalidate the home page to show the new user
-    revalidatePath('/');
+
+    revalidatePath("/");
 
     return user;
   } catch (error: any) {
     // Handle duplicate email error
-    if (error.code === 'P2002') {
-      throw new Error('A user with this email already exists');
+    // if (error.code === "P2002") {
+    //   throw new Error("A user with this email already exists");
+    // }
+    if (error)  {
+      console.error("Error creating user:", error);
     }
 
-    throw new Error('Failed to create user');
+    throw new Error("Failed to create user");
   }
 }
 
 // Post actions
-export async function createRecipe({ title, description, ingredients, instructions, font, pdfSize, hidden, clerkUserId, imageId, author, serving, }: { title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean; clerkUserId: string; imageId?: string; author?: string; serving: string; }) {
+export async function createRecipe({
+  title,
+  description,
+  ingredients,
+  instructions,
+  font,
+  pdfSize,
+  hidden,
+  id,
+  imageId,
+  author,
+  serving,
+}: {
+  title: string;
+  description?: string;
+  ingredients: string[];
+  instructions: string[];
+  font: string;
+  pdfSize: string;
+  hidden: boolean;
+  id: string;
+  imageId?: string;
+  author?: string;
+  serving: string;
+}) {
   if (!title) {
-    throw new Error('Title is required');
+    throw new Error("Title is required");
   }
   try {
     // Ensure the author exists
     const userExists = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId },
+      where: { id: id },
     });
     if (!userExists) {
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     const post = await prisma.recipe.create({
@@ -148,7 +191,7 @@ export async function createRecipe({ title, description, ingredients, instructio
         pdfSize,
         hidden,
         user: {
-          connect: { clerkUserId: clerkUserId },
+          connect: { id: id },
         },
         imageId,
         author,
@@ -157,18 +200,40 @@ export async function createRecipe({ title, description, ingredients, instructio
     });
 
     // Revalidate the home page to show the new post
-    revalidatePath('/');
+    revalidatePath("/");
 
     return post;
   } catch (error) {
-    console.error('Error creating post:', error);
+    console.error("Error creating post:", error);
     throw error;
   }
 }
 
-export async function updateRecipe({ id, title, description, ingredients, instructions, font, pdfSize, hidden, imageId, author }: { id: string; title: string; description?: string; ingredients: string[]; instructions: string[]; font: string; pdfSize: string; hidden: boolean; imageId?: string; author?: string; }) {
+export async function updateRecipe({
+  id,
+  title,
+  description,
+  ingredients,
+  instructions,
+  font,
+  pdfSize,
+  hidden,
+  imageId,
+  author,
+}: {
+  id: string;
+  title: string;
+  description?: string;
+  ingredients: string[];
+  instructions: string[];
+  font: string;
+  pdfSize: string;
+  hidden: boolean;
+  imageId?: string;
+  author?: string;
+}) {
   if (!title) {
-    throw new Error('Title is required');
+    throw new Error("Title is required");
   }
   //
   //   // Ensure the author exists
@@ -192,7 +257,6 @@ export async function updateRecipe({ id, title, description, ingredients, instru
         hidden,
         imageId,
         author,
-
       },
     });
 
@@ -201,7 +265,106 @@ export async function updateRecipe({ id, title, description, ingredients, instru
 
     return post;
   } catch (error) {
-    console.error('Error creating post:', error);
+    console.error("Error creating post:", error);
+    throw error;
+  }
+}
+
+//? UPDATE actions
+
+export async function updateUsername({
+  id,
+  username,
+}: {
+  id: string;
+  username: string;
+}) {
+  if (!id) {
+    throw new Error("User not authenticated");
+  }
+
+  if (!username || username.length < 3) {
+    throw new Error("Username must be at least 3 characters");
+  }
+
+  try {
+    // Ensure username is unique
+    const existingUser = await prisma.user.findFirst({
+      where: { username },
+    });
+
+    if (existingUser) {
+      throw new Error("Username already taken");
+    }
+
+    await prisma.user.update({
+      where: { id: id },
+      data: { username },
+    });
+
+    revalidatePath("/profile");
+    revalidatePath(`/users/${id}`);
+    revalidateTag(`user_${id}`);
+    revalidateTag("users_list");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating username:", error);
+    throw error;
+  }
+}
+
+export async function updatePassword({
+  id,
+  currentPassword,
+  newPassword,
+}: {
+  id: string;
+  currentPassword: string;
+  newPassword: string;
+}) {
+  if (!id) {
+    throw new Error("User not authenticated");
+  }
+
+  if (!currentPassword || !newPassword) {
+    throw new Error("All password fields are required");
+  }
+
+  if (newPassword.length < 8) {
+    throw new Error("Password must be at least 8 characters");
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (!user || !user.hashedPassword) {
+      throw new Error("User not found");
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      currentPassword,
+      user.hashedPassword
+    );
+
+    if (!passwordMatches) {
+      throw new Error("Current password is incorrect");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: id },
+      data: { hashedPassword },
+    });
+
+    revalidatePath("/profile");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating password:", error);
     throw error;
   }
 }

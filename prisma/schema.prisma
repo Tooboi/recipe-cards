@@ -33,10 +33,9 @@ model Recipe {
 }
 
 model User {
-  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
-  clerkUserId         String?   @unique
-  username            String?
-  email               String?   @unique
+  id                  String    @id @default(auto()) @map("_id") @db.ObjectId  
+  username            String   @unique
+  email               String   @unique
   hashedPassword      String?
   emailVerified       DateTime?
   image               String?
