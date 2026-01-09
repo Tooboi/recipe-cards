@@ -55,7 +55,7 @@ export default function Profile() {
                 width={100}
                 height={100}
                 unoptimized
-                src={`https://api.dicebear.com/9.x/pixel-art/svg?size=64&seed=${user.id}`}
+                src={`https://api.dicebear.com/9.x/avataaars-neutral/svg?size=64&scale=90&mouth=concerned,default,eating,grimace,serious,smile,twinkle&seed=${user.id}`}
                 alt={user.id || "null"}
               />
             </div>

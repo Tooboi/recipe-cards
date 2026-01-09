@@ -94,7 +94,7 @@ export default async function Navbar() {
                       width={100}
                       height={100}
                       unoptimized
-                      src={`https://api.dicebear.com/9.x/pixel-art/svg?size=32&seed=${internalUserId}`}
+                      src={`https://api.dicebear.com/9.x/avataaars-neutral/svg?size=32&scale=90&mouth=concerned,default,eating,grimace,serious,smile,twinkle&seed=${internalUserId}`}
                       alt={internalUserId || 'null'}
                     />
                   </button>
