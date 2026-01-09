@@ -16,8 +16,6 @@ import prisma from "@/lib/prisma";
 
 // import { getServerSession } from "next-auth"
 
-
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
@@ -81,23 +79,56 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       // Runs on sign-in
       if (user) {
-        token.id = user.id; // persist MongoDB ObjectId
+        token.id = user.id; // persist DB user ID
       }
+
+      // 🔥 Handle update() calls from client
+      if (trigger === "update" && session) {
+        // Only update fields you allow from the client!
+        if (session.name) {
+          token.name = session.name;
+        }
+        if (session.email) {
+          token.email = session.email;
+        }
+      }
+
       return token;
     },
 
-    async session({ session, token }) {
+    async session({ session, token, trigger, newSession }) {
       if (session.user && token.id) {
-        session.user.id = String(token.id);
+        // Always fetch fresh data from DB
+        const dbUser = await prisma.user.findUnique({
+          where: { id: String(token.id) },
+          select: { id: true, username: true, email: true },
+        });
+
+        if (dbUser) {
+          session.user.id = dbUser.id;
+          session.user.name = dbUser.username;
+          session.user.email = dbUser.email;
+        }
       }
+
+      // Handle client-side update() call
+      if (trigger === "update" && newSession) {
+        if (newSession.name) {
+          session.user.name = newSession.name;
+          router.refresh();
+        }
+        if (newSession.email) {
+          session.user.email = newSession.email;
+        }
+      }
+
       return session;
     },
   },
 });
-
 
 // // You'll need to import and pass this
 // // to `NextAuth` in `app/api/auth/[...nextauth]/route.ts`

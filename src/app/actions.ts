@@ -3,7 +3,7 @@
 
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 // import crypto from "crypto";
 
 // READ actions
@@ -20,7 +20,6 @@ import { revalidatePath } from "next/cache";
 // }
 
 // const tempClerkUserId = `temp_${crypto.randomUUID()}`;
-
 
 export async function getUsers() {
   try {
@@ -262,6 +261,105 @@ export async function updateRecipe({
     return post;
   } catch (error) {
     console.error("Error creating post:", error);
+    throw error;
+  }
+}
+
+//? UPDATE actions
+
+export async function updateUsername({
+  id,
+  username,
+}: {
+  id: string;
+  username: string;
+}) {
+  if (!id) {
+    throw new Error("User not authenticated");
+  }
+
+  if (!username || username.length < 3) {
+    throw new Error("Username must be at least 3 characters");
+  }
+
+  try {
+    // Ensure username is unique
+    const existingUser = await prisma.user.findFirst({
+      where: { username },
+    });
+
+    if (existingUser) {
+      throw new Error("Username already taken");
+    }
+
+    await prisma.user.update({
+      where: { id: id },
+      data: { username },
+    });
+
+    revalidatePath("/profile");
+    revalidatePath(`/users/${id}`);
+    revalidateTag(`user_${id}`);
+    revalidateTag("users_list");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating username:", error);
+    throw error;
+  }
+}
+
+export async function updatePassword({
+  id,
+  currentPassword,
+  newPassword,
+}: {
+  id: string;
+  currentPassword: string;
+  newPassword: string;
+}) {
+  if (!id) {
+    throw new Error("User not authenticated");
+  }
+
+  if (!currentPassword || !newPassword) {
+    throw new Error("All password fields are required");
+  }
+
+  if (newPassword.length < 8) {
+    throw new Error("Password must be at least 8 characters");
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: id },
+    });
+
+    if (!user || !user.hashedPassword) {
+      throw new Error("User not found");
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      currentPassword,
+      user.hashedPassword
+    );
+
+    if (!passwordMatches) {
+      throw new Error("Current password is incorrect");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: id },
+      data: { hashedPassword },
+    });
+
+    revalidatePath("/profile");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating password:", error);
     throw error;
   }
 }

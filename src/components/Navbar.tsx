@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
 
+
 export default async function Navbar() {
   // Find user object ID from session
   const session = await auth();
