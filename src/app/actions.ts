@@ -99,10 +99,12 @@ export async function createUser({
   email,
   username,
   password,
+  image,
 }: {
   email: string;
-  username?: string;
+  username: string;
   password: string;
+  image: string;
 }) {
   if (!email) {
     throw new Error("Email is required");
@@ -111,27 +113,30 @@ export async function createUser({
     throw new Error("Password is required");
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-
-  // const clerkUserId = `temp_${crypto.randomUUID()}`;
+  const normalizedEmail = email.toLowerCase().trim();
 
   try {
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         username,
         hashedPassword,
-        // clerkUserId
+        image,
       },
     });
 
     // Revalidate the home page to show the new user
+
     revalidatePath("/");
 
     return user;
   } catch (error: any) {
     // Handle duplicate email error
-    if (error.code === "P2002") {
-      throw new Error("A user with this email already exists");
+    // if (error.code === "P2002") {
+    //   throw new Error("A user with this email already exists");
+    // }
+    if (error)  {
+      console.error("Error creating user:", error);
     }
 
     throw new Error("Failed to create user");

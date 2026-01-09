@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createUser } from "@/app/actions";
+import { signIn } from "next-auth/react";
 // import { useRouter } from "next/navigation";
 // import { doSocialLogin } from "../../app/actions/index.js";
 // import Link from "next/link";
@@ -13,33 +14,41 @@ export default function SignupForm() {
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  e.preventDefault();
+  if (loading) return;
+  setLoading(true);
 
+  try {
     const formData = new FormData(e.currentTarget);
-
     const email = formData.get("email") as string;
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
 
-    setLoading(true);
+    // 1️⃣ Create the user
+    await createUser({ email, username, password, image: "" });
 
-    try {
-      await createUser({
-        email,
-        username,
-        password,
-      });
+    // 2️⃣ Sign in automatically
+    const result = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
 
-      toast.success("Account created!");
-      router.push("/");
-    } catch (error: unknown) {
-      console.error("Signup error:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to create account";
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
+    if (result?.error) {
+      throw new Error(result.error);
     }
-  };
+
+    toast.success("Account created and logged in!");
+    router.push("/");
+    router.refresh();
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create account";
+    toast.error(errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // async function handleSignup(event: React.FormEvent<HTMLFormElement>) {
   //   event.preventDefault();
@@ -100,7 +109,7 @@ export default function SignupForm() {
           >
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="block text-sm/6 font-medium text-gray-100"
               >
                 Username

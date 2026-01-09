@@ -9,7 +9,9 @@ export async function doSocialLogin(formData) {
 }
 
 export async function doLogout() {
+  
   await signOut({ redirectTo: '/' });
+  router.refresh();
 }
 
 export async function doCredentialLogin(formData) {

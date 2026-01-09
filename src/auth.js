@@ -27,33 +27,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: {},
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials.password) {
-          return null;
-        }
+  if (!credentials?.email || !credentials.password) {
+    return null;
+  }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+  const email = credentials.email.toLowerCase().trim();
 
-        if (!user || !user.hashedPassword) {
-          return null;
-        }
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
 
-        const isMatch = await bcrypt.compare(
-          credentials.password,
-          user.hashedPassword
-        );
+  if (!user || !user.hashedPassword) {
+    return null;
+  }
 
-        if (!isMatch) {
-          return null;
-        }
+  const isMatch = await bcrypt.compare(
+    credentials.password,
+    user.hashedPassword
+  );
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.username ?? undefined,
-        };
-      },
+  if (!isMatch) {
+    return null;
+  }
+
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.username ?? undefined,
+  };
+}
+
     }),
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID,
@@ -85,7 +88,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id; // persist DB user ID
       }
 
-      // 🔥 Handle update() calls from client
+      //  Handle update() calls from client
       if (trigger === "update" && session) {
         // Only update fields you allow from the client!
         if (session.name) {
@@ -102,15 +105,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token, trigger, newSession }) {
       if (session.user && token.id) {
         // Always fetch fresh data from DB
+        
         const dbUser = await prisma.user.findUnique({
           where: { id: String(token.id) },
-          select: { id: true, username: true, email: true },
+          select: { id: true, username: true, email: true, image: true },
         });
 
         if (dbUser) {
           session.user.id = dbUser.id;
           session.user.name = dbUser.username;
           session.user.email = dbUser.email;
+          session.user.image = dbUser.image || '';
         }
       }
 
@@ -123,25 +128,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (newSession.email) {
           session.user.email = newSession.email;
         }
+        if (newSession.image) {
+          session.user.image = newSession.image;
+        }
       }
 
       return session;
     },
   },
 });
-
-// // You'll need to import and pass this
-// // to `NextAuth` in `app/api/auth/[...nextauth]/route.ts`
-// export const config = {
-//   providers: [], // rest of your config
-// } satisfies NextAuthOptions
-
-// // Use it in server contexts
-// export function auth(
-//   ...args:
-//     | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
-//     | [NextApiRequest, NextApiResponse]
-//     | []
-// ) {
-//   return getServerSession(...args, config)
-// }
