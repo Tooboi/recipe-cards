@@ -31,10 +31,9 @@ function formatBytes(fileSize: number): string {
 
 export default function RecipeForm() {
 
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const user = session?.user;
   const isSignedIn = !!session?.user;
-  console.log(status);
 
 
   const googleFonts = [

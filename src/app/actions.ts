@@ -4,7 +4,7 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import crypto from "crypto";
+// import crypto from "crypto";
 
 // READ actions
 // export async function getUsersRecipes() {
@@ -19,7 +19,7 @@ import crypto from "crypto";
 //   }
 // }
 
-const tempClerkUserId = `temp_${crypto.randomUUID()}`;
+// const tempClerkUserId = `temp_${crypto.randomUUID()}`;
 
 
 export async function getUsers() {
@@ -47,10 +47,10 @@ export async function getUsers() {
   }
 }
 
-export async function getUserById(clerkUserId: string) {
+export async function getUserById(id: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { clerkUserId: clerkUserId },
+      where: { id: id },
       include: {
         Recipe: {
           orderBy: {
@@ -61,7 +61,7 @@ export async function getUserById(clerkUserId: string) {
       cacheStrategy: {
         ttl: 30, // Fresh for 30 seconds
         swr: 60, // Then stale but acceptable for 60 more seconds
-        tags: [`user_${clerkUserId}`], // User-specific tag
+        tags: [`user_${id}`], // User-specific tag
       },
     });
 
@@ -71,7 +71,7 @@ export async function getUserById(clerkUserId: string) {
 
     return user;
   } catch (error) {
-    console.error(`Error fetching user with ID ${clerkUserId}:`, error);
+    console.error(`Error fetching user with ID ${id}:`, error);
     throw error;
   }
 }
@@ -113,7 +113,7 @@ export async function createUser({
   }
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const clerkUserId = `temp_${crypto.randomUUID()}`;
+  // const clerkUserId = `temp_${crypto.randomUUID()}`;
 
   try {
     const user = await prisma.user.create({
@@ -121,7 +121,7 @@ export async function createUser({
         email,
         username,
         hashedPassword,
-        clerkUserId
+        // clerkUserId
       },
     });
 

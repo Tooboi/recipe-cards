@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use server';
+"use server";
 
-import prisma from '@/lib/prisma';
-import { getServerSession  } from "next-auth/react";
+import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 
 export async function getBookmarks() {
-    const { data: session } = getServerSession ();
+  const session = await auth();
   const AuthUser = session?.user;
-  if (!AuthUser?.id) throw new Error('Not logged in');
+  if (!AuthUser?.id) throw new Error("Not logged in");
 
   const user = await prisma.user.findUnique({
     where: { id: AuthUser.id },
@@ -18,9 +18,9 @@ export async function getBookmarks() {
 }
 
 export async function getBookmarkedRecipes() {
-  const { data: session } = useSession();
+  const session = await auth();
   const AuthUser = session?.user;
-  if (!AuthUser?.id) throw new Error('Not logged in');
+  if (!AuthUser?.id) throw new Error("Not logged in");
 
   const user = await prisma.user.findUnique({
     where: { id: AuthUser.id },

@@ -1,3 +1,4 @@
+import { auth } from '@/auth';
 import RecipeEdit from '@/components/RecipeEdit';
 import prisma from '@/lib/prisma';
 
@@ -11,6 +12,13 @@ export default async function EditRecipePage({ params }: { params: Promise<{ id:
 
   if (!recipe) {
     return <div>Recipe not found.</div>;
+  }
+  
+  const session = await auth();
+  const internalUserId = session?.user?.id ?? null;
+  const isOwner = internalUserId && recipe?.userId === internalUserId;
+  if (!isOwner) {
+    return <div>You do not have permission to edit this recipe.</div>;
   }
 
   return (
