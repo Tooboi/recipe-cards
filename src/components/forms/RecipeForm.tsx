@@ -242,7 +242,7 @@ export default function RecipeForm() {
 
   const maxFileSize = 41943040; // 40MB in B
   const [buttonClassName, setButtonClassName] = useState(
-    "w-full mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
+    "w-full mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
   );
   // console.log(session);
 
@@ -250,7 +250,7 @@ export default function RecipeForm() {
     <div className="h-dvh">
       <div className="flex h-dvh p-4">
         {/* Left Panel */}
-        <section className=" bg-gray-300 border-gray-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
+        <section className=" bg-slate-300 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
           <div className="">
             {/* Tabs at top */}
             <div className="flex px-4 mb-6 border-b-2">
@@ -293,7 +293,7 @@ export default function RecipeForm() {
                       if (!checked) {
                         setImageId("");
                         setButtonClassName(
-                          "w-full mx-auto p-1 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900"
+                          "w-full mx-auto p-1 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900"
                         );
                       }
                     }}
@@ -318,14 +318,14 @@ export default function RecipeForm() {
                             crop="fill"
                             aspectRatio="1:1"
                             sizes="100vw"
-                            className="mx-auto rounded-lg border-2 border-gray-700"
+                            className="mx-auto rounded-lg border-2 border-slate-700"
                           />
                         </div>
                       </div>
                     ) : (
-                      <div className="mt-2 w-full rounded-lg border-2 border-gray-700 bg-gray-400 mx-auto">
-                        <PhotoIcon className="mx-auto w-36 text-gray-700" />
-                        <p className="mt-[-1rem] select-none pb-2 text-center text-xs text-gray-700 lg:text-sm">
+                      <div className="mt-2 w-full rounded-lg border-2 border-slate-700 bg-slate-400 mx-auto">
+                        <PhotoIcon className="mx-auto w-36 text-slate-700" />
+                        <p className="mt-[-1rem] select-none pb-2 text-center text-xs text-slate-700 lg:text-sm">
                           Max {formatBytes(maxFileSize)}
                         </p>
                       </div>
@@ -375,7 +375,7 @@ export default function RecipeForm() {
                     onChange={(e) =>
                       setPdfSize(e.target.value as "3x5" | "letter")
                     }
-                    className="bg-gray-50 border-gray-400 border-2 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 p-2 rounded-md placeholder:text-gray-300 "
+                    className="bg-slate-50 border-slate-400 border-2 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 "
                   >
                     <option value="3x5">3 x 5</option>
                     <option value="letter">Letter</option>
@@ -388,7 +388,7 @@ export default function RecipeForm() {
                     name="title"
                     id="title"
                     placeholder="Recipe Title"
-                    className="w-full border-2 p-2 rounded-md bg-gray-50 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block "
+                    className="w-full border-2 p-2 rounded-md bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block "
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -420,7 +420,7 @@ export default function RecipeForm() {
                         value={authorName}
                         onChange={(e) => setAuthorName(e.target.value)}
                         placeholder="Author name"
-                        className="w-full border-2 p-2 rounded-md bg-gray-50 border-gray-400 text-sm focus:ring-gray-500 focus:border-gray-500"
+                        className="w-full border-2 p-2 rounded-md bg-slate-50 border-slate-400 text-sm focus:ring-slate-500 focus:border-slate-500"
                       />
                     </div>
                   )}
@@ -448,7 +448,7 @@ export default function RecipeForm() {
                   <textarea
                     id="recipe-description"
                     placeholder="Short Description"
-                    className="w-full border-2 p-2 rounded-md bg-gray-50 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block "
+                    className="w-full border-2 p-2 rounded-md bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block "
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
@@ -463,7 +463,7 @@ export default function RecipeForm() {
                       placeholder="Amount"
                       value={yieldAmount}
                       onChange={(e) => setYieldAmount(e.target.value)}
-                      className="w-1/5 bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm p-2 rounded-md "
+                      className="w-1/5 bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm p-2 rounded-md "
                     />
 
                     <input
@@ -471,7 +471,7 @@ export default function RecipeForm() {
                       placeholder="Unit"
                       value={yieldUnit}
                       onChange={(e) => setYieldUnit(e.target.value)}
-                      className="w-full bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm p-2 rounded-md"
+                      className="w-full bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm p-2 rounded-md"
                     ></input>
                   </div>
                 </div>
@@ -494,7 +494,7 @@ export default function RecipeForm() {
                             quantity: e.target.value,
                           })
                         }
-                        className="w-1/4 bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
+                        className="w-1/4 bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
                       />
 
                       {/* Unit */}
@@ -512,27 +512,8 @@ export default function RecipeForm() {
                             unit: e.target.value,
                           })
                         }
-                        className="w-1/4 bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
+                        className="w-1/4 bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
                       >
-                        {/* <option value="">Unit</option>
-                        <option value="tsp">tsp</option>
-                        <option value="tbsp">tbsp</option>
-                        <option value="cup">cup</option>
-                        <option value="oz">oz</option>
-                        <option value="lb">lb</option>
-                        <option value="pint">pint</option>
-                        <option value="liter">liter</option>
-                        <option value="g">g</option>
-                        <option value="kg">kg</option>
-                        <option value="ml">ml</option>
-                        <option value="pcs">pcs</option>
-                        <option value="pinch">pinch</option>
-                        <option value="dash">dash</option>
-                        <option value="knob">knob</option>
-                        <option value="finger">finger</option>
-                        <option value="small">small</option>
-                        <option value="medium">medium</option>
-                        <option value="large">large</option> */}
                       </input>
 
                       {/* Name */}
@@ -546,13 +527,13 @@ export default function RecipeForm() {
                             item: e.target.value,
                           })
                         }
-                        className="w-1/2 bg-gray-50 border-gray-400 border-2 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
+                        className="w-1/2 bg-slate-50 border-slate-400 border-2 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
                       />
 
                       {/* Reorder and Remove */}
                       <div className=" flex justify-start">
                         <button
-                          className="text-gray-700"
+                          className="text-slate-700"
                           onClick={() => moveIngredient(i, "up")}
                           disabled={i === 0}
                           title="Move up"
@@ -571,7 +552,7 @@ export default function RecipeForm() {
                           </svg>
                         </button>
                         <button
-                          className="text-gray-700"
+                          className="text-slate-700"
                           onClick={() => moveIngredient(i, "down")}
                           disabled={i === ingredients.length - 1}
                           title="Move down"
@@ -612,7 +593,7 @@ export default function RecipeForm() {
                   ))}
 
                   <button
-                    className="text-gray-800 flex-row flex px-1 pr-2 py-0.5 bg-gray-400 hover:bg-gray-200 active:bg-gray-400 transition-all rounded border-gray-400 border-2"
+                    className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-400 border-2"
                     onClick={addIngredient}
                   >
                     <svg
@@ -638,7 +619,7 @@ export default function RecipeForm() {
                         id={`step-${i}`}
                         name={`step-${i}`}
                         placeholder={`Step ${i + 1}`}
-                        className="w-full bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
+                        className="w-full bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
                         value={step}
                         onChange={(e) =>
                           updateField(setInstructions, i, e.target.value)
@@ -646,7 +627,7 @@ export default function RecipeForm() {
                       />
                       <div className="flex justify-start">
                         <button
-                          className="text-gray-700"
+                          className="text-slate-700"
                           onClick={() =>
                             moveField(setInstructions, instructions, i, "up")
                           }
@@ -667,7 +648,7 @@ export default function RecipeForm() {
                           </svg>
                         </button>
                         <button
-                          className="text-gray-700"
+                          className="text-slate-700"
                           onClick={() =>
                             moveField(setInstructions, instructions, i, "down")
                           }
@@ -711,7 +692,7 @@ export default function RecipeForm() {
                     </div>
                   ))}
                   <button
-                    className="text-gray-800 flex-row flex px-1 pr-2 py-0.5 bg-gray-400 hover:bg-gray-200 active:bg-gray-400 transition-all rounded border-gray-400 border-2"
+                    className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-400 border-2"
                     onClick={() => addField(setInstructions, instructions)}
                   >
                     <svg
@@ -738,14 +719,14 @@ export default function RecipeForm() {
                 </div>
                 <div className="gap-2 flex">
                   <button
-                    className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
+                    className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
                     onClick={handlePDFExport}
                   >
                     Export as PDF
                   </button>
                     {isSignedIn && (
                     <button
-                      className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
+                      className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
                       disabled={loading}
                       onClick={handleCreateRecipe}
                     >
@@ -753,7 +734,7 @@ export default function RecipeForm() {
                     </button>
                     )}
                     {!isSignedIn && (
-                      <Link href="/signin" className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-400/80 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600">
+                      <Link href="/signin" className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600">
                         Sign In to Save
                       </Link>
                     )}
@@ -771,7 +752,7 @@ export default function RecipeForm() {
                   </label>
                   <select
                     id="font-select"
-                    className="bg-gray-50 border-gray-400 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 p-2 rounded-md placeholder:text-gray-300 border"
+                    className="bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 border"
                     value={font}
                     onChange={(e) => setFont(e.target.value)}
                     title="Font style"
@@ -820,7 +801,7 @@ export default function RecipeForm() {
         </section>
 
         {/* Live Preview */}
-        <fieldset className="hidden lg:block ml-4 h-max flex fieldset justify-center border-2 bg-gray-200 rounded-lg border-gray-800 items-center flex-3/5 drop-shadow-md ">
+        <fieldset className="hidden lg:block ml-4 h-max flex fieldset justify-center border-2 bg-slate-200 rounded-lg border-slate-800 items-center flex-3/5 drop-shadow-md ">
           <div className="w-full h-full max-h-full flex justify-center items-center overflow-auto">
             <div
               id="recipe-preview"
@@ -869,7 +850,7 @@ export default function RecipeForm() {
                     {includeImage && (
                       <>
                         {!imageId && (
-                          <PhotoIcon className="w-24 text-gray-700 p-0" />
+                          <PhotoIcon className="w-24 text-slate-700 p-0" />
                         )}
                         {imageId && (
                           <CldImage

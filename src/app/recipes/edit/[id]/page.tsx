@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import RecipeEdit from '@/components/RecipeEdit';
+import RecipeEdit from '@/components/forms/RecipeEdit';
 import prisma from '@/lib/prisma';
 
 export default async function EditRecipePage({ params }: { params: Promise<{ id: string }> }) {

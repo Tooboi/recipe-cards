@@ -89,16 +89,16 @@ export default async function RecipeDetails({
   return (
     <div className="sm:m-4 m-2">
       {/* MOBILE */}
-      <div className=" bg-gray-400 border-gray-800  rounded-lg border-2 w-full flex flex-col h-max drop-shadow-md overflow-hidden">
-        <div className="flex sm:hidden flex-col border-b-2 border-gray-700 overflow-hidden  bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
+      <div className=" bg-slate-400 border-slate-800  rounded-lg border-2 w-full flex flex-col h-max drop-shadow-md overflow-hidden">
+        <div className="flex sm:hidden flex-col border-b-2 border-slate-700 overflow-hidden  bg-slate-300 hover:bg-slate-200 transition-colors group shadow-md hover:shadow-lg">
           <div className="flex flex-row">
             <div className="flex flex-col w-full">
-              <div className="pl-2 bg-gray-200 border-b-2 border-gray-600 flex flex-row justify-between">
+              <div className="pl-2 bg-slate-200 border-b-2 border-slate-600 flex flex-row justify-between">
                 <div className="flex flex-col h-full">
                   <p className="font-medium text-base/4 line-clamp-2 pt-1.5">
                     {SingleRecipeById?.title || "Recipe"}
                   </p>
-                  <p className="text-gray-500 text-sm ">
+                  <p className="text-slate-500 text-sm ">
                     {SingleRecipeById?.user.username}
                   </p>
                 </div>
@@ -110,13 +110,13 @@ export default async function RecipeDetails({
                 {isOwner ? (
                   <div className="flex flex-row w-full justify-between">
                     <Link
-                      className="w-max py-0.5 px-2 self-center rounded-md  border-2 border-gray-600 bg-gray-400 text-base font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+                      className="w-max py-0.5 px-2 self-center rounded-md  border-2 border-slate-600 bg-slate-400 text-base font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
                       href={`/recipes/download/${recipeId}`}
                     >
                       DOWNLOAD
                     </Link>
                     <Link
-                      className=" text-center py-0.5 px-2 self-center rounded-md border-2 border-gray-600 bg-gray-400 text-base font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+                      className=" text-center py-0.5 px-2 self-center rounded-md border-2 border-slate-600 bg-slate-400 text-base font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
                       href={`/recipes/edit/${recipeId}`}
                     >
                       EDIT
@@ -125,7 +125,7 @@ export default async function RecipeDetails({
                 ) : (
                   <div className="flex w-full justify-end">
                     <Link
-                      className="w-max py-0.5 px-2  self-center rounded-md border-2 border-gray-600 bg-gray-400 text-base font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+                      className="w-max py-0.5 px-2  self-center rounded-md border-2 border-slate-600 bg-slate-400 text-base font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
                       href={`/recipes/download/${recipeId}`}
                     >
                       DOWNLOAD
@@ -136,7 +136,7 @@ export default async function RecipeDetails({
 
               <div className="">
                 <div className="flex justify-between h-full">
-                  <span className=" py-1 pl-1 h-full text-xs font-regular text-gray-900 mr-1 flex flex-row items-end">
+                  <span className=" py-1 pl-1 h-full text-xs font-regular text-slate-900 mr-1 flex flex-row items-end">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 16 16"
@@ -155,7 +155,7 @@ export default async function RecipeDetails({
                     </span>
                   </span>
                   <div>
-                    <span className="h-full py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
+                    <span className="h-full py-1 text-xs font-regular text-slate-900 mr-1 flex flex-row items-center">
                       <div>
                         <span className="ml-1 line-clamp-1 text-end">
                           {SingleRecipeById?.serving}
@@ -177,7 +177,7 @@ export default async function RecipeDetails({
         </div>
 
         {/* DESKTOP */}
-        <div className="hidden w-full bg-gray-300 py-2 px-4 border-b-2 border-gray-800 sm:flex justify-between items-center">
+        <div className="hidden w-full bg-slate-300 py-2 px-4 border-b-2 border-slate-800 sm:flex justify-between items-center">
           <div className="flex flex-row">
             <BookmarkButton recipeId={SingleRecipeById?.id || ""} />
             <div className="flex flex-col px-3">
@@ -198,13 +198,13 @@ export default async function RecipeDetails({
           {isOwner ? (
             <div className="items-center flex flex-col">
               <Link
-                className="w-max py-1 px-2 self-center rounded-md mb-2 border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+                className="w-max py-1 px-2 self-center rounded-md mb-2 border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
                 href={`/recipes/download/${recipeId}`}
               >
                 DOWNLOAD
               </Link>
               <Link
-                className="w-full text-center py-1 px-2 self-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+                className="w-full text-center py-1 px-2 self-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
                 href={`/recipes/edit/${recipeId}`}
               >
                 EDIT
@@ -212,7 +212,7 @@ export default async function RecipeDetails({
             </div>
           ) : (
             <Link
-              className="w-max py-1 px-2 mr-2 self-center rounded-md border-2 border-gray-600 bg-gray-400 text-lg font-medium text-gray-800 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-300/50 hover:text-gray-800 active:bg-gray-400 active:text-gray-900 active:border-gray-600"
+              className="w-max py-1 px-2 mr-2 self-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
               href={`/recipes/download/${recipeId}`}
             >
               DOWNLOAD
@@ -231,14 +231,14 @@ export default async function RecipeDetails({
                   crop="fill"
                   aspectRatio="1:1"
                   sizes="100vw"
-                  className="rounded-sm border-2 border-gray-800"
+                  className="rounded-sm border-2 border-slate-800"
                 />
               </div>
             </div>
           ) : (
             <div className=" h-full flex w-full">
               <Image
-                className=" mt-4 rounded-sm border-2 border-gray-800 bg-gray-500/50"
+                className=" mt-4 rounded-sm border-2 border-slate-800 bg-slate-500/50"
                 width={100}
                 height={100}
                 unoptimized
@@ -247,7 +247,7 @@ export default async function RecipeDetails({
               />
             </div>
           )}
-          <p className="pt-4 text-gray-700 pb-2">
+          <p className="pt-4 text-slate-700 pb-2">
             {SingleRecipeById?.description}
           </p>
           <h2 className="text-lg font-medium">Ingredients</h2>
