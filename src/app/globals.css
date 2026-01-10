@@ -7,12 +7,23 @@
 
 @import "tailwindcss";
 @import "tw-animate-css";
-@plugin "daisyui" {
+/* @plugin "daisyui" {
   exclude: scrollbar, checkbox, radio;
-}
+} */
 
 @custom-variant dark (&:is(.dark *));
-
+@theme {
+  --animate-wiggle: wiggle 1s ease-in-out infinite;
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(-7deg);
+    }
+    50% {
+      transform: rotate(7deg);
+    }
+  }
+}
 .main-bg {
   background-color: #64748b;
 }
@@ -20,6 +31,7 @@
 body::-webkit-scrollbar {
   display: none;
 }
+
 
 :root {
   font-family: Rubix, Helvetica, sans-serif;

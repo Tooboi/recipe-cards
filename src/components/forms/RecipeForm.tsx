@@ -247,7 +247,7 @@ export default function RecipeForm() {
   // console.log(session);
 
   return (
-    <div className="h-dvh">
+    <div className="h-full">
       <div className="flex h-dvh p-4">
         {/* Left Panel */}
         <section className=" bg-slate-300 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">

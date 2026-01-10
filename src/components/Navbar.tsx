@@ -74,7 +74,7 @@ export default async function Navbar() {
               </Link>
 
               <Link href={`/users/${internalUserId}/bookmarks`}>
-                <BookmarkIcon className="w-7 h-7 text-slate-700 hover:text-amber-600 active:text-amber-700 transition" />
+                <BookmarkIcon className="w-7 h-7 text-slate-700 hover:text-amber-600 active:text-amber-700 transition hover:animate-wiggle" />
               </Link>
 
               <DropdownMenu>
@@ -82,7 +82,7 @@ export default async function Navbar() {
                   <button
                     id="avatar"
                     aria-label="Avatar"
-                    className="rounded-full ml-2 hover:brightness-105 active:brightness-100 hover:rotate-8 transition-all"
+                    className="rounded-full ml-2 hover:brightness-105 active:brightness-100 hover:animate-wiggle transition-all"
                   >
                     {session.user.image ? (
                       <CldImageWrapper

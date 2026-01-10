@@ -41,8 +41,8 @@ export default function Profile() {
   const { user } = session;
 
   return (
-    <div className="flex min-h-128 justify-center px-4">
-      <div className="flexw-full max-w-xl mt-10 bg-slate-300 border-2 border-slate-700 rounded-lg p-6 shadow-md">
+    <div className="flex  justify-center px-4">
+      <div className=" w-full max-w-xl mt-10 bg-slate-300 border-2 border-slate-700 rounded-lg pt-6 px-6 shadow-md">
         <h1 className="text-2xl font-semibold mb-4">Profile</h1>
 
         {/* Profile Header */}
@@ -72,12 +72,13 @@ export default function Profile() {
                     id: user.id!,
                     image,
                   });
-
+                  router.refresh();
                   //  update NextAuth session
                   await (session as any).update({ image });
                   toast.success("Profile image updated");
-                  router.refresh();
-                } catch {}
+                } catch {
+                  toast.error(result.error || "Failed to update profile image");
+                }
               }}
               onError={async (result: any) => {
                 toast.error(result.error || "Failed to update profile image");
@@ -123,26 +124,30 @@ export default function Profile() {
                 {user.name ?? "Unnamed User"}
               </p>
               <p className="text-sm text-slate-700">{user.email}</p>
-              <div className="text-[0.6rem] text-slate-500">{user.id}</div>
             </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="mt-6 border-t-2 border-slate-600 pt-4 space-y-3">
-          <Link
-            href="/profile/change-username"
-            className="block w-full px-4 py-2 rounded-md border-2 border-slate-600 bg-slate-400 hover:bg-slate-300 text-center"
-          >
-            Change Username
-          </Link>
+        <div className="mt-6 border-t-2 border-slate-600 pt-4 space-y-3 flex flex-col">
+          <div className="flex gap-2 w-full">
+            <Link
+              href="/profile/change-username"
+              className="block w-full h-max px-4 py-2 rounded-md border-2 border-slate-600 bg-slate-400 hover:bg-slate-300 text-center"
+            >
+              Change Username
+            </Link>
 
-          <Link
-            href="/profile/change-password"
-            className="block w-full px-4 py-2 rounded-md border-2 border-slate-600 bg-slate-400 hover:bg-slate-300 text-center"
-          >
-            Change Password
-          </Link>
+            <Link
+              href="/profile/change-password"
+              className="block w-full h-max px-4 py-2 rounded-md border-2 border-slate-600 bg-slate-400 hover:bg-slate-300 text-center"
+            >
+              Change Password
+            </Link>
+          </div>
+          <div className="items-end h-full pb-2">
+            <div className="text-[0.6rem] text-slate-500 text-end">{user.id}</div>
+          </div>
         </div>
       </div>
     </div>
