@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 // import { SessionProvider } from "next-auth/react";
 import { connectToDatabase } from "@/lib/mongo";
-import AuthSessionProvider from "@/components/SessionProvider";
+import AuthSessionProvider from "@/components/wrappers/SessionProvider";
 // import { getServerSession } from "next-auth";
 
 const rubik = Rubik({ subsets: ["latin"] });

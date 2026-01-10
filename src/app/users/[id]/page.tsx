@@ -66,18 +66,18 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
   return (
 
     <div className="overflow-hidden">
-      <div className="px-6 py-2 sm:rounded-b-lg bg-gray-400 w-full md:w-1/2 mx-auto border-b-2 sm:border-x-2 border-gray-700">
-        <div className="text-2xl text-center mx-auto text-gray-900 w-full font-semibold sm:mb-2">{user?.username}&#39;s Recipes</div>
+      <div className="px-6 py-2 sm:rounded-b-lg bg-slate-400 w-full md:w-1/2 mx-auto border-b-2 sm:border-x-2 border-slate-700">
+        <div className="text-2xl text-center mx-auto text-slate-900 w-full font-semibold sm:mb-2">{user?.username}&#39;s Recipes</div>
       </div>
       {user?.Recipe.length === 0 ?
         (
           <>
-            <div className="text-center py-4 text-gray-800 italic">No recipes found. Create one now!</div>
+            <div className="text-center py-4 text-slate-800 italic">No recipes found. Create one now!</div>
             <Link
-              className="sm:mx-8 mx-6  flex sm:mb-4 rounded-lg border-gray-600 bg-gray-700 text-lg font-medium text-gray-300 transition-all "
+              className="sm:mx-8 mx-6  flex sm:mb-4 rounded-lg border-slate-600 bg-slate-700 text-lg font-medium text-slate-300 transition-all "
               href={"/new-recipe"}
             >
-              <h1 className="justify-center w-full text-center p-2  rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:bg-gray-500 hover:text-gray-200 active:bg-gray-600 active:text-gray-300 ">
+              <h1 className="justify-center w-full text-center p-2  rounded-md border-2 border-slate-600 bg-slate-300 text-lg font-medium text-slate-900 transition-all hover:bg-slate-500 hover:text-slate-200 active:bg-slate-600 active:text-slate-300 ">
                 MAKE NEW RECIPE CARD
               </h1>
             </Link>
@@ -88,7 +88,7 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
               {user?.Recipe.map((recipe) => (
                 <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">
                   
-                  <div className="h-full flex flex-col border-2 border-gray-600 overflow-hidden rounded-md bg-gray-300 hover:bg-gray-200 transition-colors group shadow-md hover:shadow-lg">
+                  <div className="h-full flex flex-col border-2 border-slate-600 overflow-hidden rounded-md bg-slate-300 hover:bg-slate-200 transition-colors group shadow-md hover:shadow-lg">
                     <div className="flex justify-between items-start p-2">
                       <p className="font-medium text-lg/5 line-clamp-2 ">
                         {recipe.title || 'Recipe'}</p>
@@ -106,12 +106,12 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
                           crop="fill"
                           aspectRatio="1:1"
                           sizes="100vw"
-                          className="mx-auto w-full h-full border-t-2 group-hover:brightness-110 transition-all border-gray-600 overflow-hidden"
+                          className="mx-auto w-full h-full border-t-2 group-hover:brightness-110 transition-all border-slate-600 overflow-hidden"
                         />
                       ) : (
-                        <div className='bg-gray-400/50 h-full flex w-full'>
+                        <div className='bg-slate-400/50 h-full flex w-full'>
                         <Image
-                          className="w-full h-full grow border-t-2 border-gray-600"
+                          className="w-full h-full grow border-t-2 border-slate-600"
                           width={100}
                           height={100}
                           unoptimized
@@ -123,8 +123,8 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
                     </div>
 
 
-                    <div className=" px-2 py-2 flex flex-row items-center justify-between bg-gray-400 group-hover:bg-gray-400/70 transition-colors border-t-2 border-gray-600">
-                      <span className="py-1 h-full text-xs font-regular text-gray-900 mr-1 flex flex-row items-end">
+                    <div className=" px-2 py-1 flex flex-row items-center justify-between bg-slate-400 group-hover:bg-slate-400/70 transition-colors border-t-2 border-slate-600">
+                      <span className="py-1 h-full text-xs font-regular text-slate-900 mr-1 flex flex-row items-end">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 16 16"
@@ -140,7 +140,7 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
                         </svg>
                         <span className="ml-1">{formatDate(recipe.updatedAt.toISOString())}</span>
                       </span>
-                      <span className="py-1 text-xs font-regular text-gray-900 mr-1 flex flex-row items-center">
+                      <span className="py-1 text-xs font-regular text-slate-900 mr-1 flex flex-row items-center">
                         <div>
                           <span className="ml-1 hidden sm:block line-clamp-1">
                             Yield: {recipe.serving}
@@ -167,13 +167,13 @@ export default async function UserIDpage({ params }: { params: Promise<{ id: str
   );
 }
 {/* <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1">
-              <div className="px-4 py-2 border border-gray-600 rounded-lg bg-gray-300 hover:bg-gray-100 transition-colors group">
-                <div className="font-medium text-lg text-gray-900 group-hover:text-gray-700">{recipe.title || 'Recipe'}</div>
-                <div className="text-sm text-gray-600">{formatDate(recipe.updatedAt.toISOString())}</div>
-                <div className="mt-3 flex items-center gap-4 text-xs text-gray-600">
-                  <div className="flex items-center bg-gray-100 border border-gray-400 px-3 py-1 rounded-full">
+              <div className="px-4 py-2 border border-slate-600 rounded-lg bg-slate-300 hover:bg-slate-100 transition-colors group">
+                <div className="font-medium text-lg text-slate-900 group-hover:text-slate-700">{recipe.title || 'Recipe'}</div>
+                <div className="text-sm text-slate-600">{formatDate(recipe.updatedAt.toISOString())}</div>
+                <div className="mt-3 flex items-center gap-4 text-xs text-slate-600">
+                  <div className="flex items-center bg-slate-100 border border-slate-400 px-3 py-1 rounded-full">
                     <span className="font-medium mr-1">Ingredients:</span>
-                    <span className="text-gray-600 font-medium">{recipe.ingredients.length}</span>
+                    <span className="text-slate-600 font-medium">{recipe.ingredients.length}</span>
                   </div>
                 </div>
               </div>

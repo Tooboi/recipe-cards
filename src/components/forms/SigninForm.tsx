@@ -49,7 +49,7 @@ export default function SigninForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm/6 font-medium text-gray-100"
+                className="block text-sm/6 font-medium text-slate-100"
               >
                 Email
               </label>
@@ -59,8 +59,9 @@ export default function SigninForm() {
                   name="email"
                   type="email"
                   required
+                  placeholder="baker@recipe.com"
                   autoComplete="email"
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
+                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2 outline-white/10 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -69,7 +70,7 @@ export default function SigninForm() {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-sm/6 font-medium text-gray-100"
+                  className="block text-sm/6 font-medium text-slate-100"
                 >
                   Password
                 </label>
@@ -85,8 +86,9 @@ export default function SigninForm() {
                   name="password"
                   type="password"
                   required
+                  placeholder="●●●●●●●●●"
                   autoComplete="current-password"
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
+                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2 outline-white/10 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -112,17 +114,17 @@ export default function SigninForm() {
 
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              className="flex w-full justify-center rounded-md mx-auto my-8 py-2 border-2 border-slate-700 bg-slate-600 text-lg font-medium text-slate-300 transition-all hover:border-2 hover:border-cyan-600 hover:bg-cyan-950 hover:text-cyan-500 active:border-cyan-800 active:bg-cyan-950 active:text-cyan-600"
             >
               Sign In
             </button>
           </form>
 
-          <p className="mt-10 text-center text-sm/6 text-gray-400">
+          <p className="mt-10 text-center text-sm/6 text-slate-400">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="font-semibold text-gray-200 hover:text-gray-300"
+              className="font-semibold text-slate-200 hover:text-slate-300"
             >
               Sign Up
             </Link>

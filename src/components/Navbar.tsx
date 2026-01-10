@@ -3,7 +3,7 @@ import Image from "next/image";
 import prisma from "@/lib/prisma";
 // import { currentUser } from "@clerk/nextjs/server";
 // import { SignOutButton, UserAvatar } from "@clerk/nextjs";
-import Logout from "@/components/Logout";
+import Logout from "@/components/buttons/Logout";
 import { BookmarkIcon, PlusIcon } from "@heroicons/react/24/solid";
 import {
   DropdownMenu,
@@ -36,7 +36,7 @@ export default async function Navbar() {
   }
 
   return (
-    <div className="bg-gray-400 px-2 border-b-2 border-gray-700 sticky top-0 z-50 h-12 drop-shadow-lg">
+    <div className="bg-slate-400 px-2 border-b-2 border-slate-700 sticky top-0 z-50 h-12 drop-shadow-lg">
       <div className="flex h-full items-center justify-between gap-4">
         <Link href="/" className="text-3xl hidden sm:block">
           RECIPE CARD VAULT
@@ -50,14 +50,14 @@ export default async function Navbar() {
         <div className="flex items-center gap-1">
           <Link
             href="/explore"
-            className="px-2 py-1 rounded-sm hover:bg-gray-300 hidden md:block"
+            className="px-2 py-1 rounded-sm hover:bg-slate-300 hidden md:block"
           >
             Explore
           </Link>
 
           <Link
             href="/new-recipe"
-            className="px-2 py-1 rounded-sm hover:bg-gray-300 hidden md:block"
+            className="px-2 py-1 rounded-sm hover:bg-slate-300 hidden md:block"
           >
             New Recipe
           </Link>
@@ -67,13 +67,13 @@ export default async function Navbar() {
             <>
               <Link
                 href={`/users/${internalUserId}`}
-                className="px-2 py-1 rounded-sm hover:bg-gray-300 hidden md:block"
+                className="px-2 py-1 rounded-sm hover:bg-slate-300 hidden md:block"
               >
                 My Recipes
               </Link>
 
               <Link href={`/users/${internalUserId}/bookmarks`}>
-                <BookmarkIcon className="w-7 h-7 text-gray-700 hover:text-amber-600 active:text-amber-700 transition" />
+                <BookmarkIcon className="w-7 h-7 text-slate-700 hover:text-amber-600 active:text-amber-700 transition" />
               </Link>
 
               <DropdownMenu>
@@ -90,7 +90,7 @@ export default async function Navbar() {
                       colors={["#d1d5db", "#4b5563", "#111827", "#030712"]}
                     /> */}
                     <Image
-                      className="w-full h-full grow border-2 border-gray-600 bg-gray-500/60 rounded-full overflow-hidden"
+                      className="w-full h-full grow border-2 border-slate-600 bg-slate-500/60 rounded-full overflow-hidden"
                       width={100}
                       height={100}
                       unoptimized
@@ -151,7 +151,7 @@ export default async function Navbar() {
           {!isSignedIn && (
             <Link
               href="/signin"
-              className="px-2 py-1 rounded-sm hover:bg-gray-300"
+              className="px-2 py-1 rounded-sm hover:bg-slate-300"
             >
               Sign In
             </Link>

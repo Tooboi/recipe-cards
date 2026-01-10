@@ -1,4 +1,4 @@
-import RecipeDownload from '@/components/RecipeDownload';
+import RecipeDownload from '@/components/forms/RecipeDownload';
 import prisma from '@/lib/prisma';
 
 export default async function DownloadRecipePage({ params }: { params: Promise<{ id: string }> }) {

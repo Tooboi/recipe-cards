@@ -150,9 +150,9 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
 
   return (
     <div>
-      <div className="shadow-sm sm:rounded-md bg-gray-200 mx-auto sm:max-w-2/3 overflow-hidden border-0 pt-4 sm:mt-4">
+      <div className="shadow-sm sm:rounded-md bg-slate-200 mx-auto sm:max-w-2/3 overflow-hidden border-0 pt-4 sm:mt-4">
         <div className="border-b px-4 rounded-none">
-          <div className="text-2xl text-gray-900">Download: {recipe.title}</div>
+          <div className="text-2xl text-slate-900">Download: {recipe.title}</div>
           <p className="pb-2">By: {recipe.user.username}</p>
         </div>
         <div className="p-4">
@@ -164,7 +164,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
               name="title"
               id="title"
               placeholder={updatedTitle}
-              className="w-full border p-2 rounded-md bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block"
+              className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block"
               onChange={(e) => setUpdatedTitle(e.target.value)}
               value={updatedTitle}
             />
@@ -177,7 +177,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
               name="description"
               id="description"
               placeholder={recipe.description || "description"}
-              className="w-full border p-2 rounded-md bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block"
+              className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block"
               onChange={(e) => setUpdatedDescription(e.target.value)}
               value={updatedDescription}
             />
@@ -192,7 +192,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 placeholder="Amount"
                 value={yieldAmount}
                 onChange={(e) => setYieldAmount(e.target.value)}
-                className="w-1/5 bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm p-2 rounded-md "
+                className="w-1/5 bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm p-2 rounded-md "
               />
 
               <input
@@ -200,7 +200,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 placeholder="Unit"
                 value={yieldUnit}
                 onChange={(e) => setYieldUnit(e.target.value)}
-                className="w-full bg-gray-50 border-2 border-gray-400 text-gray-900 text-sm p-2 rounded-md"
+                className="w-full bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm p-2 rounded-md"
               ></input>
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                     quantity: e.target.value,
                   })
                 }
-                className="shrink-0 w-20 bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md"
+                className="shrink-0 w-20 bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
               />
               <input
                 type="text"
@@ -229,7 +229,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 onChange={(e) =>
                   updateIngredient(i, { ...ingredient, unit: e.target.value })
                 }
-                className="bg-gray-50 shrink-0 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded-md placeholder:text-gray-300"
+                className="bg-slate-50 shrink-0 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md placeholder:text-slate-300"
               >
                 {/* <option value="">Unit</option>
                 <option value="tsp">tsp</option>
@@ -258,17 +258,17 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 onChange={(e) =>
                   updateIngredient(i, { ...ingredient, item: e.target.value })
                 }
-                className="flex-grow bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block p-2 rounded"
+                className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded"
               />
               <button
-                className="text-gray-700"
+                className="text-slate-700"
                 onClick={() => moveIngredient(i, "up")}
                 disabled={i === 0}
               >
                 ↑
               </button>
               <button
-                className="text-gray-700"
+                className="text-slate-700"
                 onClick={() => moveIngredient(i, "down")}
                 disabled={i === ingredients.length - 1}
               >
@@ -282,28 +282,28 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
               </button>
             </div>
           ))}
-          <button className="text-gray-700 mt-2" onClick={addIngredient}>
+          <button className="text-slate-700 mt-2" onClick={addIngredient}>
             + Add Ingredient
           </button>
 
           <h2 className="font-semibold py-4">Instructions</h2>
           {instructions.map((step, i) => (
             <div key={i} className="flex gap-2 mb-2 items-center">
-              <div className="text-sm text-gray-600 font-medium text-right">
+              <div className="text-sm text-slate-600 font-medium text-right">
                 Step {i + 1}
               </div>
               <input
                 id={`step-${i}`}
                 name={`step-${i}`}
                 placeholder={`Step ${i + 1}`}
-                className="flex-grow bg-gray-50 border-gray-300 text-gray-900 text-sm focus:ring-gray-500 focus:border-gray-500 block border p-2 rounded-md"
+                className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block border p-2 rounded-md"
                 value={step}
                 onChange={(e) =>
                   updateField(setInstructions, i, e.target.value)
                 }
               />
               <button
-                className="text-gray-700"
+                className="text-slate-700"
                 onClick={() =>
                   moveField(setInstructions, instructions, i, "up")
                 }
@@ -313,7 +313,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 ↑
               </button>
               <button
-                className="text-gray-700"
+                className="text-slate-700"
                 onClick={() =>
                   moveField(setInstructions, instructions, i, "down")
                 }
@@ -332,7 +332,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
             </div>
           ))}
           <button
-            className="text-gray-700"
+            className="text-slate-700"
             onClick={() => addField(setInstructions, instructions)}
           >
             + Add Step
@@ -351,7 +351,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
           </div> */}
           <div>
             <button
-              className="mt-6 p-2 rounded-md border-2 border-gray-600 bg-gray-300 text-lg font-medium text-gray-900 transition-all hover:border-2 hover:border-gray-500 hover:bg-gray-200 hover:text-gray-700 active:bg-gray-500 active:text-gray-900 active:border-gray-600"
+              className="mt-6 p-2 rounded-md border-2 border-slate-600 bg-slate-300 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-200 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
               onClick={handlePDFExport}
               // disabled={loading}
             >

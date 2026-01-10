@@ -70,7 +70,7 @@ const ForgetPassword: NextPage = () => {
             <>
               <input
                 type="email"
-                className="w-full border border-gray-300 text-black rounded px-3 py-2 mb-4 focus:outline-none focus:border-blue-400 focus:text-black"
+                className="w-full border border-slate-300 text-black rounded px-3 py-2 mb-4 focus:outline-none focus:border-blue-400 focus:text-black"
                 placeholder="Email"
                 required
               />
@@ -88,13 +88,13 @@ const ForgetPassword: NextPage = () => {
             <>
               <input
                 type="password"
-                className="w-full border border-gray-300 text-black rounded px-3 py-2 mb-4 focus:outline-none focus:border-blue-400 focus:text-black"
+                className="w-full border border-slate-300 text-black rounded px-3 py-2 mb-4 focus:outline-none focus:border-blue-400 focus:text-black"
                 placeholder="New Password"
                 required
               />
               <input
                 type="text"
-                className="w-full border border-gray-300 text-black rounded px-3 py-2 mb-4 focus:outline-none focus:border-blue-400 focus:text-black"
+                className="w-full border border-slate-300 text-black rounded px-3 py-2 mb-4 focus:outline-none focus:border-blue-400 focus:text-black"
                 placeholder="Code"
                 required
               />

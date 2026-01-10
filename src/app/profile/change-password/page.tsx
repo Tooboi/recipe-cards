@@ -58,7 +58,7 @@ export default function ChangePasswordPage() {
     <div className="flex min-h-128 justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md mt-10 bg-gray-300 p-6 border-2 border-gray-700 rounded-lg shadow-md"
+        className="w-full max-w-md mt-10 bg-slate-300 p-6 border-2 border-slate-700 rounded-lg shadow-md"
       >
         <h1 className="text-xl font-semibold mb-4">Change Password</h1>
 
@@ -68,7 +68,7 @@ export default function ChangePasswordPage() {
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="w-full px-3 py-2 mb-3 border-2 border-gray-600 rounded-md"
+          className="w-full px-3 py-2 mb-3 border-2 border-slate-600 rounded-md"
           required
         />
 
@@ -78,7 +78,7 @@ export default function ChangePasswordPage() {
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full px-3 py-2 mb-3 border-2 border-gray-600 rounded-md"
+          className="w-full px-3 py-2 mb-3 border-2 border-slate-600 rounded-md"
           required
         />
 
@@ -89,7 +89,7 @@ export default function ChangePasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full px-4 py-2 border-2 border-gray-600 bg-gray-400 hover:bg-gray-300 rounded-md disabled:opacity-50"
+          className="w-full px-4 py-2 border-2 border-slate-600 bg-slate-400 hover:bg-slate-300 rounded-md disabled:opacity-50"
         >
           {loading ? "Updating…" : "Update Password"}
         </button>
