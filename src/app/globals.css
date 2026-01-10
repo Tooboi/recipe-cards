@@ -5,13 +5,14 @@
   font-family: Rubik;
 }
 
-@import 'tailwindcss';
+@import "tailwindcss";
 @import "tw-animate-css";
-
+@plugin "daisyui" {
+  exclude: scrollbar, checkbox, radio;
+}
 
 @custom-variant dark (&:is(.dark *));
 
-/* @plugin "daisyui"; */
 .main-bg {
   background-color: #64748b;
 }
@@ -71,7 +72,7 @@ body::-webkit-scrollbar {
 
 .fancy-theme {
   border: 2px dashed #d63384;
-  font-family: 'Cursive, Comic Sans MS, sans-serif';
+  font-family: "Cursive, Comic Sans MS, sans-serif";
 }
 
 .text-container {
@@ -95,7 +96,6 @@ body::-webkit-scrollbar {
 #pdf-canvas ul {
   list-style: none;
   padding: 0;
-  
 }
 
 #pdf-canvas ul li {

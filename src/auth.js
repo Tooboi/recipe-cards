@@ -130,6 +130,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
         if (newSession.image) {
           session.user.image = newSession.image;
+          router.refresh();
         }
       }
 

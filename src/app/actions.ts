@@ -135,7 +135,7 @@ export async function createUser({
     // if (error.code === "P2002") {
     //   throw new Error("A user with this email already exists");
     // }
-    if (error)  {
+    if (error) {
       console.error("Error creating user:", error);
     }
 
@@ -366,6 +366,43 @@ export async function updatePassword({
   } catch (error) {
     console.error("Error updating password:", error);
     throw error;
+  }
+}
+
+export async function updateProfileImage({
+  id,
+  image,
+}: {
+  id: string;
+  image: string;
+}) {
+  if (!id) {
+    throw new Error("User not authenticated");
+  }
+
+  if (!image) {
+    throw new Error("Image is required");
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id },
+      data: { image },
+    });
+
+    // Revalidate profile + public pages
+    revalidatePath("/profile");
+    revalidatePath(`/users/${id}`);
+
+    // Revalidate cached data
+    revalidateTag(`user_${id}`);
+    revalidateTag("users_list");
+        revalidateTag(`user_image`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating profile image:", error);
+    throw new Error("Failed to update profile image");
   }
 }
 

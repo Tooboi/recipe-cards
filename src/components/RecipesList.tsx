@@ -80,7 +80,7 @@ export default function RecipesList({ initialRecipes }: RecipesListProps) {
   return (
     <div className="flex flex-col">
       <div className="overflow-hidden ">
-        <div className="px-6 py-2 sm:rounded-b-lg bg-slate-400 w-full md:w-1/2 mx-auto border-b-2 sm:border-x-2 border-slate-700">
+        <div className=" px-6 py-2 sm:rounded-b-lg bg-slate-400 w-full md:w-1/2 mx-auto border-b-2 sm:border-x-2 border-slate-700">
           <div className="text-2xl text-center mx-auto text-slate-900 w-full font-semibold sm:mb-2 mb-1">
             Explore Recent Recipes
           </div>
