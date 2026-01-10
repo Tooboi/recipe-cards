@@ -76,10 +76,13 @@ export default function SignupForm() {
             <div>
               <label
                 htmlFor="username"
-                className="text-sm/6 font-medium text-slate-100 flex"
+                className="text-sm/6 font-medium text-slate-100 flex validator"
               >
                 Username
-                <div className="tooltip tooltip-right" data-tip="username is public - can be changed later">
+                <div
+                  className="tooltip tooltip-right"
+                  data-tip="username is public - can be changed later"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -97,20 +100,22 @@ export default function SignupForm() {
               </label>
               <div className="mt-2">
                 <input
-                  maxLength={64}
+                  pattern="[A-Za-z][A-Za-z0-9\-]*"
+                  title="Only letters, numbers or dash"
                   id="username"
                   name="username"
                   type="text"
                   required
                   placeholder="BestChefEver"
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2 outline-white/10 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
+                  className="block w-full rounded-md bg-slate-600/50 outline-slate-400 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2  placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
                 />
+                
               </div>
             </div>
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm/6 font-medium text-slate-100"
+                className="block text-sm/6 font-medium text-slate-100 validator"
               >
                 Email
               </label>
@@ -122,7 +127,7 @@ export default function SignupForm() {
                   required
                   autoComplete="email"
                   placeholder="baker@recipe.com"
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2 outline-white/10 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
+                  className="block w-full rounded-md bg-slate-600/50 outline-slate-400 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2  placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -144,7 +149,7 @@ export default function SignupForm() {
                   required
                   placeholder="●●●●●●●●●"
                   autoComplete="current-password"
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2 outline-white/10 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
+                  className="block w-full rounded-md bg-slate-600/50 outline-slate-400 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2  placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
                 />
               </div>
             </div>

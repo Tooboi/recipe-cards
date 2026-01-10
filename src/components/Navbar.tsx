@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 // import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
+import CldImageWrapper from "./wrappers/CldImageWrapper";
 // import Avatar from "boring-avatars";
 
 export default async function Navbar() {
@@ -83,20 +84,26 @@ export default async function Navbar() {
                     aria-label="Avatar"
                     className="rounded-full ml-2 hover:brightness-105 active:brightness-100 hover:rotate-8 transition-all"
                   >
-                    {/* <Avatar
-                      name={session?.user?.id}
-                      variant="beam"
-                      size={32}
-                      colors={["#d1d5db", "#4b5563", "#111827", "#030712"]}
-                    /> */}
-                    <Image
-                      className="w-full h-full grow border-2 border-slate-600 bg-slate-500/60 rounded-full overflow-hidden"
-                      width={100}
-                      height={100}
-                      unoptimized
-                      src={`https://api.dicebear.com/9.x/avataaars-neutral/svg?size=32&scale=90&mouth=concerned,default,eating,grimace,serious,smile,twinkle&seed=${internalUserId}`}
-                      alt={internalUserId || 'null'}
-                    />
+                    {session.user.image ? (
+                      <CldImageWrapper
+                        src={session.user.image}
+                        alt="Profile image"
+                        width={32}
+                        height={32}
+                        crop="fill"
+                        aspectRatio="1:1"
+                        className="rounded-full aspect-square border-2 border-slate-700"
+                      />
+                    ) : (
+                      <Image
+                        className="w-full h-full grow border-2 border-slate-600 bg-slate-500/60 rounded-full overflow-hidden"
+                        width={100}
+                        height={100}
+                        unoptimized
+                        src={`https://api.dicebear.com/9.x/avataaars-neutral/svg?size=32&scale=90&mouth=concerned,default,eating,grimace,serious,smile,twinkle&seed=${internalUserId}`}
+                        alt={internalUserId || "null"}
+                      />
+                    )}
                   </button>
                 </DropdownMenuTrigger>
 

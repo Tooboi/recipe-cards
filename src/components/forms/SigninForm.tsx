@@ -49,10 +49,11 @@ export default function SigninForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm/6 font-medium text-slate-100"
+                className="block text-sm/6 font-medium text-slate-100 validator"
               >
                 Email
               </label>
+              <div className="validator-hint hidden">Enter valid email address</div>
               <div className="mt-2">
                 <input
                   id="email"
@@ -61,7 +62,7 @@ export default function SigninForm() {
                   required
                   placeholder="baker@recipe.com"
                   autoComplete="email"
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2 outline-white/10 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
+                  className="block w-full rounded-md bg-slate-600/50 outline-slate-400 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2  placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -88,7 +89,7 @@ export default function SigninForm() {
                   required
                   placeholder="●●●●●●●●●"
                   autoComplete="current-password"
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2 outline-white/10 placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
+                  className="block w-full rounded-md bg-slate-600/50 outline-slate-400 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2  placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
                 />
               </div>
             </div>
@@ -120,7 +121,7 @@ export default function SigninForm() {
             </button>
           </form>
 
-          <p className="mt-10 text-center text-sm/6 text-slate-400">
+          <p className="mt-10 text-center text-sm/6 text-slate-300/60">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"

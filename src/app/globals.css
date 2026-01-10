@@ -7,7 +7,9 @@
 
 @import "tailwindcss";
 @import "tw-animate-css";
-@plugin "daisyui";
+@plugin "daisyui" {
+  exclude: scrollbar, checkbox, radio;
+}
 
 @custom-variant dark (&:is(.dark *));
 
