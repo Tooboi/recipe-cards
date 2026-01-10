@@ -4,6 +4,9 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { revalidatePath, revalidateTag } from "next/cache";
+
+
+
 // import crypto from "crypto";
 
 // READ actions
@@ -128,13 +131,13 @@ export async function createUser({
     // Revalidate the home page to show the new user
 
     revalidatePath("/");
-
+    revalidatePath("/new-recipe");
     return user;
   } catch (error: any) {
     // Handle duplicate email error
-    // if (error.code === "P2002") {
-    //   throw new Error("A user with this email already exists");
-    // }
+    if (error.code === "P2002") {
+      throw new Error("A user with this email already exists");
+    }
     if (error) {
       console.error("Error creating user:", error);
     }
