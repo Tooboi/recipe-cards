@@ -24,10 +24,10 @@ export default function SignupForm() {
       const username = formData.get("username") as string;
       const password = formData.get("password") as string;
 
-      // 1️⃣ Create the user
+      //  Create the user
       await createUser({ email, username, password, image: "" });
 
-      // 2️⃣ Sign in automatically
+      //  Sign in automatically
       const result = await signIn("credentials", {
         redirect: false,
         email,
@@ -76,9 +76,24 @@ export default function SignupForm() {
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm/6 font-medium text-slate-100"
+                className="text-sm/6 font-medium text-slate-100 flex"
               >
                 Username
+                <div className="tooltip tooltip-right" data-tip="username is public - can be changed later">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    className="size-4 ml-1 stroke-slate-300"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+                    />
+                  </svg>
+                </div>
               </label>
               <div className="mt-2">
                 <input
