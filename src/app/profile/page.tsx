@@ -9,6 +9,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import CldImageWrapper from "@/components/wrappers/CldImageWrapper";
+// import { revalidatePath } from "next/cache";
 
 export default function Profile() {
   const { data: session, status } = useSession();
@@ -72,7 +73,8 @@ export default function Profile() {
                     id: user.id!,
                     image,
                   });
-                  router.refresh();
+                  router.replace("/profile");
+                  // revalidatePath("/profile");
                   //  update NextAuth session
                   await (session as any).update({ image });
                   toast.success("Profile image updated");

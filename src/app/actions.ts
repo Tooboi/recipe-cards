@@ -5,8 +5,6 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { revalidatePath, revalidateTag } from "next/cache";
 
-
-
 // import crypto from "crypto";
 
 // READ actions
@@ -400,7 +398,7 @@ export async function updateProfileImage({
     // Revalidate cached data
     revalidateTag(`user_${id}`);
     revalidateTag("users_list");
-        revalidateTag(`user_image`);
+    revalidateTag(`user_image`);
 
     return { success: true };
   } catch (error) {
