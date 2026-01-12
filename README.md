@@ -1,7 +1,7 @@
 
 # Recipe Card Vault
 
-Website for posting and storing recipies as well as exporting them as pdf documents on mobile and desktop.
+Next.js website for posting and storing recipes as well as exporting them as pdf documents on mobile and desktop.
 
 
 
