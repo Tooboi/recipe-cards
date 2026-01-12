@@ -4,6 +4,7 @@
 import { useRouter } from "next/navigation";
 import { doCredentialLogin } from "../../app/actions/index.js";
 import Link from "next/link";
+// import { revalidatePath } from "next/cache";
 // import { useState } from "react";
 
 export default function SigninForm() {
@@ -19,8 +20,11 @@ export default function SigninForm() {
       if (!!response.error) {
         console.error(response.error);
       } else {
-        router.push("/");
+        // revalidatePath("/");
+        // revalidatePath("/new-recipe");
+        // revalidatePath("/profile");
         router.refresh();
+        router.replace("/profile");
       }
     } catch (e) {
       console.error(e);

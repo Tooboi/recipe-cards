@@ -1,17 +1,20 @@
-'use server';
+"use server";
 
-import { signIn, signOut } from '@/auth';
+import { signIn, signOut } from "@/auth";
 
 export async function doSocialLogin(formData) {
-  const action = formData.get('action');
+  const action = formData.get("action");
 
-  await signIn(action, { redirectTo: '/explore' });
+  await signIn(action, { redirectTo: "/explore" });
 }
 
 export async function doLogout() {
-  
-  await signOut({ redirectTo: '/' });
+  await signOut({ redirectTo: "/" });
   router.refresh();
+  revalidatePath("/");
+  revalidatePath("/new-recipe");
+  revalidatePath("/profile");
+  router.replace("/");
 }
 
 export async function doCredentialLogin(formData) {

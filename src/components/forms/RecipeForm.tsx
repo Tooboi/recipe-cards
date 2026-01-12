@@ -593,7 +593,7 @@ export default function RecipeForm() {
                   ))}
 
                   <button
-                    className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-400 border-2"
+                    className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-500 border-2"
                     onClick={addIngredient}
                   >
                     <svg
@@ -692,7 +692,7 @@ export default function RecipeForm() {
                     </div>
                   ))}
                   <button
-                    className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-400 border-2"
+                    className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-500 border-2"
                     onClick={() => addField(setInstructions, instructions)}
                   >
                     <svg
@@ -734,7 +734,7 @@ export default function RecipeForm() {
                     </button>
                     )}
                     {!isSignedIn && (
-                      <Link href="/signin" className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600">
+                      <Link href="/signin" className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600 text-center">
                         Sign In to Save
                       </Link>
                     )}
