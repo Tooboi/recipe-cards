@@ -4,13 +4,17 @@
 import { useRouter } from "next/navigation";
 import { doCredentialLogin } from "../../app/actions/index.js";
 import Link from "next/link";
+import { doSocialLogin } from "../../app/actions/index.js";
 // import { revalidatePath } from "next/cache";
 // import { useState } from "react";
 
 export default function SigninForm() {
   const router = useRouter();
 
-  async function onSubmit(event: { preventDefault: () => void; currentTarget: HTMLFormElement | undefined; }) {
+  async function onSubmit(event: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement | undefined;
+  }) {
     event.preventDefault();
     try {
       const formData = new FormData(event.currentTarget);
@@ -24,7 +28,7 @@ export default function SigninForm() {
         // revalidatePath("/new-recipe");
         // revalidatePath("/profile");
         router.refresh();
-        router.replace("/profile");
+        router.replace("/");
       }
     } catch (e) {
       console.error(e);
@@ -49,7 +53,7 @@ export default function SigninForm() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={onSubmit}  className="space-y-6">
+          <form onSubmit={onSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -57,7 +61,9 @@ export default function SigninForm() {
               >
                 Email
               </label>
-              <div className="validator-hint hidden">Enter valid email address</div>
+              <div className="validator-hint hidden">
+                Enter valid email address
+              </div>
               <div className="mt-2">
                 <input
                   id="email"
@@ -98,33 +104,31 @@ export default function SigninForm() {
               </div>
             </div>
 
-            {/* <div>
-              <button
-                type="submit"
-                name="action"
-                value='google'
-                className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              >
-                Sign in With Google
-              </button>
-              <button
-                type="submit"
-                name="action"
-                value='github'
-                className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              >
-                Sign in With GitHub
-              </button>
-            </div> */}
-
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md mx-auto my-8 py-2 border-2 border-slate-700 bg-slate-600 text-lg font-medium text-slate-300 transition-all hover:border-2 hover:border-cyan-600 hover:bg-cyan-950 hover:text-cyan-500 active:border-cyan-800 active:bg-cyan-950 active:text-cyan-600"
+              className="flex w-full justify-center rounded-md mx-auto my-8 py-2 border-2 border-slate-700 bg-slate-600 text-lg font-medium text-slate-300 transition-all hover:cyan-2 hover:border-cyan-600 hover:bg-cyan-950 hover:text-cyan-500 active:border-cyan-800 active:bg-cyan-950 active:text-slate-600"
             >
               Sign In
             </button>
           </form>
-
+          <form className="flex flex-col gap-2" action={doSocialLogin}>
+            <button
+              type="submit"
+              name="action"
+              value="google"
+              className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            >
+              Sign in With Google
+            </button>
+            <button
+              type="submit"
+              name="action"
+              value="github"
+              className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-green-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
+            >
+              Sign in With GitHub
+            </button>
+          </form>
           <p className="mt-10 text-center text-sm/6 text-slate-300/60">
             Don&apos;t have an account?{" "}
             <Link

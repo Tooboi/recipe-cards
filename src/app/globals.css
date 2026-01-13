@@ -26,6 +26,9 @@
 }
 .main-bg {
   background-color: #64748b;
+  /* background-color: #71717a; */
+  /* background-color: #78716c; */
+  /* background-color: #292928; */
 }
 
 body::-webkit-scrollbar {

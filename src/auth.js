@@ -27,36 +27,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: {},
       },
       async authorize(credentials) {
-  if (!credentials?.email || !credentials.password) {
-    return null;
-  }
+        if (!credentials?.email || !credentials.password) {
+          return null;
+        }
 
-  const email = credentials.email.toLowerCase().trim();
+        const email = credentials.email.toLowerCase().trim();
 
-  const user = await prisma.user.findUnique({
-    where: { email },
-  });
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
 
-  if (!user || !user.hashedPassword) {
-    return null;
-  }
+        if (!user || !user.hashedPassword) {
+          return null;
+        }
 
-  const isMatch = await bcrypt.compare(
-    credentials.password,
-    user.hashedPassword
-  );
+        const isMatch = await bcrypt.compare(
+          credentials.password,
+          user.hashedPassword
+        );
 
-  if (!isMatch) {
-    return null;
-  }
+        if (!isMatch) {
+          return null;
+        }
 
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.username ?? undefined,
-  };
-}
-
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.username ?? undefined,
+        };
+      },
     }),
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID,
@@ -82,8 +81,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session, account }) {
       // Runs on sign-in
+      if (account) {
+        token.accessToken = account.access_token;
+      }
       if (user) {
         token.id = user.id; // persist DB user ID
       }
@@ -105,7 +107,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token, trigger, newSession }) {
       if (session.user && token.id) {
         // Always fetch fresh data from DB
-        
+
         const dbUser = await prisma.user.findUnique({
           where: { id: String(token.id) },
           select: { id: true, username: true, email: true, image: true },
@@ -115,7 +117,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           session.user.id = dbUser.id;
           session.user.name = dbUser.username;
           session.user.email = dbUser.email;
-          session.user.image = dbUser.image || '';
+          session.user.image = dbUser.image || "";
         }
       }
 
@@ -133,7 +135,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           router.refresh();
         }
       }
-
+      session.accessToken = token.accessToken;
       return session;
     },
   },
