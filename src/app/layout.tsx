@@ -16,10 +16,10 @@ export const metadata: Metadata = {
   title: "Recipe Card Vault",
   description: "Recipe Card Vault",
 };
-import {
-  ClerkProvider,
-  // ClerkLoaded, ClerkLoading
-} from "@clerk/nextjs";
+// import {
+//   ClerkProvider,
+//   ClerkLoaded, ClerkLoading
+// } from "@clerk/nextjs";
 
 export default async function RootLayout({
   children,
@@ -29,8 +29,7 @@ export default async function RootLayout({
   await connectToDatabase;
 
   return (
-    <ClerkProvider>
-      {/* <SessionProvider session={session}>  */}
+    //  <SessionProvider session={session}>  
       <html lang="en">
         <body className={`${rubik.className} antialiased main-bg`}>
           <AuthSessionProvider>
@@ -43,7 +42,6 @@ export default async function RootLayout({
           </AuthSessionProvider>
         </body>
       </html>
-      {/* // </SessionProvider>  */}
-    </ClerkProvider>
+    //  </SessionProvider> 
   );
 }

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { createUser } from "@/app/actions";
 import { signIn } from "next-auth/react";
 // import { useRouter } from "next/navigation";
-// import { doSocialLogin } from "../../app/actions/index.js";
+import { doSocialLogin } from "../../app/actions/index.js";
 // import Link from "next/link";
 
 export default function SignupForm() {
@@ -39,8 +39,8 @@ export default function SignupForm() {
       }
 
       toast.success("Account created and logged in!");
-      router.push("/");
       router.refresh();
+      router.push("/");
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create account";
@@ -68,11 +68,7 @@ export default function SignupForm() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form
-            // action={doSocialLogin}
-            onSubmit={handleSignup}
-            className="space-y-6"
-          >
+          <form onSubmit={handleSignup} className="space-y-6">
             <div>
               <label
                 htmlFor="username"
@@ -109,7 +105,6 @@ export default function SignupForm() {
                   placeholder="BestChefEver"
                   className="block w-full rounded-md bg-slate-600/50 outline-slate-400 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2  placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
                 />
-                
               </div>
             </div>
             <div>
@@ -158,27 +153,29 @@ export default function SignupForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full justify-center rounded-md mx-auto my-8 py-2 border-2 border-slate-700 bg-slate-600 text-lg font-medium text-slate-300 transition-all hover:border-2 hover:border-cyan-600 hover:bg-cyan-950 hover:text-cyan-500 active:border-cyan-800 active:bg-cyan-950 active:text-cyan-600"
+                className="flex w-full justify-center rounded-md mx-auto my-8 py-2 border-2 border-slate-700 bg-slate-600 text-lg font-medium text-slate-300 transition-all hover:cyan-2 hover:border-cyan-600 hover:bg-cyan-950 hover:text-cyan-500 active:border-cyan-800 active:bg-cyan-950 active:text-slate-600"
               >
                 Sign Up
               </button>
-              {/* <button
-                type="submit"
-                name="action"
-                value='google'
-                className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              >
-                Sign in With Google
-              </button>
-              <button
-                type="submit"
-                name="action"
-                value='github'
-                className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              >
-                Sign in With GitHub
-              </button> */}
             </div>
+          </form>
+          <form className="flex flex-col gap-2" action={doSocialLogin}>
+            <button
+              type="submit"
+              name="action"
+              value="google"
+              className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            >
+              Sign up With Google
+            </button>
+            <button
+              type="submit"
+              name="action"
+              value="github"
+              className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+            >
+              Sign up With GitHub
+            </button>
           </form>
 
           {/* <p className="mt-10 text-center text-sm/6 text-slate-400">
