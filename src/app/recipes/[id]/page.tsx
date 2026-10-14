@@ -1,277 +1,251 @@
-import prisma from "@/lib/prisma";
+import type { Metadata } from "next";
 import Link from "next/link";
-// import { currentUser } from "@clerk/nextjs/server";
-import Image from "next/image";
+import { notFound } from "next/navigation";
+import { format } from "date-fns";
+import {
+  ArrowDownTrayIcon,
+  PencilSquareIcon,
+  ChevronRightIcon,
+} from "@heroicons/react/24/outline";
+import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 import CldImage from "@/components/wrappers/CldImageWrapper";
 import BookmarkButton from "@/components/wrappers/BookmarkButton";
-import {
-  differenceInMinutes,
-  differenceInHours,
-  differenceInDays,
-  format,
-  differenceInYears,
-} from "date-fns";
-// import { useSession } from "next-auth/react";
-import { auth } from "@/auth"; // next-auth v5
+import PrintButton from "@/components/recipes/PrintButton";
+import IngredientChecklist from "@/components/recipes/IngredientChecklist";
+import { formatIngredient, parseIngredient } from "@/lib/recipe-format";
+import { getCategory, tagLabel } from "@/lib/taxonomy";
+import CategoryArt from "@/components/recipes/CategoryArt";
+import StarRating from "@/components/recipes/StarRating";
+import RateRecipe from "@/components/recipes/RateRecipe";
+import { getMyRating } from "@/lib/actions/rating.actions";
 
-// import RecipeDetailsClient from "@/components/wrappers/RecipeDetailsClient";
+type Props = { params: Promise<{ id: string }> };
 
-function formatDate(createdAt: string | Date | undefined) {
-  if (!createdAt) {
-    return "Unknown";
+async function getRecipe(id: string) {
+  try {
+    return await prisma.recipe.findUnique({ where: { id }, include: { user: true } });
+  } catch {
+    // Malformed ids throw in Mongo; treat as not found.
+    return null;
   }
-
-  const date = new Date(createdAt);
-  const now = new Date();
-
-  const minutes = differenceInMinutes(now, date);
-  const hours = differenceInHours(now, date);
-  const days = differenceInDays(now, date);
-  const years = differenceInYears(now, date);
-
-  if (minutes < 1) {
-    return "Just now";
-  }
-
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
-
-  if (days === 1) {
-    return "Yesterday";
-  }
-
-  if (days < 7) {
-    return `${days} days ago`;
-  }
-
-  if (years > 1) {
-    return `${years} year ago`;
-  }
-
-  if (years > 2) {
-    return `${years} years ago`;
-  }
-
-  return format(date, "MMM d, yyyy");
 }
 
-export default async function RecipeDetails({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  // const clerkUser = await currentUser();
-  const session = await auth();
-  const internalUserId = session?.user?.id ?? null;
-  const AuthUser = session?.user;
-  console.log(AuthUser, "AuthUser in recipe details page");
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const recipe = await getRecipe((await params).id);
+  return recipe
+    ? { title: recipe.title, description: recipe.description || undefined }
+    : { title: "Recipe not found" };
+}
 
+export default async function RecipeDetails({ params }: Props) {
   const recipeId = (await params).id;
+  const [session, recipe] = await Promise.all([auth(), getRecipe(recipeId)]);
+  if (!recipe) notFound();
 
-  const SingleRecipeById = await prisma.recipe.findUnique({
-    where: { id: recipeId },
-    include: { user: true },
-  });
+  const isOwner = !!session?.user?.id && recipe.userId === session.user.id;
+  const ingredients = recipe.ingredients
+    .map((s: string) => formatIngredient(parseIngredient(s)))
+    .filter(Boolean);
+  const steps = recipe.instructions.map((s: string) => s.trim()).filter(Boolean);
+  const authorName = recipe.author || recipe.user.username;
+  const category = getCategory(recipe.category);
+  const tags = recipe.tags ?? [];
+  const myRating = session?.user?.id ? await getMyRating(recipe.id) : null;
 
-  const isOwner = internalUserId && SingleRecipeById?.userId === internalUserId;
-
-  if (!SingleRecipeById) {
-    return <div>Recipe not found</div>;
-  }
-
-  // <RecipeDetailsClient recipe={SingleRecipeById} />;
+  const facts = [
+    recipe.serving ? { label: "Yield", value: recipe.serving } : null,
+    { label: "Ingredients", value: String(ingredients.length) },
+    { label: "Steps", value: String(steps.length) },
+    { label: "Updated", value: format(recipe.updatedAt, "MMM d, yyyy") },
+  ].filter(Boolean) as { label: string; value: string }[];
 
   return (
-    <div className="sm:m-4 m-2">
-      {/* MOBILE */}
-      <div className=" bg-slate-400 border-slate-800  rounded-lg border-2 w-full flex flex-col h-max drop-shadow-md overflow-hidden">
-        <div className="flex sm:hidden flex-col border-b-2 border-slate-700 overflow-hidden  bg-slate-300 hover:bg-slate-200 transition-colors group shadow-md hover:shadow-lg">
-          <div className="flex flex-row">
-            <div className="flex flex-col w-full">
-              <div className="pl-2 bg-slate-200 border-b-2 border-slate-600 flex flex-row justify-between">
-                <div className="flex flex-col h-full">
-                  <p className="font-medium text-base/4 line-clamp-2 pt-1.5">
-                    {SingleRecipeById?.title || "Recipe"}
-                  </p>
-                  <p className="text-slate-500 text-sm ">
-                    {SingleRecipeById?.user.username}
-                  </p>
-                </div>
-                <div className="pt-2 px-2">
-                  <BookmarkButton recipeId={SingleRecipeById?.id || ""} />
-                </div>
-              </div>
-              <div className="flex flex-row pt-2 px-2 ">
-                {isOwner ? (
-                  <div className="flex flex-row w-full justify-between">
-                    <Link
-                      className="w-max py-0.5 px-2 self-center rounded-md  border-2 border-slate-600 bg-slate-400 text-base font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
-                      href={`/recipes/download/${recipeId}`}
-                    >
-                      DOWNLOAD
-                    </Link>
-                    <Link
-                      className=" text-center py-0.5 px-2 self-center rounded-md border-2 border-slate-600 bg-slate-400 text-base font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
-                      href={`/recipes/edit/${recipeId}`}
-                    >
-                      EDIT
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="flex w-full justify-end">
-                    <Link
-                      className="w-max py-0.5 px-2  self-center rounded-md border-2 border-slate-600 bg-slate-400 text-base font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
-                      href={`/recipes/download/${recipeId}`}
-                    >
-                      DOWNLOAD
-                    </Link>
-                  </div>
-                )}
-              </div>
+    <article className="mx-auto max-w-5xl px-4 py-8 print:max-w-none print:px-0 print:py-0">
+      {/* Breadcrumb */}
+      <nav
+        aria-label="Breadcrumb"
+        className="mb-5 flex items-center gap-1 text-xs font-semibold tracking-wide text-ink-soft uppercase print:hidden"
+      >
+        <Link href="/" className="hover:text-brand">
+          Home
+        </Link>
+        <ChevronRightIcon className="h-3 w-3" />
+        <Link href="/explore" className="hover:text-brand">
+          The Vault
+        </Link>
+        {category.slug && (
+          <>
+            <ChevronRightIcon className="h-3 w-3" />
+            <Link href={`/explore?category=${category.slug}`} className="whitespace-nowrap hover:text-brand">
+              {category.label}
+            </Link>
+          </>
+        )}
+        <ChevronRightIcon className="h-3 w-3" />
+        <span className="truncate text-ink">{recipe.title}</span>
+      </nav>
 
-              <div className="">
-                <div className="flex justify-between h-full">
-                  <span className=" py-1 pl-1 h-full text-xs font-regular text-slate-900 mr-1 flex flex-row items-end">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="size-4"
-                    >
-                      <path d="M5.75 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM5 10.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM10.25 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM7.25 8.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM8 9.5A.75.75 0 1 0 8 11a.75.75 0 0 0 0-1.5Z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M4.75 1a.75.75 0 0 0-.75.75V3a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2V1.75a.75.75 0 0 0-1.5 0V3h-5V1.75A.75.75 0 0 0 4.75 1ZM3.5 7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v4.5a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V7Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="ml-1">
-                      {formatDate(SingleRecipeById?.updatedAt)}
-                    </span>
-                  </span>
-                  <div>
-                    <span className="h-full py-1 text-xs font-regular text-slate-900 mr-1 flex flex-row items-center">
-                      <div>
-                        <span className="ml-1 line-clamp-1 text-end">
-                          {SingleRecipeById?.serving}
-                        </span>
-
-                        <span className="ml-1 line-clamp-1 text-end">
-                          {SingleRecipeById?.ingredients.length}{" "}
-                          {SingleRecipeById?.ingredients.length === 1
-                            ? "Ingredient"
-                            : "Ingredients"}
-                        </span>
-                      </div>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Title block */}
+      <header className="border-b border-line pb-6">
+        {recipe.hidden && (
+          <span className="mb-3 inline-block rounded-full bg-ink px-2.5 py-0.5 text-xs font-semibold text-cream print:hidden">
+            Private recipe
+          </span>
+        )}
+        {category.slug && (
+          <Link
+            href={`/explore?category=${category.slug}`}
+            className="eyebrow mb-2 inline-block hover:underline print:hidden"
+            style={{ color: category.ink }}
+          >
+            {category.label}
+          </Link>
+        )}
+        <h1 className="font-serif text-4xl leading-tight font-bold text-ink md:text-5xl">
+          {recipe.title}
+        </h1>
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-ink-soft">
+          <a href="#rate" className="hover:opacity-80 print:hidden">
+            <StarRating value={recipe.ratingAvg} count={recipe.ratingCount} size="md" />
+          </a>
+          <span>
+          By{" "}
+          <Link
+            href={`/users/${recipe.userId}`}
+            className="font-semibold text-ink underline decoration-brand/40 underline-offset-4 hover:text-brand"
+          >
+            {authorName}
+          </Link>
+          </span>
         </div>
-
-        {/* DESKTOP */}
-        <div className="hidden w-full bg-slate-300 py-2 px-4 border-b-2 border-slate-800 sm:flex justify-between items-center">
-          <div className="flex flex-row">
-            <BookmarkButton recipeId={SingleRecipeById?.id || ""} />
-            <div className="flex flex-col px-3">
-              <p className="text-2xl font-semibold">
-                {SingleRecipeById?.title}
-              </p>
-              <p className="text-sm">
-                By:{" "}
-                <Link href={`/users/${SingleRecipeById?.userId}`}>
-                  {SingleRecipeById?.user.username}
+        {recipe.description && (
+          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-ink">{recipe.description}</p>
+        )}
+        {tags.length > 0 && (
+          <ul className="mt-4 flex flex-wrap gap-1.5 print:hidden" aria-label="Tags">
+            {tags.map((t: string) => (
+              <li key={t}>
+                <Link
+                  href={`/explore?tag=${encodeURIComponent(t)}`}
+                  className="inline-block rounded-full border border-line bg-paper px-3 py-1 text-xs font-semibold text-ink-soft transition-colors hover:border-brand hover:text-brand"
+                >
+                  {tagLabel(t)}
                 </Link>
-              </p>
-              <p className="text-sm">Yield: {SingleRecipeById?.serving}</p>
-            </div>
-          </div>
+              </li>
+            ))}
+          </ul>
+        )}
 
-          {/* Only show if the logged-in user owns this recipe */}
-          {isOwner ? (
-            <div className="items-center flex flex-col">
-              <Link
-                className="w-max py-1 px-2 self-center rounded-md mb-2 border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
-                href={`/recipes/download/${recipeId}`}
-              >
-                DOWNLOAD
-              </Link>
-              <Link
-                className="w-full text-center py-1 px-2 self-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
-                href={`/recipes/edit/${recipeId}`}
-              >
-                EDIT
-              </Link>
-            </div>
-          ) : (
-            <Link
-              className="w-max py-1 px-2 mr-2 self-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-800 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-300/50 hover:text-slate-800 active:bg-slate-400 active:text-slate-900 active:border-slate-600"
-              href={`/recipes/download/${recipeId}`}
-            >
-              DOWNLOAD
+        <div className="mt-6 flex flex-wrap gap-2 print:hidden">
+          <BookmarkButton recipeId={recipe.id} variant="pill" />
+          <PrintButton />
+          <Link href={`/recipes/download/${recipe.id}`} className="btn-brand">
+            <ArrowDownTrayIcon className="h-4 w-4" />
+            Recipe Card PDF
+          </Link>
+          {isOwner && (
+            <Link href={`/recipes/edit/${recipe.id}`} className="btn-ghost">
+              <PencilSquareIcon className="h-4 w-4" />
+              Edit
             </Link>
           )}
         </div>
-        <div className="px-4 pb-4">
-          {SingleRecipeById?.imageId && SingleRecipeById?.imageId.length > 0 ? (
-            <div className="h-full w-full flex ">
-              <div className="mt-4">
-                <CldImage
-                  alt="Thumbnail"
-                  src={SingleRecipeById?.imageId}
-                  width="100"
-                  height="100"
-                  crop="fill"
-                  aspectRatio="1:1"
-                  sizes="100vw"
-                  className="rounded-sm border-2 border-slate-800"
-                />
-              </div>
-            </div>
-          ) : (
-            <div className=" h-full flex w-full">
-              <Image
-                className=" mt-4 rounded-sm border-2 border-slate-800 bg-slate-500/50"
-                width={100}
-                height={100}
-                unoptimized
-                src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${SingleRecipeById?.id}&backgroundType[]&backgroundColor=transparent`}
-                alt={SingleRecipeById?.id ?? ""}
-              />
-            </div>
-          )}
-          <p className="pt-4 text-slate-700 pb-2">
-            {SingleRecipeById?.description}
-          </p>
-          <h2 className="text-lg font-medium">Ingredients</h2>
-          <ul className="list-disc list-inside text-sm mb-4">
-            {SingleRecipeById?.ingredients?.map((ingredientStr, i) => {
-              const [quantity = "", unit = "", item = ""] =
-                ingredientStr.split("_");
-              return (
-                <li key={i}>
-                  {quantity} {unit} {item}
-                </li>
-              );
-            })}
-          </ul>
-          <h2 className="text-lg font-medium mt-4">Instructions</h2>
-          <ol className="list-decimal list-outside ml-4 text-sm/4">
-            {SingleRecipeById?.instructions.filter(Boolean).map((step, i) => (
-              <li className="mb-2" key={i}>
-                {step}
-              </li>
-            ))}
-          </ol>
+      </header>
+
+      {/* Photo, or the category illustration when there isn't one */}
+      {!recipe.imageId && (
+        <div className="mt-6 aspect-[16/7] overflow-hidden rounded-lg border border-line print:hidden">
+          <CategoryArt id={recipe.id} category={recipe.category} tags={tags} size="lg" />
         </div>
+      )}
+      {recipe.imageId && (
+        <div className="mt-6 overflow-hidden rounded-lg print:hidden">
+          <CldImage
+            alt={recipe.title}
+            src={recipe.imageId}
+            width="1200"
+            height="675"
+            crop="fill"
+            sizes="(min-width: 1024px) 1000px, 100vw"
+            className="aspect-[16/9] h-auto w-full object-cover"
+            priority
+          />
+        </div>
+      )}
+
+      {/* Quick facts */}
+      <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4">
+        {facts.map((f) => (
+          <div key={f.label} className="bg-paper px-4 py-3">
+            <dt className="eyebrow">{f.label}</dt>
+            <dd className="mt-0.5 font-serif text-lg font-semibold text-ink">{f.value}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {/* Ingredients + directions */}
+      <div className="mt-10 grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)] print:grid-cols-[1fr_1.7fr]">
+        <section>
+          <div className="md:sticky md:top-24">
+            <h2 className="section-title border-b-2 border-brand pb-2">Ingredients</h2>
+            {ingredients.length ? (
+              <IngredientChecklist items={ingredients} />
+            ) : (
+              <p className="py-3 text-ink-soft italic">No ingredients listed.</p>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <h2 className="section-title border-b-2 border-brand pb-2">Directions</h2>
+          {steps.length ? (
+            <ol className="mt-4 space-y-6">
+              {steps.map((step: string, i: number) => (
+                <li key={i} className="grid grid-cols-[2.25rem_1fr] gap-3">
+                  <span
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-brand font-serif text-lg font-bold text-white print:border print:border-ink print:bg-transparent print:text-ink"
+                    aria-hidden
+                  >
+                    {i + 1}
+                  </span>
+                  <div>
+                    <p className="eyebrow mb-1 print:hidden">Step {i + 1}</p>
+                    <p className="text-[1.05rem] leading-relaxed text-ink">{step}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="py-3 text-ink-soft italic">No directions yet.</p>
+          )}
+        </section>
       </div>
-    </div>
+
+      <div className="mt-12">
+        <RateRecipe
+          recipeId={recipe.id}
+          average={recipe.ratingAvg ?? 0}
+          count={recipe.ratingCount ?? 0}
+          mine={myRating}
+          isOwner={isOwner}
+          isSignedIn={!!session?.user?.id}
+        />
+      </div>
+
+      {/* Print-out call to action */}
+      <aside className="mt-6 flex flex-col items-start justify-between gap-4 rounded-lg border border-dashed border-brand/50 bg-brand-soft/40 p-6 sm:flex-row sm:items-center print:hidden">
+        <div>
+          <p className="font-serif text-xl font-bold text-ink">Take a copy out of the vault</p>
+          <p className="text-sm text-ink-soft">
+            Download a full-page printout or a classic 3×5 / 4×6 recipe card.
+          </p>
+        </div>
+        <Link href={`/recipes/download/${recipe.id}`} className="btn-brand shrink-0">
+          <ArrowDownTrayIcon className="h-4 w-4" />
+          Make a Recipe Card
+        </Link>
+      </aside>
+    </article>
   );
 }

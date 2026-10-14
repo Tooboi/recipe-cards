@@ -18,7 +18,7 @@ export default function Profile() {
   if (status === "loading") {
     return (
       <div className="flex min-h-128 justify-center px-4">
-        <div className="text-center w-full max-w-md mt-10 bg-slate-300 p-6 border-2 border-slate-700 rounded-lg shadow-md">
+        <div className="panel text-center w-full max-w-md mt-10 p-6">
           Loading...
         </div>
       </div>
@@ -31,7 +31,7 @@ export default function Profile() {
         <h1 className="text-xl font-medium">You’re not signed in</h1>
         <Link
           href="/signin"
-          className="px-4 py-2 rounded-md border-2 border-slate-600 bg-slate-300 hover:bg-slate-200"
+          className="btn-outline"
         >
           Sign In
         </Link>
@@ -43,7 +43,7 @@ export default function Profile() {
 
   return (
     <div className="flex  justify-center px-4">
-      <div className=" w-full max-w-xl mt-10 bg-slate-300 border-2 border-slate-700 rounded-lg pt-6 px-6 shadow-md">
+      <div className="panel w-full max-w-xl mt-10 pt-6 px-6">
         <h1 className="text-2xl font-semibold mb-4">Profile</h1>
 
         {/* Profile Header */}
@@ -100,21 +100,21 @@ export default function Profile() {
                       height={80}
                       crop="fill"
                       aspectRatio="1:1"
-                      className="rounded-full aspect-square border-2 border-slate-700"
+                      className="rounded-full aspect-square ring-4 ring-brand-soft"
                     />
                   ) : (
                     <Image
                       width={80}
                       height={80}
                       unoptimized
-                      className="rounded-full border-2 border-slate-700"
+                      className="rounded-full ring-4 ring-brand-soft"
                       src={`https://api.dicebear.com/9.x/avataaars-neutral/svg?size=64&seed=${user.id}`}
                       alt="avatar"
                     />
                   )}
 
                   {/* Hover overlay */}
-                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm text-slate-100 transition">
+                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-sm text-stone-100 transition">
                     Change
                   </div>
                 </button>
@@ -125,30 +125,30 @@ export default function Profile() {
               <p className="text-lg font-medium">
                 {user.name ?? "Unnamed User"}
               </p>
-              <p className="text-sm text-slate-700">{user.email}</p>
+              <p className="text-sm text-stone-700">{user.email}</p>
             </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="mt-6 border-t-2 border-slate-600 pt-4 space-y-3 flex flex-col">
+        <div className="mt-6 border-t border-line pt-4 space-y-3 flex flex-col">
           <div className="flex gap-2 w-full">
             <Link
               href="/profile/change-username"
-              className="block w-full h-max px-4 py-2 rounded-md border-2 border-slate-600 bg-slate-400 hover:bg-slate-300 text-center"
+              className="btn-outline w-full py-2.5"
             >
               Change Username
             </Link>
 
             <Link
               href="/profile/change-password"
-              className="block w-full h-max px-4 py-2 rounded-md border-2 border-slate-600 bg-slate-400 hover:bg-slate-300 text-center"
+              className="btn-outline w-full py-2.5"
             >
               Change Password
             </Link>
           </div>
           <div className="items-end h-full pb-2">
-            <div className="text-[0.6rem] text-slate-500 text-end">{user.id}</div>
+            <div className="text-[0.6rem] text-stone-500 text-end">{user.id}</div>
           </div>
         </div>
       </div>

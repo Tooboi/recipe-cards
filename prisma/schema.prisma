@@ -30,6 +30,30 @@ model Recipe {
   imageId      String?  @default("")
   author       String?  @default("")
   serving      String  
+  // Browse filters. Optional so recipes saved before these existed still load.
+  category     String?  @default("")
+  tags         String[] @default([])
+  // Denormalized from Rating so lists can sort by rating cheaply.
+  ratingAvg    Float?   @default(0)
+  ratingCount  Int?     @default(0)
+  ratings      Rating[]
+
+  @@index([category])
+  @@index([tags])
+}
+
+model Rating {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  value     Int // 1–5 stars
+  recipeId  String   @db.ObjectId
+  userId    String   @db.ObjectId
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([recipeId, userId])
+  @@index([recipeId])
 }
 
 model User {
@@ -43,6 +67,7 @@ model User {
   sessions            Session[]
   Recipe              Recipe[]
   bookmarkedRecipeIds String[]  @default([])
+  ratings             Rating[]
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 }

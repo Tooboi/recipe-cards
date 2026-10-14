@@ -1,25 +1,33 @@
 import type { Metadata } from "next";
-import { Rubik } from "next/font/google";
+import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/sonner";
-// import { SessionProvider } from "next-auth/react";
 import { connectToDatabase } from "@/lib/mongo";
 import AuthSessionProvider from "@/components/wrappers/SessionProvider";
-// import { getServerSession } from "next-auth";
-
 import { Analytics } from "@vercel/analytics/next";
 
-const rubik = Rubik({ subsets: ["latin"] });
+// Serif display face for titles, friendly sans for body copy.
+const display = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+});
+const body = Source_Sans_3({
+  subsets: ["latin"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
-  title: "Recipe Card Vault",
-  description: "Recipe Card Vault",
+  title: {
+    default: "Recipe Card Vault — Family recipes, kept safe and ready to print",
+    template: "%s | Recipe Card Vault",
+  },
+  description:
+    "Keep your family recipes safe in the vault, share them, and print them as full pages or classic 3×5 and 4×6 recipe cards.",
 };
-// import {
-//   ClerkProvider,
-//   ClerkLoaded, ClerkLoading
-// } from "@clerk/nextjs";
 
 export default async function RootLayout({
   children,
@@ -29,19 +37,20 @@ export default async function RootLayout({
   await connectToDatabase;
 
   return (
-    //  <SessionProvider session={session}>  
-      <html lang="en">
-        <body className={`${rubik.className} antialiased main-bg`}>
-          <AuthSessionProvider>
-            <main className="m-auto min-h-screen min-w-[300px] pb-8">
-              <Navbar />
-              {children}
-              <Analytics />
-              <Toaster position="bottom-right" />
-            </main>
-          </AuthSessionProvider>
-        </body>
-      </html>
-    //  </SessionProvider> 
+    <html lang="en">
+      <body
+        className={`${display.variable} ${body.variable} font-sans antialiased bg-cream text-ink`}
+      >
+        <AuthSessionProvider>
+          <div className="flex min-h-screen min-w-[300px] flex-col">
+            <Navbar />
+            <main className="flex-1 pb-12">{children}</main>
+            <Footer />
+          </div>
+          <Analytics />
+          <Toaster position="bottom-right" />
+        </AuthSessionProvider>
+      </body>
+    </html>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { updateRecipe } from "@/app/actions";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import CategoryTagsFields from "@/components/forms/CategoryTagsFields";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -23,6 +24,8 @@ type SafeRecipe = {
   hidden: boolean;
   imageId: string | null;
   author: string | null;
+  category?: string | null;
+  tags?: string[] | null;
 };
 
 export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
@@ -39,6 +42,9 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
   const [instructions, setInstructions] = useState(recipe.instructions || []);
   const [hidden, setHidden] = useState(recipe.hidden || false);
   const [loading, setLoading] = useState(false);
+  const [category, setCategory] = useState(recipe.category ?? "");
+  const [tags, setTags] = useState<string[]>(recipe.tags ?? []);
+  const router = useRouter();
 
   const updateField = (
     setter: React.Dispatch<React.SetStateAction<string[]>>,
@@ -114,13 +120,6 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
     const formattedIngredients = ingredients.map(
       ({ quantity, unit, item }) => `${quantity}_${unit}_${item}`
     );
-    console.log({
-      updatedTitle,
-      updatedDescription,
-      ingredients: formattedIngredients,
-      instructions,
-      hidden,
-    });
     try {
       await updateRecipe({
         id: recipe.id,
@@ -131,58 +130,64 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
         font: recipe.font,
         pdfSize: recipe.pdfSize,
         hidden,
+        category,
+        tags,
       });
+      toast.success("Recipe updated!");
+      router.push(`/recipes/${recipe.id}`);
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't save your changes");
     } finally {
       setLoading(false);
-      toast.success("Recipe updated!");
-      redirect(`/recipes/${recipe.id}`);
     }
   };
 
   return (
     <div>
-      <div className="drop-shadow-md sm:rounded-md bg-slate-400 mx-auto sm:max-w-2/3 overflow-hidden border-2 border-slate-800 pt-4 sm:mt-4">
-        <div className="border-b-2 border-slate-800 drop-shadow-md px-4 rounded-none">
-          <div className="text-2xl text-slate-900">Edit: {recipe.title}</div>
+      <div className="panel mx-auto my-6 w-[calc(100%-2rem)] max-w-3xl overflow-hidden pt-5">
+        <div className="border-b border-line px-4 sm:px-6">
+          <div className="font-serif text-3xl font-bold text-ink">Edit: {recipe.title}</div>
           <p className="pb-2">By: {recipe.user.username}</p>
         </div>
-        <div className="p-4 bg-slate-300">
+        <div className="p-4 sm:p-6">
           <div>
-            <label htmlFor="title" className="font-semibold pt-4 pb-2">
+            <label htmlFor="title" className="field-label pt-4">
               Recipe Title
             </label>
             <input
               name="title"
               id="title"
               placeholder={updatedTitle}
-              className="w-full border-2 p-2 rounded-md bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block"
+              className="field"
               onChange={(e) => setUpdatedTitle(e.target.value)}
               value={updatedTitle}
             />
           </div>
           <div className="pt-4">
-            <label htmlFor="description" className="font-semibold pt-4 pb-2">
+            <label htmlFor="description" className="field-label pt-4">
               Description
             </label>
             <textarea
               name="description"
               id="description"
               placeholder={recipe.description || "description"}
-              className="w-full border-2 p-2 rounded-md bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block"
+              className="field"
               onChange={(e) => setUpdatedDescription(e.target.value)}
               value={updatedDescription}
             />
           </div>
 
-          <h2 className="font-semibold pt-4 pb-2">Ingredients</h2>
+          <h2 className="field-label pt-4">Ingredients</h2>
           {ingredients.map((ingredient, i) => (
-            <div key={i} className="flex gap-2 mb-2 justify-between">
+            <div key={i} className="mb-3 flex flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
               <label htmlFor={`unit-input-${i}`} className="sr-only">
                 Ingredient unit
               </label>
+              <div className="grid w-full grid-cols-[4.5rem_5.5rem_minmax(0,1fr)] gap-2 sm:flex-1">
               <input
                 type="text"
-                placeholder="Quantity"
+                placeholder="Qty"
                 value={ingredient.quantity}
                 onChange={(e) =>
                   updateIngredient(i, {
@@ -190,7 +195,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
                     quantity: e.target.value,
                   })
                 }
-                className=" w-1/4 bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md border-2"
+                className="field"
               />
               
               <input
@@ -201,7 +206,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
                 onChange={(e) =>
                   updateIngredient(i, { ...ingredient, unit: e.target.value })
                 }
-                className="w-1/4 bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md border-2"
+                className="field"
               />
 
               <input
@@ -211,10 +216,11 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
                 onChange={(e) =>
                   updateIngredient(i, { ...ingredient, item: e.target.value })
                 }
-                className="w-1/2 bg-slate-50 border-slate-400 text-slate-900 text-sm border-2 focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
+                className="field"
               />
+              </div>
               <button
-                className="text-slate-700"
+                className="p-1 text-ink-soft hover:text-ink disabled:opacity-30"
                 onClick={() => moveIngredient(i, "up")}
                 disabled={i === 0}
                 title="Move up"
@@ -233,7 +239,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
                 </svg>
               </button>
               <button
-                className="text-slate-700"
+                className="p-1 text-ink-soft hover:text-ink disabled:opacity-30"
                 onClick={() => moveIngredient(i, "down")}
                 disabled={i === ingredients.length - 1}
                 title="Move down"
@@ -253,7 +259,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               </button>
               <button
                 onClick={() => removeIngredient(i)}
-                className="text-rose-600"
+                className="text-red-700"
                 title="Remove"
               >
                 <svg
@@ -272,7 +278,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
             </div>
           ))}
           <button
-            className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-400 border-2"
+            className="btn-ghost px-2"
             onClick={addIngredient}
           >
             <svg
@@ -286,24 +292,24 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
             Add Ingredient
           </button>
 
-          <h2 className="font-semibold py-4">Instructions</h2>
+          <h2 className="field-label pt-4">Instructions</h2>
           {instructions.map((step, i) => (
             <div key={i} className="flex gap-2 mb-2 items-center">
-              <div className="text-sm text-slate-600 font-medium text-right">
+              <div className="w-12 shrink-0 text-right font-serif text-sm font-bold text-brand">
                 Step {i + 1}
               </div>
               <input
                 id={`step-${i}`}
                 name={`step-${i}`}
                 placeholder={`Step ${i + 1}`}
-                className="flex-grow bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
+                className="field flex-grow"
                 value={step}
                 onChange={(e) =>
                   updateField(setInstructions, i, e.target.value)
                 }
               />
               <button
-                className="text-slate-700"
+                className="p-1 text-ink-soft hover:text-ink disabled:opacity-30"
                 onClick={() =>
                   moveField(setInstructions, instructions, i, "up")
                 }
@@ -324,7 +330,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
                 </svg>
               </button>
               <button
-                className="text-slate-700"
+                className="p-1 text-ink-soft hover:text-ink disabled:opacity-30"
                 onClick={() =>
                   moveField(setInstructions, instructions, i, "down")
                 }
@@ -346,7 +352,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               </button>
               <button
                 onClick={() => removeField(setInstructions, instructions, i)}
-                className="text-rose-600"
+                className="text-red-700"
                 title="Remove"
               >
                 <svg
@@ -365,7 +371,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
             </div>
           ))}
           <button
-            className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-400 border-2"
+            className="btn-ghost px-2"
             onClick={() => addField(setInstructions, instructions)}
           >
             <svg
@@ -379,6 +385,15 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
             Add Step
           </button>
 
+          <div className="mt-6 border-t border-line pt-6">
+            <CategoryTagsFields
+              category={category}
+              onCategoryChange={setCategory}
+              tags={tags}
+              onTagsChange={setTags}
+            />
+          </div>
+
           <div className="mt-4">
             <input
               type="checkbox"
@@ -391,7 +406,7 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
             </label>
           </div>
           <button
-            className="mt-6 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
+            className="btn-brand mt-6 w-full py-3 text-base sm:w-auto"
             onClick={handleUpdateRecipe}
             disabled={loading}
           >
