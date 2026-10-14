@@ -2,113 +2,114 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import "@fontsource/rubik";
-import "@fontsource/nunito";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { createRecipe } from "@/app/actions";
-import { CldImage, CldUploadWidget } from "next-cloudinary";
-// import html2pdf from "html2pdf.js";
-import { PhotoIcon } from "@heroicons/react/24/solid";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { CldImage, CldUploadWidget } from "next-cloudinary";
+import { PhotoIcon } from "@heroicons/react/24/solid";
+import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { createRecipe } from "@/app/actions";
+import PdfOptionsPanel from "@/components/pdf/PdfOptionsPanel";
+import PdfPreview from "@/components/pdf/PdfPreview";
+import RowControls from "@/components/pdf/RowControls";
+import { downloadRecipePdf } from "@/lib/pdf/generate";
+import { defaultPdfOptions, type RecipePdfOptions } from "@/lib/pdf/options";
+import type { Ingredient } from "@/lib/recipe-format";
+import { useMediaQuery } from "@/lib/use-media-query";
+import CategoryTagsFields from "@/components/forms/CategoryTagsFields";
 
 function formatBytes(fileSize: number): string {
   const sizes = ["B", "KB", "MB"];
-
   if (fileSize === 0) return "0 B";
-
   const i = Math.floor(Math.log(fileSize) / Math.log(1024));
-  const formattedSize = (fileSize / Math.pow(1024, i)).toFixed(1);
-
-  // Check if the decimal part is .0, and remove it in that case
-  const formattedSizeWithoutDecimal = formattedSize.endsWith(".0")
-    ? formattedSize.split(".")[0]
-    : formattedSize;
-
-  return `${formattedSizeWithoutDecimal} ${sizes[i]}`;
+  const formatted = (fileSize / Math.pow(1024, i)).toFixed(1);
+  return `${formatted.endsWith(".0") ? formatted.split(".")[0] : formatted} ${sizes[i]}`;
 }
 
-export default function RecipeForm() {
+function move<T>(list: T[], index: number, direction: "up" | "down") {
+  const next = [...list];
+  const swap = direction === "up" ? index - 1 : index + 1;
+  if (swap < 0 || swap >= next.length) return list;
+  [next[index], next[swap]] = [next[swap], next[index]];
+  return next;
+}
 
+const emptyIngredient = (): Ingredient => ({ quantity: "", unit: "", item: "" });
+const maxFileSize = 41943040; // 40MB
+
+export default function RecipeForm() {
   const { data: session } = useSession();
   const user = session?.user;
   const isSignedIn = !!session?.user;
+  const router = useRouter();
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
-
-  const googleFonts = [
-    { label: "Rubik", value: "Rubik" },
-    { label: "Nunito", value: "Nunito" },
-  ];
-  // const [fontScale, setFontScale] = useState(1);
-  const [tab, setTab] = useState<"editor" | "decor">("editor");
+  const [tab, setTab] = useState<"editor" | "design">("editor");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const id = user?.id || "";
-
   const [imageId, setImageId] = useState("");
-  const [includeImage, setIncludeImage] = useState(false);
-
-  const defaultAuthor = user?.name || "";
-  const [showAuthor, setShowAuthor] = useState(true);
-  const [authorName, setAuthorName] = useState(defaultAuthor);
-
-  useEffect(() => {
-    if (user?.name && !authorName) {
-      setAuthorName(user.name);
-    }
-  }, [user?.name, authorName]);
+  const [authorName, setAuthorName] = useState(user?.name || "");
   const [yieldAmount, setYieldAmount] = useState("1");
   const [yieldUnit, setYieldUnit] = useState("Serving");
-
-  const [showDescription, setShowDescription] = useState(true);
-  const [pdfSize, setPdfSize] = useState<"3x5" | "letter">("letter");
-  const [instructions, setInstructions] = useState([""]);
-  const [ingredients, setIngredients] = useState([
-    { quantity: "", unit: "", item: "" },
-  ]);
-  const [font, setFont] = useState<string>("Rubik");
+  const [instructions, setInstructions] = useState<string[]>([""]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([emptyIngredient()]);
   const [hidden, setHidden] = useState(true);
-
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
-  const transformedIngredients = ingredients.map(
-    (ing) => `${ing.quantity}_${ing.unit}_${ing.item}`
+  const [category, setCategory] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [pdfOptions, setPdfOptions] = useState<RecipePdfOptions>(() =>
+    defaultPdfOptions({ showImage: false })
   );
+  const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  useEffect(() => {
+    if (user?.name && !authorName) setAuthorName(user.name);
+  }, [user?.name, authorName]);
+
+  const serving = yieldAmount && yieldUnit ? `${yieldAmount} ${yieldUnit}` : "";
+  const pdfRecipe = {
+    title: title || "Recipe Title",
+    description,
+    author: authorName,
+    serving,
+    ingredients: ingredients.filter((i) => i.item || i.quantity),
+    instructions,
+    imageId,
+  };
 
   const handleCreateRecipe = async () => {
-    // console.log("Ingredients before saving:", transformedIngredients);
-    // console.log(clerkUserId);
-
     setLoading(true);
     try {
       await createRecipe({
         title,
         description,
-        ingredients: transformedIngredients,
+        ingredients: ingredients.map((ing) => `${ing.quantity}_${ing.unit}_${ing.item}`),
         instructions,
-        pdfSize,
-        font,
+        pdfSize: pdfOptions.size,
+        font: pdfOptions.font,
         hidden,
-        id,
-        imageId: includeImage ? imageId : "",
-        author: showAuthor ? authorName : "",
-        serving: yieldAmount && yieldUnit ? `${yieldAmount} ${yieldUnit}` : "",
+        id: user?.id || "",
+        imageId,
+        author: pdfOptions.showAuthor ? authorName : "",
+        serving,
+        category,
+        tags,
       });
 
-      // Reset form
       setTitle("");
       setDescription("");
       setInstructions([""]);
-      setIngredients([{ quantity: "", unit: "", item: "" }]);
-      setFont("Rubik");
+      setIngredients([emptyIngredient()]);
       setHidden(true);
+      setCategory("");
+      setTags([]);
       setImageId("");
       setYieldAmount("1");
       setYieldUnit("Serving");
+      setPdfOptions(defaultPdfOptions({ showImage: false }));
 
-      toast.success("Recipe Saved!");
+      toast.success("Recipe saved!");
       router.refresh();
     } catch (error: any) {
       console.error("Error creating recipe:", error);
@@ -119,792 +120,323 @@ export default function RecipeForm() {
   };
 
   const handlePDFExport = async () => {
-    // const html2pdf = await require('html2pdf.js')
-    const element = document.querySelector("#recipe-preview");
-
-    if (!element) {
-      console.error("Recipe preview element not found!");
-      return;
+    setExporting(true);
+    try {
+      await downloadRecipePdf(pdfRecipe, pdfOptions);
+    } catch (err) {
+      console.error(err);
+      toast.error("Sorry, the PDF couldn't be created.");
+    } finally {
+      setExporting(false);
     }
-
-    const html2pdf = (await import("html2pdf.js")).default;
-
-    html2pdf()
-      .from(element as HTMLElement)
-      .set({
-        filename: `${title || "recipe"}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          useCORS: true,
-          scale: 2,
-        },
-        jsPDF: {
-          unit: "in",
-          format: pdfSize === "3x5" ? [5, 3] : "letter",
-          orientation: pdfSize === "3x5" ? "landscape" : "portrait",
-        },
-      })
-      .save();
-
-    // const card = document.getElementById('recipe-preview');
-    // if (!card) return;
-
-    // const scale = 3;
-    // const canvas = await html2canvas(card, {
-    //   scale,
-    //   useCORS: true,
-    //   allowTaint: true,
-    //   foreignObjectRendering: false,
-    // });
-
-    // const imgData = canvas.toDataURL('image/png');
-
-    // // Define page size in inches
-    // const pageSize = pdfSize === '3x5' ? [3, 5] : [8.5, 11];
-
-    // const pdf = new jsPDF({
-    //   orientation: pdfSize === '3x5' ? 'landscape' : 'portrait',
-    //   unit: 'in',
-    //   format: pageSize,
-    // });
-
-    // const pageWidth = pdf.internal.pageSize.getWidth();
-    // const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // const imgProps = pdf.getImageProperties(imgData);
-    // const imgWidth = pageWidth;
-    // const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-    // const y = imgHeight < pageHeight ? (pageHeight - imgHeight) / 2 : 0;
-
-    // pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
-    // pdf.save(`${title || 'recipe'}.pdf`);
   };
 
-  const addIngredient = () =>
-    setIngredients([...ingredients, { quantity: "", unit: "", item: "" }]);
-
-  const removeIngredient = (index: number) => {
-    const newList = [...ingredients];
-    newList.splice(index, 1);
-    setIngredients(newList);
-  };
-
-  const moveIngredient = (index: number, direction: "up" | "down") => {
-    const newList = [...ingredients];
-    const newIndex = direction === "up" ? index - 1 : index + 1;
-    if (newIndex < 0 || newIndex >= newList.length) return;
-    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
-    setIngredients(newList);
-  };
-
-  const updateField = <T,>(
-    setter: React.Dispatch<React.SetStateAction<T[]>>,
-    index: number,
-    value: T
-  ) => {
-    setter((prev) => {
-      const newList = [...prev];
-      newList[index] = value;
-      return newList;
-    });
-  };
-
-  const addField = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    list: string[]
-  ) => setter([...list, ""]);
-
-  const removeField = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    list: string[],
-    index: number
-  ) => {
-    const newList = [...list];
-    newList.splice(index, 1);
-    setter(newList);
-  };
-
-  const moveField = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    list: string[],
-    index: number,
-    direction: "up" | "down"
-  ) => {
-    const newList = [...list];
-    const newIndex = direction === "up" ? index - 1 : index + 1;
-
-    if (newIndex < 0 || newIndex >= list.length) return;
-
-    [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
-    setter(newList);
-  };
-
-  const maxFileSize = 41943040; // 40MB in B
-  const [buttonClassName, setButtonClassName] = useState(
-    "w-full mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
-  );
-  // console.log(session);
+  const tabClass = (active: boolean) =>
+    `flex-1 border-b-2 px-4 py-3 text-sm font-semibold tracking-wide uppercase transition-colors sm:flex-none ${
+      active ? "border-brand text-brand" : "border-transparent text-ink-soft hover:text-ink"
+    }`;
 
   return (
-    <div className="h-full">
-      <div className="flex h-dvh p-4">
-        {/* Left Panel */}
-        <section className=" bg-slate-300 border-slate-800 flex-2/5 rounded-lg border-2 w-full flex flex-col h-max p-4 drop-shadow-md">
-          <div className="">
-            {/* Tabs at top */}
-            <div className="flex px-4 mb-6 border-b-2">
-              <button
-                className={`px-4 py-2 text-md ${
-                  tab === "editor"
-                    ? "border-secondary font-semibold"
-                    : "border-transparent"
-                }`}
-                onClick={() => setTab("editor")}
-              >
-                Edit Recipe
-              </button>
-              <button
-                className={`px-4 py-2 border-b-2 ${
-                  tab === "decor"
-                    ? "border-secondary font-semibold"
-                    : "border-transparent"
-                }`}
-                onClick={() => setTab("decor")}
-              >
-                Style
-              </button>
-            </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 md:py-8">
+      <header className="mb-6">
+        <p className="eyebrow mb-1">New recipe</p>
+        <h1 className="font-serif text-3xl font-bold text-ink md:text-4xl">Write it down</h1>
+        <p className="mt-1 text-ink-soft">
+          Fill in your recipe, choose how the card looks, then save it or download a PDF.
+        </p>
+      </header>
 
-            {/* Tab content */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-8">
+        <section className="panel overflow-hidden">
+          <div className="flex border-b border-line">
+            <button className={tabClass(tab === "editor")} onClick={() => setTab("editor")}>
+              Recipe
+            </button>
+            <button className={tabClass(tab === "design")} onClick={() => setTab("design")}>
+              Card design
+            </button>
+          </div>
+
+          <div className="p-4 sm:p-6">
             {tab === "editor" && (
-              <div className="space-y-2 ">
-                <h1 className="text-2xl font-bold mx-auto">
-                  Create Recipe Card
-                </h1>
-                <div className="flex items-center gap-2 mb-0">
-                  <input
-                    type="checkbox"
-                    id="include-image"
-                    checked={includeImage}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setIncludeImage(checked);
-                      if (!checked) {
-                        setImageId("");
-                        setButtonClassName(
-                          "w-full mx-auto p-1 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900"
-                        );
-                      }
-                    }}
-                  />
-                  <label
-                    htmlFor="include-image"
-                    className="text-sm font-medium"
-                  >
-                    Include image
-                  </label>
-                </div>
-                {includeImage && (
-                  <>
-                    {imageId ? (
-                      <div className="h-full w-full flex">
-                        <div className="overflow-hidden lg:mx-auto">
-                          <CldImage
-                            alt="Thumbnail"
-                            src={imageId}
-                            width="200"
-                            height="200"
-                            crop="fill"
-                            aspectRatio="1:1"
-                            sizes="100vw"
-                            className="mx-auto rounded-lg border-2 border-slate-700"
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-2 w-full rounded-lg border-2 border-slate-700 bg-slate-400 mx-auto">
-                        <PhotoIcon className="mx-auto w-36 text-slate-700" />
-                        <p className="mt-[-1rem] select-none pb-2 text-center text-xs text-slate-700 lg:text-sm">
-                          Max {formatBytes(maxFileSize)}
-                        </p>
-                      </div>
-                    )}
-
-                    <CldUploadWidget
-                      uploadPreset="recipe"
-                      options={{
-                        maxImageFileSize: maxFileSize,
-                        maxFiles: 1,
-                        sources: [
-                          "local",
-                          "dropbox",
-                          "google_drive",
-                          "instagram",
-                          "unsplash",
-                        ],
-                        autoMinimize: true,
-                      }}
-                      onSuccess={(result: any) => {
-                        setImageId(result.info.public_id);
-                        setButtonClassName("hidden");
-                      }}
-                    >
-                      {({ open }) => (
-                        <button
-                          className={buttonClassName}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            open();
-                          }}
-                        >
-                          Add Image
-                        </button>
-                      )}
-                    </CldUploadWidget>
-                  </>
-                )}
-
-                <div className="flex items-center space-x-2 hidden">
-                  <label htmlFor="pdf-size" className="font-semibold">
-                    Card Size:
-                  </label>
-                  <select
-                    id="pdf-size"
-                    value={pdfSize}
-                    onChange={(e) =>
-                      setPdfSize(e.target.value as "3x5" | "letter")
-                    }
-                    className="bg-slate-50 border-slate-400 border-2 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 "
-                  >
-                    <option value="3x5">3 x 5</option>
-                    <option value="letter">Letter</option>
-                  </select>
-                </div>
-
+              <div className="space-y-5">
                 <div>
-                  <h2 className="font-semibold pt-2">Title</h2>
+                  <label htmlFor="title" className="field-label">Title</label>
                   <input
-                    name="title"
                     id="title"
-                    placeholder="Recipe Title"
-                    className="w-full border-2 p-2 rounded-md bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block "
+                    className="field text-base"
+                    placeholder="e.g. Grandma's Buttermilk Biscuits"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
                 </div>
 
-                <div>
+                <div className="grid gap-4 sm:grid-cols-2">
                   {isSignedIn && (
-                    <div className=" flex flex-col">
-                      <div className="flex flex-col items-start">
-                        <h2 className="font-semibold pt-2">Author</h2>
-                        <div className="flex">
-                          <input
-                            type="checkbox"
-                            id="show-author"
-                            checked={showAuthor}
-                            onChange={(e) => setShowAuthor(e.target.checked)}
-                          />
-                          <label
-                            htmlFor="show-author"
-                            className="text-sm mt-0.5 ml-2"
-                          >
-                            Show author
-                          </label>
-                        </div>
-                      </div>
-
+                    <div>
+                      <label htmlFor="author" className="field-label">From the kitchen of</label>
                       <input
-                        type="text"
+                        id="author"
+                        className="field"
+                        placeholder="Author name"
                         value={authorName}
                         onChange={(e) => setAuthorName(e.target.value)}
-                        placeholder="Author name"
-                        className="w-full border-2 p-2 rounded-md bg-slate-50 border-slate-400 text-sm focus:ring-slate-500 focus:border-slate-500"
                       />
                     </div>
                   )}
+                  <div>
+                    <span className="field-label">Yield</span>
+                    <div className="grid grid-cols-[5rem_1fr] gap-2">
+                      <input
+                        className="field"
+                        placeholder="Amount"
+                        aria-label="Yield amount"
+                        value={yieldAmount}
+                        onChange={(e) => setYieldAmount(e.target.value)}
+                      />
+                      <input
+                        className="field"
+                        placeholder="Servings, cookies…"
+                        aria-label="Yield unit"
+                        value={yieldUnit}
+                        onChange={(e) => setYieldUnit(e.target.value)}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <h2 className="font-semibold pt-2">Description</h2>
-                  <div className="flex">
-                    <input
-                      type="checkbox"
-                      id="show-description"
-                      checked={showDescription}
-                      onChange={(e) => setShowDescription(e.target.checked)}
-                    />
-                    <label
-                      htmlFor="show-description"
-                      className="text-sm mt-0.5 ml-2"
-                    >
-                      Show description
-                    </label>
-                  </div>
-                  <label htmlFor="recipe-description" className="sr-only">
-                    Short description
-                  </label>
+                  <label htmlFor="recipe-description" className="field-label">Description</label>
                   <textarea
                     id="recipe-description"
-                    placeholder="Short Description"
-                    className="w-full border-2 p-2 rounded-md bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block "
+                    rows={3}
+                    className="field"
+                    placeholder="A line or two about this dish"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
 
-                <div>
-                  <h2 className="font-semibold pt-2">Yield</h2>
-
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Amount"
-                      value={yieldAmount}
-                      onChange={(e) => setYieldAmount(e.target.value)}
-                      className="w-1/5 bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm p-2 rounded-md "
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Unit"
-                      value={yieldUnit}
-                      onChange={(e) => setYieldUnit(e.target.value)}
-                      className="w-full bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm p-2 rounded-md"
-                    ></input>
-                  </div>
-                </div>
+                <CategoryTagsFields
+                  category={category}
+                  onCategoryChange={setCategory}
+                  tags={tags}
+                  onTagsChange={setTags}
+                />
 
                 <div>
-                  <h2 className="font-semibold pt-2">Ingredients</h2>
-                  {ingredients.map((ingredient, i) => (
-                    <div
-                      key={i}
-                      className="flex gap-1 mb-2 items-center justify-between"
-                    >
-                      {/* Quantity */}
-                      <input
-                        type="text"
-                        placeholder="Quantity"
-                        value={ingredient.quantity}
-                        onChange={(e) =>
-                          updateField(setIngredients, i, {
-                            ...ingredient,
-                            quantity: e.target.value,
-                          })
-                        }
-                        className="w-1/4 bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
+                  <span className="field-label">Photo</span>
+                  {imageId ? (
+                    <div className="flex items-center gap-4">
+                      <CldImage
+                        alt="Recipe photo"
+                        src={imageId}
+                        width="160"
+                        height="160"
+                        crop="fill"
+                        className="h-24 w-24 rounded-md object-cover"
                       />
-
-                      {/* Unit */}
-                      <label htmlFor={`unit-select-${i}`} className="sr-only">
-                        Ingredient unit
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Unit"
-                        id={`unit-select-${i}`}
-                        value={ingredient.unit}
-                        onChange={(e) =>
-                          updateField(setIngredients, i, {
-                            ...ingredient,
-                            unit: e.target.value,
-                          })
-                        }
-                        className="w-1/4 bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
+                      <button
+                        type="button"
+                        className="btn-ghost"
+                        onClick={() => {
+                          setImageId("");
+                          setPdfOptions((o) => ({ ...o, showImage: false }));
+                        }}
                       >
-                      </input>
-
-                      {/* Name */}
-                      <input
-                        type="text"
-                        placeholder="Ingredient"
-                        value={ingredient.item}
-                        onChange={(e) =>
-                          updateField(setIngredients, i, {
-                            ...ingredient,
-                            item: e.target.value,
-                          })
-                        }
-                        className="w-1/2 bg-slate-50 border-slate-400 border-2 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
-                      />
-
-                      {/* Reorder and Remove */}
-                      <div className=" flex justify-start">
-                        <button
-                          className="text-slate-700"
-                          onClick={() => moveIngredient(i, "up")}
-                          disabled={i === 0}
-                          title="Move up"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="size-5"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          className="text-slate-700"
-                          onClick={() => moveIngredient(i, "down")}
-                          disabled={i === ingredients.length - 1}
-                          title="Move down"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="size-5"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => removeIngredient(i)}
-                          className="text-rose-600"
-                          title="Remove"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="size-5"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
+                        Remove photo
+                      </button>
                     </div>
-                  ))}
-
-                  <button
-                    className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-500 border-2"
-                    onClick={addIngredient}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="size-5 mt-0.25  mr-1"
+                  ) : (
+                    <CldUploadWidget
+                      uploadPreset="recipe"
+                      options={{
+                        maxImageFileSize: maxFileSize,
+                        maxFiles: 1,
+                        sources: ["local", "dropbox", "google_drive", "instagram", "unsplash"],
+                        autoMinimize: true,
+                      }}
+                      onSuccess={(result: any) => {
+                        setImageId(result.info.public_id);
+                        setPdfOptions((o) => ({ ...o, showImage: true }));
+                      }}
                     >
-                      <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-                    </svg>
-                    Add Ingredient
+                      {({ open }) => (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            open();
+                          }}
+                          className="flex w-full items-center gap-3 rounded-md border-2 border-dashed border-line bg-cream px-4 py-4 text-left text-ink-soft transition-colors hover:border-brand hover:text-brand"
+                        >
+                          <PhotoIcon className="h-8 w-8 shrink-0" />
+                          <span className="text-sm">
+                            <span className="block font-semibold">Add a photo</span>
+                            Optional · max {formatBytes(maxFileSize)}
+                          </span>
+                        </button>
+                      )}
+                    </CldUploadWidget>
+                  )}
+                </div>
+
+                <div>
+                  <h2 className="field-label">Ingredients</h2>
+                  <ul className="space-y-3 sm:space-y-2">
+                    {ingredients.map((ing, i) => (
+                      <li
+                        key={i}
+                        className="flex flex-wrap items-center gap-2 border-b border-line pb-3 sm:flex-nowrap sm:border-0 sm:pb-0"
+                      >
+                        <div className="grid w-full grid-cols-[4.5rem_5.5rem_minmax(0,1fr)] gap-2 sm:flex-1">
+                          <input
+                            className="field"
+                            placeholder="Qty"
+                            aria-label={`Ingredient ${i + 1} quantity`}
+                            value={ing.quantity}
+                            onChange={(e) =>
+                              setIngredients((p) => p.map((x, j) => (j === i ? { ...x, quantity: e.target.value } : x)))
+                            }
+                          />
+                          <input
+                            className="field"
+                            placeholder="Unit"
+                            aria-label={`Ingredient ${i + 1} unit`}
+                            value={ing.unit}
+                            onChange={(e) =>
+                              setIngredients((p) => p.map((x, j) => (j === i ? { ...x, unit: e.target.value } : x)))
+                            }
+                          />
+                          <input
+                            className="field"
+                            placeholder="Ingredient"
+                            aria-label={`Ingredient ${i + 1}`}
+                            value={ing.item}
+                            onChange={(e) =>
+                              setIngredients((p) => p.map((x, j) => (j === i ? { ...x, item: e.target.value } : x)))
+                            }
+                          />
+                        </div>
+                        <div className="ml-auto">
+                          <RowControls
+                            index={i}
+                            count={ingredients.length}
+                            onMove={(d) => setIngredients((p) => move(p, i, d))}
+                            onRemove={() => setIngredients((p) => p.filter((_, j) => j !== i))}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    className="btn-ghost mt-2 px-2"
+                    onClick={() => setIngredients((p) => [...p, emptyIngredient()])}
+                  >
+                    <PlusIcon className="h-4 w-4" /> Add ingredient
                   </button>
                 </div>
 
                 <div>
-                  <h2 className="font-semibold pt-2">Instructions</h2>
-                  {instructions.map((step, i) => (
-                    <div key={i} className="flex gap-1 mb-2 items-center">
-                      <label htmlFor={`step-${i}`} className="sr-only">
-                        Step {i + 1}
-                      </label>
-                      <input
-                        id={`step-${i}`}
-                        name={`step-${i}`}
-                        placeholder={`Step ${i + 1}`}
-                        className="w-full bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
-                        value={step}
-                        onChange={(e) =>
-                          updateField(setInstructions, i, e.target.value)
-                        }
-                      />
-                      <div className="flex justify-start">
-                        <button
-                          className="text-slate-700"
-                          onClick={() =>
-                            moveField(setInstructions, instructions, i, "up")
+                  <h2 className="field-label">Directions</h2>
+                  <ol className="space-y-3">
+                    {instructions.map((step, i) => (
+                      <li key={i} className="flex flex-wrap items-start gap-2 sm:flex-nowrap">
+                        <span className="mt-2 w-6 shrink-0 text-right font-serif font-bold text-brand">
+                          {i + 1}.
+                        </span>
+                        <textarea
+                          rows={2}
+                          className="field min-w-0 flex-1"
+                          placeholder={`Step ${i + 1}`}
+                          aria-label={`Step ${i + 1}`}
+                          value={step}
+                          onChange={(e) =>
+                            setInstructions((p) => p.map((s, j) => (j === i ? e.target.value : s)))
                           }
-                          disabled={i === 0}
-                          title="Move up"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="size-5"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          className="text-slate-700"
-                          onClick={() =>
-                            moveField(setInstructions, instructions, i, "down")
-                          }
-                          disabled={i === instructions.length - 1}
-                          title="Move down"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="size-5"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() =>
-                            removeField(setInstructions, instructions, i)
-                          }
-                          className="text-rose-600"
-                          title="Remove"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            className="size-5"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                        />
+                        <div className="ml-auto">
+                          <RowControls
+                            index={i}
+                            count={instructions.length}
+                            onMove={(d) => setInstructions((p) => move(p, i, d))}
+                            onRemove={() => setInstructions((p) => p.filter((_, j) => j !== i))}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
                   <button
-                    className="text-slate-800 flex-row flex px-1 pr-2 py-0.5 bg-slate-400 hover:bg-slate-200 active:bg-slate-400 transition-all rounded border-slate-500 border-2"
-                    onClick={() => addField(setInstructions, instructions)}
+                    type="button"
+                    className="btn-ghost mt-2 px-2"
+                    onClick={() => setInstructions((p) => [...p, ""])}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="size-5 mt-0.25 mr-1"
-                    >
-                      <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-                    </svg>{" "}
-                    Add Step
+                    <PlusIcon className="h-4 w-4" /> Add step
                   </button>
                 </div>
-                <div className="flex">
+
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
                   <input
                     type="checkbox"
-                    id="hidden"
+                    className="h-4 w-4 accent-brand"
                     checked={hidden}
                     onChange={(e) => setHidden(e.target.checked)}
                   />
-                  <label htmlFor="hidden" className="text-sm mt-0.5 ml-2">
-                    Private
-                  </label>
-                </div>
-                <div className="gap-2 flex">
-                  <button
-                    className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
-                    onClick={handlePDFExport}
-                  >
-                    Export as PDF
-                  </button>
-                    {isSignedIn && (
-                    <button
-                      className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
-                      disabled={loading}
-                      onClick={handleCreateRecipe}
-                    >
-                      {loading ? "Saving..." : "Save Recipe"}
-                    </button>
-                    )}
-                    {!isSignedIn && (
-                      <Link href="/signin" className="w-1/2 mx-auto p-2 justify-center rounded-md border-2 border-slate-600 bg-slate-400 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-400/80 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600 text-center">
-                        Sign In to Save
-                      </Link>
-                    )}
-                </div>
+                  Keep this recipe private
+                </label>
               </div>
             )}
 
-            {tab === "decor" && (
+            {tab === "design" && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Customize Card</h2>
-
-                <div className="flex items-center space-x-2">
-                  <label htmlFor="font-select" className="font-semibold">
-                    Font:
-                  </label>
-                  <select
-                    id="font-select"
-                    className="bg-slate-50 border-slate-400 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 p-2 rounded-md placeholder:text-slate-300 border"
-                    value={font}
-                    onChange={(e) => setFont(e.target.value)}
-                    title="Font style"
-                  >
-                    {googleFonts.map((f) => (
-                      <option key={f.value} value={f.value}>
-                        {f.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {/* <div className="flex items-center space-x-2">
-                  <label htmlFor="font-scale" className="font-semibold">
-                    Font Scale:
-                  </label>
-                  <input
-                    id="font-scale"
-                    type="range"
-                    min="0.5"
-                    max="2"
-                    step="0.1"
-                    value={fontScale}
-                    onChange={(e) => setFontScale(parseFloat(e.target.value))}
-                    className="w-32"
-                  />
-                  <span className="text-sm">{(fontScale * 100).toFixed(0)}%</span>
-                </div> */}
-
-                {/* <div className="hidden">
-                  <h3 className="font-semibold mb-2">Text Color</h3>
-                  <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Text color" />
-                </div> */}
-
-                {/* <div className="hidden">
-                  <h3 className="font-semibold mb-2">Background Color</h3>
-                  <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Background color" />
-                </div> */}
-
-                {/* <div className="hidden">
-                  <h3 className="font-semibold mb-2">Border Color</h3>
-                  <input type="color" value={borderColor} onChange={(e) => setBorderColor(e.target.value)} className="input input-bordered w-24 p-0 h-10" title="Border color" />
-                </div> */}
+                <PdfOptionsPanel
+                  options={pdfOptions}
+                  onChange={setPdfOptions}
+                  hasImage={!!imageId}
+                  hasDescription={!!description.trim()}
+                  hasAuthor={!!authorName.trim()}
+                />
+                {!isDesktop && <PdfPreview recipe={pdfRecipe} options={pdfOptions} />}
               </div>
+            )}
+          </div>
+
+          <div className="grid gap-2 border-t border-line bg-cream/60 p-4 sm:grid-cols-2 sm:p-6">
+            <button
+              type="button"
+              className="btn-outline w-full py-3 text-base"
+              onClick={handlePDFExport}
+              disabled={exporting}
+            >
+              <ArrowDownTrayIcon className="h-5 w-5" />
+              {exporting ? "Preparing…" : "Download PDF"}
+            </button>
+            {isSignedIn ? (
+              <button
+                type="button"
+                className="btn-brand w-full py-3 text-base"
+                disabled={loading || !title.trim()}
+                onClick={handleCreateRecipe}
+              >
+                {loading ? "Saving…" : "Save Recipe"}
+              </button>
+            ) : (
+              <Link href="/signin" className="btn-brand w-full py-3 text-base">
+                Sign in to save
+              </Link>
             )}
           </div>
         </section>
 
-        {/* Live Preview */}
-        <fieldset className="hidden lg:block ml-4 h-max flex fieldset justify-center border-2 bg-slate-200 rounded-lg border-slate-800 items-center flex-3/5 drop-shadow-md ">
-          <div className="w-full h-full max-h-full flex justify-center items-center overflow-auto">
-            <div
-              id="recipe-preview"
-              className="relative w-full max-w-full h-auto rounded-lg export-recipe"
-              style={{
-                fontFamily: `'${font}', sans-serif`,
-                // fontSize: `${fontScale}rem`,
-                // backgroundColor,
-                // color: textColor,
-                // border: `2px solid ${borderColor}`,
-                // borderRadius: '0.5rem',
-                aspectRatio: pdfSize === "3x5" ? "5 / 3" : "8.5 / 11",
-              }}
-            >
-              <div
-                className={`text-[clamp(0.5rem,1.5vw,1rem)] leading-snug p-4 box-border w-full h-full ${
-                  pdfSize === "3x5" ? "flex flex-row gap-4 " : ""
-                }`}
-              >
-                <div
-                  className={`${
-                    pdfSize === "3x5" ? "h-[3in] w-[5in] " : "w-full"
-                  }`}
-                >
-                  <div className="flex justify-between">
-                    <div>
-                      <h2 className="text-[clamp(1rem,3vw,1.5rem)] font-bold">
-                        {title || "Recipe Title"}
-                      </h2>
-                      {showAuthor && authorName && (
-                        <p className="italic text-[clamp(0.5rem,1.5vw,1rem)] ">
-                          By {authorName}
-                        </p>
-                      )}
-                      {yieldAmount && yieldUnit && (
-                        <p className="text-[clamp(0.5rem,1.5vw,0.8rem)] mb-2">
-                          Yield: {yieldAmount} {yieldUnit}
-                        </p>
-                      )}
-                      {showDescription && (
-                        <p className="text-[clamp(0.5rem,1.5vw,1rem)]">
-                          {description || "Short description..."}
-                        </p>
-                      )}
-                    </div>
-                    {includeImage && (
-                      <>
-                        {!imageId && (
-                          <PhotoIcon className="w-24 text-slate-700 p-0" />
-                        )}
-                        {imageId && (
-                          <CldImage
-                            alt="Thumbnail"
-                            src={imageId}
-                            width="100"
-                            height="100"
-                            crop="fill"
-                            aspectRatio="1:1"
-                            format="jpg"
-                            sizes="100vw"
-                            className="w-32 h-32 block rounded-md"
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
-
-                  <h2 className="font-semibold mb-1 text-lg mt-4">
-                    Ingredients
-                  </h2>
-                  <ol className="list-none text-[clamp(0.5rem,1.5vw,1rem)]">
-                    {ingredients
-                      .filter((ing) => ing.item || ing.quantity)
-                      .map((ing, i) => (
-                        <li
-                          className="mb-0 text-[clamp(0.5rem,1.5vw,1rem)]"
-                          key={i}
-                        >
-                          <span className="bullet">&bull;</span>
-                          {ing.quantity} {ing.unit} {ing.item}
-                        </li>
-                      ))}
-                  </ol>
-                </div>
-
-                <div className={`${pdfSize === "3x5" ? "w-3/4" : "w-full"}`}>
-                  <h2 className="font-semibold text-lg mb-1">Instructions</h2>
-                  <ol className="list-none text-[clamp(0.5rem,1.5vw,1rem)]">
-                    {instructions.filter(Boolean).map((step, i) => (
-                      <li
-                        className="mb-0 text-[clamp(0.5rem,1.5vw,1rem)]"
-                        key={i}
-                      >
-                        <span className="bullet">{i + 1}.&nbsp;</span>
-                        {step}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </div>
+        {isDesktop && (
+          <aside>
+            <div className="sticky top-24">
+              <p className="eyebrow mb-2">Live preview</p>
+              <PdfPreview recipe={pdfRecipe} options={pdfOptions} />
             </div>
-          </div>
-        </fieldset>
+          </aside>
+        )}
       </div>
     </div>
   );

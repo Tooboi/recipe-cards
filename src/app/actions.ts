@@ -4,6 +4,8 @@
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { auth } from "@/auth";
+import { isCategory, normalizeTags, tagKey } from "@/lib/taxonomy";
 
 // import crypto from "crypto";
 
@@ -153,10 +155,11 @@ export async function createRecipe({
   font,
   pdfSize,
   hidden,
-  id,
   imageId,
   author,
   serving,
+  category,
+  tags,
 }: {
   title: string;
   description?: string;
@@ -165,13 +168,22 @@ export async function createRecipe({
   font: string;
   pdfSize: string;
   hidden: boolean;
-  id: string;
+  /** Ignored: the recipe always belongs to the signed-in user. */
+  id?: string;
   imageId?: string;
   author?: string;
   serving: string;
+  category?: string;
+  tags?: string[];
 }) {
   if (!title) {
     throw new Error("Title is required");
+  }
+  // Never trust a user id sent from the browser.
+  const session = await auth();
+  const id = session?.user?.id;
+  if (!id) {
+    throw new Error("Please sign in to save recipes");
   }
   try {
     // Ensure the author exists
@@ -197,6 +209,8 @@ export async function createRecipe({
         imageId,
         author,
         serving,
+        category: isCategory(category) ? category : "",
+        tags: await canonicalTags(tags),
       },
     });
 
@@ -221,6 +235,8 @@ export async function updateRecipe({
   hidden,
   imageId,
   author,
+  category,
+  tags,
 }: {
   id: string;
   title: string;
@@ -232,9 +248,17 @@ export async function updateRecipe({
   hidden: boolean;
   imageId?: string;
   author?: string;
+  category?: string;
+  tags?: string[];
 }) {
   if (!title) {
     throw new Error("Title is required");
+  }
+  // Only the owner may edit a recipe.
+  const session = await auth();
+  const existing = await prisma.recipe.findUnique({ where: { id }, select: { userId: true } });
+  if (!session?.user?.id || existing?.userId !== session.user.id) {
+    throw new Error("You can only edit your own recipes");
   }
   //
   //   // Ensure the author exists
@@ -258,11 +282,14 @@ export async function updateRecipe({
         hidden,
         imageId,
         author,
+        ...(category !== undefined && { category: isCategory(category) ? category : "" }),
+        ...(tags !== undefined && { tags: await canonicalTags(tags) }),
       },
     });
 
     // Revalidate the home page to show the new post
     revalidatePath(`/`);
+    revalidatePath(`/recipes/${id}`);
 
     return post;
   } catch (error) {
@@ -456,3 +483,21 @@ export async function updateProfileImage({
 //     throw error;
 //   }
 // }
+
+
+/** Cleans tags and swaps near-duplicates ("Cookies") for the spelling already in use ("cookie"). */
+async function canonicalTags(tags: string[] | undefined) {
+  const cleaned = normalizeTags(tags);
+  if (!cleaned.length) return cleaned;
+  const rows = await prisma.recipe
+    .findMany({ where: { tags: { isEmpty: false } }, select: { tags: true }, take: 2000 })
+    .catch(() => []);
+  const byKey = new Map<string, string>();
+  for (const r of rows) for (const t of r.tags) if (!byKey.has(tagKey(t))) byKey.set(tagKey(t), t);
+  const out: string[] = [];
+  for (const t of cleaned) {
+    const tag = byKey.get(tagKey(t)) ?? t;
+    if (!out.some((x) => tagKey(x) === tagKey(tag))) out.push(tag);
+  }
+  return out;
+}

@@ -1,18 +1,26 @@
-.export-recipe {
-  background-color: #fff;
-  color: #000;
-  /* border-radius: 0.5rem; */
-  font-family: Rubik;
-}
-
 @import "tailwindcss";
 @import "tw-animate-css";
-/* @plugin "daisyui" {
-  exclude: scrollbar, checkbox, radio;
-} */
 
 @custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------
+   Recipe Card Vault theme: warm paper, ink text, terracotta accent,
+   serif display type — the look of a traditional recipe site.
+   ------------------------------------------------------------------ */
 @theme {
+  --color-cream: #faf6ef;
+  --color-paper: #ffffff;
+  --color-ink: #2b2420;
+  --color-ink-soft: #5f554d;
+  --color-line: #e7dfd3;
+  --color-brand: #b5452c;
+  --color-brand-dark: #8f3420;
+  --color-brand-soft: #f7e7df;
+  --color-sage: #4f6b4f;
+
+  --font-serif: var(--font-display), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+
   --animate-wiggle: wiggle 1s ease-in-out infinite;
   @keyframes wiggle {
     0%,
@@ -24,109 +32,32 @@
     }
   }
 }
-.main-bg {
-  background-color: #64748b;
-  /* background-color: #71717a; */
-  /* background-color: #78716c; */
-  /* background-color: #292928; */
-}
 
 body::-webkit-scrollbar {
   display: none;
 }
 
-
+/* shadcn/ui tokens (used by dropdowns, toasts, etc.) mapped onto the theme */
 :root {
-  font-family: Rubix, Helvetica, sans-serif;
-  /* --background: var(--background)
-  --foreground: var(--foreground); */
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
-}
-
-.classic-theme {
-  font-family: Arial, Helvetica, sans-serif;
-  color: black;
-  background-color: #fff;
-}
-
-.modern-theme {
-  font-family: Helvetica Neue, sans-serif;
-  background-color: #f9f9f9;
-}
-
-.fancy-theme {
-  border: 2px dashed #d63384;
-  font-family: "Cursive, Comic Sans MS, sans-serif";
-}
-
-.text-container {
-  font-size: clamp(0.5rem, 1.2vw, 1rem);
-}
-
-.text-title {
-  font-size: clamp(1rem, 2.5vw, 1.75rem);
-  font-weight: bold;
-}
-
-.text-subtitle {
-  font-size: clamp(0.9rem, 2vw, 1.25rem);
-}
-
-.text-body {
-  font-size: clamp(0.75rem, 1.2vw, 1rem);
-  line-height: 1.5;
-}
-
-#pdf-canvas ul {
-  list-style: none;
-  padding: 0;
-}
-
-#pdf-canvas ul li {
-  margin: 0 0 0 35px;
-  list-style: none;
-
-  .bullet {
-    display: inline-block;
-    opacity: 0.85;
-    font-size: 2.1em;
-    text-indent: -22px;
-  }
-}
-
-#recipe-preview li {
-  font-size: 1rem;
+  --radius: 0.5rem;
+  --background: #faf6ef;
+  --foreground: #2b2420;
+  --card: #ffffff;
+  --card-foreground: #2b2420;
+  --popover: #ffffff;
+  --popover-foreground: #2b2420;
+  --primary: #b5452c;
+  --primary-foreground: #ffffff;
+  --secondary: #f3ede4;
+  --secondary-foreground: #2b2420;
+  --muted: #f3ede4;
+  --muted-foreground: #5f554d;
+  --accent: #f7e7df;
+  --accent-foreground: #2b2420;
+  --destructive: #b42318;
+  --border: #e7dfd3;
+  --input: #d9cfc1;
+  --ring: #b5452c;
 }
 
 @theme inline {
@@ -134,8 +65,8 @@ body::-webkit-scrollbar {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-background: #000;
-  --color-foreground: #0f172a;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -149,56 +80,9 @@ body::-webkit-scrollbar {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-border: #0f172a;
+  --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
-
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
 @layer base {
@@ -207,10 +91,68 @@ body::-webkit-scrollbar {
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-cream text-ink font-sans;
   }
 
   img {
     display: initial;
+  }
+
+  ::selection {
+    background: var(--color-brand-soft);
+  }
+}
+
+/* Small set of reusable pieces so pages stay consistent */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-brand {
+  @apply btn bg-brand text-white hover:bg-brand-dark;
+}
+@utility btn-outline {
+  @apply btn border border-line bg-paper text-ink hover:border-ink-soft hover:bg-cream;
+}
+@utility btn-ghost {
+  @apply btn text-ink-soft hover:bg-brand-soft hover:text-brand-dark;
+}
+@utility field {
+  @apply block w-full rounded-md border border-input bg-paper px-3 py-2 text-sm text-ink placeholder:text-ink-soft/50 focus:border-brand focus:ring-2 focus:ring-brand/20 focus:outline-none;
+}
+@utility field-label {
+  @apply mb-1 block text-sm font-semibold text-ink;
+}
+@utility eyebrow {
+  @apply text-xs font-bold tracking-[0.14em] text-brand uppercase;
+}
+@utility panel {
+  @apply rounded-lg border border-line bg-paper shadow-sm;
+}
+@utility section-title {
+  @apply font-serif text-2xl font-bold text-ink;
+}
+
+/* Native <select> styled to match the theme (the option list itself is drawn by the OS) */
+select.field {
+  appearance: none;
+  padding-right: 2.25rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23b5452c'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1.1rem;
+}
+select.field option {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+:root {
+  color-scheme: light;
+  accent-color: var(--color-brand);
+}
+
+@media print {
+  body {
+    background: #fff !important;
   }
 }

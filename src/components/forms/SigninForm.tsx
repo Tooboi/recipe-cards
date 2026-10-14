@@ -37,7 +37,7 @@ export default function SigninForm() {
 
   return (
     <>
-      <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="mx-auto my-8 flex w-[calc(100%-2rem)] max-w-md flex-col justify-center rounded-lg border border-line bg-paper px-6 py-10 shadow-sm sm:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           {/* <Image
             alt="Your Company"
@@ -47,7 +47,7 @@ export default function SigninForm() {
             width={100}
             height={100}
           /> */}
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">
+          <h2 className="mt-6 text-center font-serif text-3xl font-bold text-ink">
             Sign In
           </h2>
         </div>
@@ -57,7 +57,7 @@ export default function SigninForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm/6 font-medium text-slate-100 validator"
+                className="field-label validator"
               >
                 Email
               </label>
@@ -72,7 +72,7 @@ export default function SigninForm() {
                   required
                   placeholder="baker@recipe.com"
                   autoComplete="email"
-                  className="block w-full rounded-md bg-slate-600/50 outline-slate-400 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2  placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
+                  className="field text-base"
                 />
               </div>
             </div>
@@ -81,12 +81,12 @@ export default function SigninForm() {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-sm/6 font-medium text-slate-100"
+                  className="field-label"
                 >
                   Password
                 </label>
                 {/* <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-400 hover:text-indigo-300">
+                  <a href="#" className="font-semibold text-brand hover:text-brand-dark">
                     Forgot password?
                   </a>
                 </div> */}
@@ -99,14 +99,14 @@ export default function SigninForm() {
                   required
                   placeholder="●●●●●●●●●"
                   autoComplete="current-password"
-                  className="block w-full rounded-md bg-slate-600/50 outline-slate-400 px-3 py-1.5 text-base text-white outline-2 -outline-offset-2  placeholder:text-slate-400 focus:outline-2 focus:-outline-offset-2 focus:outline-slate-300 sm:text-sm/6"
+                  className="field text-base"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="flex w-full justify-center rounded-md mx-auto my-8 py-2 border-2 border-slate-700 bg-slate-600 text-lg font-medium text-slate-300 transition-all hover:cyan-2 hover:border-cyan-600 hover:bg-cyan-950 hover:text-cyan-500 active:border-cyan-800 active:bg-cyan-950 active:text-slate-600"
+              className="btn-brand my-6 w-full py-3 text-base"
             >
               Sign In
             </button>
@@ -116,7 +116,7 @@ export default function SigninForm() {
               type="submit"
               name="action"
               value="google"
-              className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+              className="btn-outline w-full py-2.5"
             >
               Sign in With Google
             </button>
@@ -124,16 +124,16 @@ export default function SigninForm() {
               type="submit"
               name="action"
               value="github"
-              className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-green-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
+              className="btn-outline w-full py-2.5"
             >
               Sign in With GitHub
             </button>
           </form>
-          <p className="mt-10 text-center text-sm/6 text-slate-300/60">
+          <p className="mt-8 text-center text-sm text-ink-soft">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="font-semibold text-slate-200 hover:text-slate-300"
+              className="font-semibold text-brand hover:text-brand-dark"
             >
               Sign Up
             </Link>

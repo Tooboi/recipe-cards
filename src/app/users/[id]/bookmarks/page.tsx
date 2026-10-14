@@ -1,173 +1,71 @@
-import CldImageWrapper from "@/components/wrappers/CldImageWrapper";
-// import { BookmarkIcon as BookmarkOutlineIcon } from '@heroicons/react/24/outline';
-// import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
-// import { toggleBookmark } from '@/components/wrappers/BookmarkAction';
-// import { getBookmarks } from '@/components/wrappers/GetBookmarks';
-import prisma from "@/lib/prisma";
-import {
-  differenceInMinutes,
-  differenceInHours,
-  differenceInDays,
-  format,
-  differenceInYears,
-} from "date-fns";
-import Image from "next/image";
 import Link from "next/link";
-import BookmarkButton from "@/components/wrappers/BookmarkButton";
+import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
+import RecipeCard, { toCardData } from "@/components/recipes/RecipeCard";
 
-function formatDate(createdAt: string) {
-  const date = new Date(createdAt);
-  const now = new Date();
-
-  const minutes = differenceInMinutes(now, date);
-  const hours = differenceInHours(now, date);
-  const days = differenceInDays(now, date);
-  const years = differenceInYears(now, date);
-
-  if (minutes < 1) {
-    return "Just now";
-  }
-
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
-
-  if (days === 1) {
-    return "Yesterday";
-  }
-
-  if (days < 7) {
-    return `${days} days ago`;
-  }
-
-  if (years > 1) {
-    return `${years} year ago`;
-  }
-
-  if (years > 2) {
-    return `${years} years ago`;
-  }
-
-  return format(date, "MMM d, yyyy");
-}
-
-// type SortOption = 'recent' | 'oldest' | 'title-asc' | 'title-desc';
-
-export default async function UserIDpage({
+export default async function BookmarksPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const selectedUser = (await params).id;
+  const session = await auth();
 
-  if (!selectedUser) return <div>User ID not provided</div>;
+  const user = await prisma.user
+    .findUnique({
+      where: { id: selectedUser },
+      select: { username: true, bookmarkedRecipeIds: true },
+    })
+    .catch(() => null);
 
-  const user = await prisma.user.findUnique({
-    where: { id: selectedUser },
-    select: {
-      username: true,
-      bookmarkedRecipeIds: true,
-    },
-  });
+  if (!user) {
+    return <p className="mx-auto max-w-6xl px-4 py-16 text-center text-ink-soft">Cook not found.</p>;
+  }
 
-  if (!user) return <div>User not found</div>;
-
+  const isMe = session?.user?.id === selectedUser;
   const bookmarkedRecipes = await prisma.recipe.findMany({
     where: {
       id: { in: user.bookmarkedRecipeIds },
+      // Someone else's private recipes stay private even if bookmarked earlier.
+      OR: [{ hidden: false }, ...(session?.user?.id ? [{ userId: session.user.id }] : [])],
     },
-    orderBy: {
-      updatedAt: "desc",
-    },
+    include: { user: { select: { username: true } } },
+    orderBy: { updatedAt: "desc" },
   });
 
   return (
-    <div className="overflow-hidden">
-      <div className="px-6 py-2 sm:rounded-b-lg bg-slate-400 w-full md:w-1/2 mx-auto border-b-2 sm:border-x-2 border-slate-700">
-        <div className="text-2xl text-center mx-auto text-slate-900 w-full font-semibold sm:mb-2">
-          {user.username}&#39;s Bookmarks
+    <div>
+      <section className="border-b border-line bg-paper">
+        <div className="mx-auto max-w-6xl px-4 py-8">
+          <p className="eyebrow mb-1">Saved recipes</p>
+          <h1 className="font-serif text-3xl font-bold text-ink md:text-4xl">
+            {isMe ? "Your saved recipes" : `${user.username}'s saved recipes`}
+          </h1>
         </div>
-      </div>
+      </section>
 
-      {bookmarkedRecipes.length === 0 ? (
-        <>
-          <div className="text-center py-4 text-slate-800 italic">
-            No bookmarked recipes found.
+      <section className="mx-auto max-w-6xl px-4 pt-8">
+        {bookmarkedRecipes.length === 0 ? (
+          <div className="panel px-6 py-16 text-center">
+            <p className="font-serif text-2xl text-ink">Nothing saved yet.</p>
+            <p className="mt-2 text-ink-soft">
+              Tap <span className="font-semibold">Save</span> on any recipe to keep it here.
+            </p>
+            <Link href="/explore" className="btn-brand mt-6">
+              Browse recipes
+            </Link>
           </div>
-          <Link
-            className="sm:mx-8 mx-6 flex sm:mb-4 rounded-lg border-slate-600 bg-slate-700 text-lg font-medium text-slate-300 transition-all"
-            href="/new-recipe"
-          >
-            <h1 className="justify-center w-full text-center p-2 rounded-md border-2 border-slate-600 bg-slate-300 text-lg font-medium text-slate-900 transition-all hover:bg-slate-500 hover:text-slate-200 active:bg-slate-600 active:text-slate-300">
-              MAKE NEW RECIPE CARD
-            </h1>
-          </Link>
-        </>
-      ) : (
-        <div className="flex justify-center">
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 sm:gap-6 gap-2 sm:px-4 px-2 pt-2">
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {bookmarkedRecipes.map((recipe) => (
-              <Link href={`/recipes/${recipe.id}`} key={recipe.id} className="block col-span-1 max-w-72">
-                  <div className="h-full flex flex-col border-2 border-slate-600 overflow-hidden rounded-md bg-slate-300 hover:bg-slate-200 transition-colors group shadow-md hover:shadow-lg">
-                    <div className="flex justify-between items-start p-2">
-                      <p className="font-medium text-lg/5 line-clamp-2 ">
-                        {recipe.title || 'Recipe'}</p>
-                      <div><BookmarkButton recipeId={recipe.id} /></div>
-
-                    </div>
-                    <div className="relative h-full">
-                      {recipe.imageId ? (
-                        <CldImageWrapper
-                          alt="Thumbnail"
-                          src={recipe.imageId}
-                          width="100"
-                          height="100"
-                          crop="fill"
-                          aspectRatio="1:1"
-                          sizes="100vw"
-                          className="mx-auto w-full h-full border-t-2 group-hover:brightness-110 transition-all border-slate-600 overflow-hidden"
-                        />
-                      ) : (
-                        <div className='bg-slate-400/50 h-full flex w-full'>
-                        <Image
-                          className="w-full h-full grow border-t-2 border-slate-600"
-                          width={100}
-                          height={100}
-                          unoptimized
-                          src={`https://api.dicebear.com/9.x/identicon/svg?size=100&scale=90&seed=${recipe.id}&backgroundType[]&backgroundColor=transparent`}
-                          alt={recipe.id}
-                        />
-                        </div>
-                      )}
-                    </div>
-
-
-                    <div className="px-2 py-2 flex flex-row items-center justify-between bg-slate-400 group-hover:bg-slate-400/70 transition-colors border-t-2 border-slate-600">
-                      <span className="py-1 text-xs font-regular text-slate-900 mr-1 flex flex-row items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
-                          <path d="M5.75 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM5 10.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM10.25 7.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM7.25 8.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0ZM8 9.5A.75.75 0 1 0 8 11a.75.75 0 0 0 0-1.5Z" />
-                          <path fillRule="evenodd" d="M4.75 1a.75.75 0 0 0-.75.75V3a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2V1.75a.75.75 0 0 0-1.5 0V3h-5V1.75A.75.75 0 0 0 4.75 1ZM3.5 7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v4.5a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V7Z" clipRule="evenodd" />
-                        </svg>
-                        <span className="ml-1">{formatDate(recipe.updatedAt.toISOString())}</span>
-                      </span>
-                      <span className="py-1 text-xs font-regular text-slate-900 mr-1 flex flex-row items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
-                          <path d="M3 4.75a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6.25 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM6.25 7.25a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM6.25 11.5a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM4 12.25a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM3 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />
-                        </svg>
-                        <span className="ml-1 hidden sm:block">{recipe.ingredients.length} Ingredients</span>
-                        <span className="ml-1 sm:hidden block">{recipe.ingredients.length}</span>
-                      </span>
-                    </div>
-                  </div>
-                </Link>
+              <RecipeCard
+                key={recipe.id}
+                recipe={toCardData(recipe)}
+              />
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </section>
     </div>
   );
 }

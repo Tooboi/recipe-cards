@@ -1,16 +1,19 @@
 "use client";
 
-// import { updateRecipe } from "@/app/actions";
-// import { redirect } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
-// import html2pdf from "html2pdf.js";
-
-type Ingredient = {
-  quantity: string;
-  unit: string;
-  item: string;
-};
+import Link from "next/link";
+import { ChevronLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
+import PdfOptionsPanel from "@/components/pdf/PdfOptionsPanel";
+import PdfPreview from "@/components/pdf/PdfPreview";
+import RowControls from "@/components/pdf/RowControls";
+import { useMediaQuery } from "@/lib/use-media-query";
+import { parseIngredient, type Ingredient } from "@/lib/recipe-format";
+import {
+  defaultPdfOptions,
+  normalizeFont,
+  normalizeSize,
+  type RecipePdfOptions,
+} from "@/lib/pdf/options";
 
 type SafeRecipe = {
   id: string;
@@ -27,381 +30,179 @@ type SafeRecipe = {
   serving: string;
 };
 
+function move<T>(list: T[], index: number, direction: "up" | "down") {
+  const next = [...list];
+  const swap = direction === "up" ? index - 1 : index + 1;
+  if (swap < 0 || swap >= next.length) return list;
+  [next[index], next[swap]] = [next[swap], next[index]];
+  return next;
+}
+
 export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
-  const [updatedTitle, setUpdatedTitle] = useState(recipe.title || "");
+  // Text can be tweaked for this printout only; nothing here is saved to the recipe.
+  const [title, setTitle] = useState(recipe.title || "");
+  const [description, setDescription] = useState(recipe.description || "");
+  const [author, setAuthor] = useState(recipe.author || recipe.user.username || "");
+  const [serving, setServing] = useState(recipe.serving || "");
   const [ingredients, setIngredients] = useState<Ingredient[]>(
-    recipe.ingredients?.map((str) => {
-      const [quantity = "", unit = "", item = ""] = str.split("_");
-      return { quantity, unit, item };
-    }) || []
+    (recipe.ingredients ?? []).map(parseIngredient)
   );
-  const [updatedDescription, setUpdatedDescription] = useState(
-    recipe.description || ""
-  );
-  const [instructions, setInstructions] = useState(recipe.instructions || []);
-  // const [hidden, setHidden] = useState(recipe.hidden || false);
-  // const [loading, setLoading] = useState(false);
+  const [instructions, setInstructions] = useState<string[]>(recipe.instructions || []);
 
-  const [yieldAmount, setYieldAmount] = useState(
-    recipe.serving ? recipe.serving.split(" ")[0] : ""
+  const [options, setOptions] = useState<RecipePdfOptions>(() =>
+    defaultPdfOptions({
+      size: normalizeSize(recipe.pdfSize),
+      font: normalizeFont(recipe.font),
+      showImage: !!recipe.imageId,
+    })
   );
 
-  const [yieldUnit, setYieldUnit] = useState(
-    recipe.serving ? recipe.serving.split(" ").slice(1).join(" ") : ""
-  );
-
-  const updateField = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    index: number,
-    value: string
-  ) => {
-    setter((prev: string[]) => {
-      const updated = [...prev];
-      updated[index] = value;
-      return updated;
-    });
+  // Only one preview is mounted: inline on phones/tablets, sticky sidebar on desktop.
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const pdfRecipe = {
+    title,
+    description,
+    author,
+    serving,
+    ingredients,
+    instructions,
+    imageId: recipe.imageId,
   };
 
-  const addField = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    prev: string[]
-  ) => {
-    setter([...prev, ""]);
-  };
-
-  const removeField = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    prev: string[],
-    index: number
-  ) => {
-    const updated = [...prev];
-    updated.splice(index, 1);
-    setter(updated);
-  };
-
-  const moveField = (
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
-    prev: string[],
-    index: number,
-    direction: "up" | "down"
-  ) => {
-    const updated = [...prev];
-    const swapIndex = direction === "up" ? index - 1 : index + 1;
-    [updated[index], updated[swapIndex]] = [updated[swapIndex], updated[index]];
-    setter(updated);
-  };
-
-  const updateIngredient = (index: number, updated: Ingredient) => {
-    setIngredients((prev) => {
-      const next = [...prev];
-      next[index] = updated;
-      return next;
-    });
-  };
-
-  const addIngredient = () => {
-    setIngredients((prev) => [...prev, { quantity: "", unit: "", item: "" }]);
-  };
-
-  const removeIngredient = (index: number) => {
-    setIngredients((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const moveIngredient = (index: number, direction: "up" | "down") => {
-    setIngredients((prev) => {
-      const updated = [...prev];
-      const swapIndex = direction === "up" ? index - 1 : index + 1;
-      [updated[index], updated[swapIndex]] = [
-        updated[swapIndex],
-        updated[index],
-      ];
-      return updated;
-    });
-  };
-
-  const handlePDFExport = async () => {
-    const element = document.getElementById("recipe-preview");
-
-    if (!element) {
-      toast.error("Recipe preview not found");
-      return;
-    }
-
-    // html2pdf is a module, default export lives here
-    const pdf = (await import("html2pdf.js")).default;
-
-    pdf()
-      .from(element)
-      .set({
-        filename: `${updatedTitle || "recipe"}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          useCORS: true,
-          scale: 2,
-        },
-        jsPDF: {
-          unit: "in",
-          format: recipe.pdfSize === "3x5" ? [5, 3] : "letter",
-          orientation: recipe.pdfSize === "3x5" ? "landscape" : "portrait",
-        },
-      })
-      .save();
-  };
+  const updateIngredient = (i: number, patch: Partial<Ingredient>) =>
+    setIngredients((prev) => prev.map((ing, j) => (j === i ? { ...ing, ...patch } : ing)));
 
   return (
-    <div>
-      <div className="shadow-sm sm:rounded-md bg-slate-200 mx-auto sm:max-w-2/3 overflow-hidden border-0 pt-4 sm:mt-4">
-        <div className="border-b px-4 rounded-none">
-          <div className="text-2xl text-slate-900">Download: {recipe.title}</div>
-          <p className="pb-2">By: {recipe.user.username}</p>
-        </div>
-        <div className="p-4">
-          <div>
-            <label htmlFor="title" className="font-semibold pt-4 pb-2">
-              Recipe Title
-            </label>
-            <input
-              name="title"
-              id="title"
-              placeholder={updatedTitle}
-              className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block"
-              onChange={(e) => setUpdatedTitle(e.target.value)}
-              value={updatedTitle}
+    <div className="mx-auto max-w-6xl px-4 py-6 md:py-8">
+      <Link
+        href={`/recipes/${recipe.id}`}
+        className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-ink-soft hover:text-brand"
+      >
+        <ChevronLeftIcon className="h-4 w-4" />
+        Back to recipe
+      </Link>
+
+      <header className="mb-6">
+        <p className="eyebrow mb-1">Print &amp; download</p>
+        <h1 className="font-serif text-3xl leading-tight font-bold text-ink md:text-4xl">
+          {recipe.title}
+        </h1>
+        <p className="mt-1 text-ink-soft">
+          Choose a full page or an index card, pick a design, and download a print-ready PDF.
+        </p>
+      </header>
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
+        <div className="space-y-6">
+          <section className="panel p-4 sm:p-6">
+            <h2 className="mb-4 font-serif text-xl font-bold">Layout &amp; design</h2>
+            <PdfOptionsPanel
+              options={options}
+              onChange={setOptions}
+              hasImage={!!recipe.imageId}
+              hasDescription={!!description.trim()}
+              hasAuthor={!!author.trim()}
             />
-          </div>
-          <div className="pt-4">
-            <label htmlFor="description" className="font-semibold pt-4 pb-2">
-              Description
-            </label>
-            <textarea
-              name="description"
-              id="description"
-              placeholder={recipe.description || "description"}
-              className="w-full border p-2 rounded-md bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block"
-              onChange={(e) => setUpdatedDescription(e.target.value)}
-              value={updatedDescription}
-            />
-          </div>
+          </section>
 
-          <div>
-            <h2 className="font-semibold pt-2">Yield</h2>
+          {/* On phones the preview + download button come right after the options. */}
+          {!isDesktop && <PdfPreview recipe={pdfRecipe} options={options} />}
 
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Amount"
-                value={yieldAmount}
-                onChange={(e) => setYieldAmount(e.target.value)}
-                className="w-1/5 bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm p-2 rounded-md "
-              />
+          <details className="panel group p-4 sm:p-6">
+            <summary className="flex cursor-pointer list-none items-center justify-between font-serif text-xl font-bold">
+              Edit text for this printout
+              <span className="text-sm font-normal text-brand group-open:hidden">Show</span>
+              <span className="hidden text-sm font-normal text-brand group-open:inline">Hide</span>
+            </summary>
+            <p className="mt-1 text-sm text-ink-soft">
+              Shorten steps to fit a card, or fix a typo. These changes only affect the PDF.
+            </p>
 
-              <input
-                type="text"
-                placeholder="Unit"
-                value={yieldUnit}
-                onChange={(e) => setYieldUnit(e.target.value)}
-                className="w-full bg-slate-50 border-2 border-slate-400 text-slate-900 text-sm p-2 rounded-md"
-              ></input>
-            </div>
-          </div>
-
-          <h2 className="font-semibold pt-4 pb-2">Ingredients</h2>
-          {ingredients.map((ingredient, i) => (
-            <div key={i} className="flex gap-2 mb-2 items-center">
-              <input
-                type="text"
-                placeholder="Quantity"
-                value={ingredient.quantity}
-                onChange={(e) =>
-                  updateIngredient(i, {
-                    ...ingredient,
-                    quantity: e.target.value,
-                  })
-                }
-                className="shrink-0 w-20 bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md"
-              />
-              <input
-                type="text"
-                placeholder="Unit"
-                id={`unit-select-${i}`}
-                title={`Select unit for ingredient ${i + 1}`}
-                value={ingredient.unit}
-                onChange={(e) =>
-                  updateIngredient(i, { ...ingredient, unit: e.target.value })
-                }
-                className="bg-slate-50 shrink-0 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded-md placeholder:text-slate-300"
-              >
-                {/* <option value="">Unit</option>
-                <option value="tsp">tsp</option>
-                <option value="tbsp">tbsp</option>
-                <option value="cup">cup</option>
-                <option value="oz">oz</option>
-                <option value="lb">lb</option>
-                <option value="pint">pint</option>
-                <option value="liter">liter</option>
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-                <option value="ml">ml</option>
-                <option value="pcs">pcs</option>
-                <option value="pinch">pinch</option>
-                <option value="dash">dash</option>
-                <option value="knob">knob</option>
-                <option value="finger">finger</option>
-                <option value="small">small</option>
-                <option value="medium">medium</option>
-                <option value="large">large</option> */}
-              </input>
-              <input
-                type="text"
-                placeholder="Ingredient"
-                value={ingredient.item}
-                onChange={(e) =>
-                  updateIngredient(i, { ...ingredient, item: e.target.value })
-                }
-                className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block p-2 rounded"
-              />
-              <button
-                className="text-slate-700"
-                onClick={() => moveIngredient(i, "up")}
-                disabled={i === 0}
-              >
-                ↑
-              </button>
-              <button
-                className="text-slate-700"
-                onClick={() => moveIngredient(i, "down")}
-                disabled={i === ingredients.length - 1}
-              >
-                ↓
-              </button>
-              <button
-                onClick={() => removeIngredient(i)}
-                className="text-rose-600"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-          <button className="text-slate-700 mt-2" onClick={addIngredient}>
-            + Add Ingredient
-          </button>
-
-          <h2 className="font-semibold py-4">Instructions</h2>
-          {instructions.map((step, i) => (
-            <div key={i} className="flex gap-2 mb-2 items-center">
-              <div className="text-sm text-slate-600 font-medium text-right">
-                Step {i + 1}
+            <div className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="title" className="field-label">Title</label>
+                <input id="title" className="field" value={title} onChange={(e) => setTitle(e.target.value)} />
               </div>
-              <input
-                id={`step-${i}`}
-                name={`step-${i}`}
-                placeholder={`Step ${i + 1}`}
-                className="flex-grow bg-slate-50 border-slate-300 text-slate-900 text-sm focus:ring-slate-500 focus:border-slate-500 block border p-2 rounded-md"
-                value={step}
-                onChange={(e) =>
-                  updateField(setInstructions, i, e.target.value)
-                }
-              />
-              <button
-                className="text-slate-700"
-                onClick={() =>
-                  moveField(setInstructions, instructions, i, "up")
-                }
-                disabled={i === 0}
-                title="Move up"
-              >
-                ↑
-              </button>
-              <button
-                className="text-slate-700"
-                onClick={() =>
-                  moveField(setInstructions, instructions, i, "down")
-                }
-                disabled={i === instructions.length - 1}
-                title="Move down"
-              >
-                ↓
-              </button>
-              <button
-                onClick={() => removeField(setInstructions, instructions, i)}
-                className="text-rose-600"
-                title="Remove"
-              >
-                ✕
-              </button>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="author" className="field-label">From the kitchen of</label>
+                  <input id="author" className="field" value={author} onChange={(e) => setAuthor(e.target.value)} />
+                </div>
+                <div>
+                  <label htmlFor="serving" className="field-label">Yield</label>
+                  <input id="serving" className="field" placeholder="e.g. 12 biscuits" value={serving} onChange={(e) => setServing(e.target.value)} />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="description" className="field-label">Description</label>
+                <textarea id="description" rows={3} className="field" value={description} onChange={(e) => setDescription(e.target.value)} />
+              </div>
+
+              <div>
+                <h3 className="field-label">Ingredients</h3>
+                <ul className="space-y-3 sm:space-y-2">
+                  {ingredients.map((ing, i) => (
+                    <li key={i} className="flex flex-wrap items-center gap-2 border-b border-line pb-3 sm:flex-nowrap sm:border-0 sm:pb-0">
+                      <div className="grid w-full grid-cols-[4.5rem_5.5rem_minmax(0,1fr)] gap-2 sm:flex-1">
+                        <input className="field" placeholder="Qty" aria-label={`Ingredient ${i + 1} quantity`} value={ing.quantity} onChange={(e) => updateIngredient(i, { quantity: e.target.value })} />
+                        <input className="field" placeholder="Unit" aria-label={`Ingredient ${i + 1} unit`} value={ing.unit} onChange={(e) => updateIngredient(i, { unit: e.target.value })} />
+                        <input className="field" placeholder="Ingredient" aria-label={`Ingredient ${i + 1}`} value={ing.item} onChange={(e) => updateIngredient(i, { item: e.target.value })} />
+                      </div>
+                      <div className="ml-auto">
+                        <RowControls
+                          index={i}
+                          count={ingredients.length}
+                          onMove={(d) => setIngredients((prev) => move(prev, i, d))}
+                          onRemove={() => setIngredients((prev) => prev.filter((_, j) => j !== i))}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <button type="button" className="btn-ghost mt-2 px-2" onClick={() => setIngredients((p) => [...p, { quantity: "", unit: "", item: "" }])}>
+                  <PlusIcon className="h-4 w-4" /> Add ingredient
+                </button>
+              </div>
+
+              <div>
+                <h3 className="field-label">Directions</h3>
+                <ol className="space-y-3">
+                  {instructions.map((step, i) => (
+                    <li key={i} className="flex flex-wrap items-start gap-2 sm:flex-nowrap">
+                      <span className="mt-2 w-6 shrink-0 text-right font-serif font-bold text-brand">{i + 1}.</span>
+                      <textarea
+                        rows={2}
+                        className="field min-w-0 flex-1"
+                        aria-label={`Step ${i + 1}`}
+                        value={step}
+                        onChange={(e) => setInstructions((prev) => prev.map((s, j) => (j === i ? e.target.value : s)))}
+                      />
+                      <div className="ml-auto">
+                        <RowControls
+                          index={i}
+                          count={instructions.length}
+                          onMove={(d) => setInstructions((prev) => move(prev, i, d))}
+                          onRemove={() => setInstructions((prev) => prev.filter((_, j) => j !== i))}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                <button type="button" className="btn-ghost mt-2 px-2" onClick={() => setInstructions((p) => [...p, ""])}>
+                  <PlusIcon className="h-4 w-4" /> Add step
+                </button>
+              </div>
             </div>
-          ))}
-          <button
-            className="text-slate-700"
-            onClick={() => addField(setInstructions, instructions)}
-          >
-            + Add Step
-          </button>
-          {/* 
-          <div className="mt-4">
-            <input
-              type="checkbox"
-              id="hidden"
-              checked={hidden}
-              onChange={(e) => setHidden(e.target.checked)}
-            />
-            <label htmlFor="hidden" className="text-sm font-medium ml-2">
-              Private
-            </label>
-          </div> */}
+          </details>
+        </div>
+
+        {isDesktop && (
           <div>
-            <button
-              className="mt-6 p-2 rounded-md border-2 border-slate-600 bg-slate-300 text-lg font-medium text-slate-900 transition-all hover:border-2 hover:border-slate-500 hover:bg-slate-200 hover:text-slate-700 active:bg-slate-500 active:text-slate-900 active:border-slate-600"
-              onClick={handlePDFExport}
-              // disabled={loading}
-            >
-              {/* {loading ? "Saving..." :  */}
-              Download Recipe
-              {/* } */}
-            </button>
+            <div className="sticky top-24">
+              <PdfPreview recipe={pdfRecipe} options={options} />
+            </div>
           </div>
-        </div>
-      </div>
-      <div className="hidden">
-        <div
-          id="recipe-preview"
-          className="export-recipe"
-          style={{
-            fontFamily: `'${recipe.font}', sans-serif`,
-            aspectRatio: recipe.pdfSize === "3x5" ? "5 / 3" : "8.5 / 11",
-          }}
-        >
-          <div className="p-4">
-            <h1 className="text-xl font-bold">{updatedTitle}</h1>
-            {yieldAmount && yieldUnit && (
-              <p className="font-medium italic mt-1">
-                Yield: {yieldAmount} {yieldUnit}
-              </p>
-            )}
-
-            {updatedDescription && (
-              <p className="italic mb-2">{updatedDescription}</p>
-            )}
-
-            <h2 className="font-semibold mt-4">Ingredients</h2>
-            <ul>
-              {ingredients.map((ing, i) => (
-                <li key={i}>
-                  • {ing.quantity} {ing.unit} {ing.item}
-                </li>
-              ))}
-            </ul>
-
-            <h2 className="font-semibold mt-4">Instructions</h2>
-            <ol>
-              {instructions.map((step, i) => (
-                <li key={i}>
-                  {i + 1}. {step}
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
