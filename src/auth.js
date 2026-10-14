@@ -4,6 +4,7 @@ import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 // import { User } from "@/model/user-model";
 import bcrypt from "bcryptjs";
+import { randomInt } from "crypto";
 // import { getUserByEmail } from "@/app/actions";
 import prisma from "@/lib/prisma";
 
@@ -186,7 +187,7 @@ async function findOrCreateOAuthUser({ email, name, image }) {
       .slice(0, 20) || "cook";
 
   for (let attempt = 0; attempt < 5; attempt++) {
-    const username = attempt === 0 ? base : `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+    const username = attempt === 0 ? base : `${base}${randomInt(1000, 10000)}`;
     try {
       return await prisma.user.create({
         data: {
