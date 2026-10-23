@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { splitIngredientNote } from "@/lib/recipe-format";
 
 /** Tick ingredients off while you cook, like most recipe sites allow. */
 export default function IngredientChecklist({ items }: { items: string[] }) {
@@ -18,7 +19,12 @@ export default function IngredientChecklist({ items }: { items: string[] }) {
               onChange={(e) => setChecked((prev) => ({ ...prev, [i]: e.target.checked }))}
             />
             <span className="hidden print:inline">•</span>
-            <span className={checked[i] ? "text-ink-soft line-through" : "text-ink"}>{item}</span>
+            <span className={checked[i] ? "text-ink-soft line-through" : "text-ink"}>
+              {splitIngredientNote(item)[0]}
+              {splitIngredientNote(item)[1] && (
+                <span className="text-ink-soft"> {splitIngredientNote(item)[1]}</span>
+              )}
+            </span>
           </label>
         </li>
       ))}

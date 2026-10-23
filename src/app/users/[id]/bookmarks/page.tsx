@@ -1,7 +1,10 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
-import RecipeCard, { toCardData } from "@/components/recipes/RecipeCard";
+import { toCardData } from "@/components/recipes/RecipeCard";
+import RecipeGrid from "@/components/recipes/RecipeGrid";
+import DensityToggle from "@/components/browse/DensityToggle";
+import { getDensity } from "@/lib/density";
 
 export default async function BookmarksPage({
   params,
@@ -10,6 +13,7 @@ export default async function BookmarksPage({
 }) {
   const selectedUser = (await params).id;
   const session = await auth();
+  const density = await getDensity();
 
   const user = await prisma.user
     .findUnique({
@@ -45,6 +49,9 @@ export default async function BookmarksPage({
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pt-8">
+        <div className="mb-4 flex justify-end">
+          <DensityToggle value={density} />
+        </div>
         {bookmarkedRecipes.length === 0 ? (
           <div className="panel px-6 py-16 text-center">
             <p className="font-serif text-2xl text-ink">Nothing saved yet.</p>
@@ -56,14 +63,10 @@ export default async function BookmarksPage({
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {bookmarkedRecipes.map((recipe) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={toCardData(recipe)}
-              />
-            ))}
-          </div>
+          <RecipeGrid
+            recipes={bookmarkedRecipes.map((recipe) => toCardData(recipe))}
+            compact={density === "compact"}
+          />
         )}
       </section>
     </div>

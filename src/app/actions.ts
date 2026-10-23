@@ -160,6 +160,7 @@ export async function createRecipe({
   serving,
   category,
   tags,
+  ...details
 }: {
   title: string;
   description?: string;
@@ -175,7 +176,7 @@ export async function createRecipe({
   serving: string;
   category?: string;
   tags?: string[];
-}) {
+} & RecipeDetailsInput) {
   if (!title) {
     throw new Error("Title is required");
   }
@@ -211,6 +212,7 @@ export async function createRecipe({
         serving,
         category: isCategory(category) ? category : "",
         tags: await canonicalTags(tags),
+        ...cleanDetails(details),
       },
     });
 
@@ -235,8 +237,10 @@ export async function updateRecipe({
   hidden,
   imageId,
   author,
+  serving,
   category,
   tags,
+  ...details
 }: {
   id: string;
   title: string;
@@ -248,9 +252,10 @@ export async function updateRecipe({
   hidden: boolean;
   imageId?: string;
   author?: string;
+  serving?: string;
   category?: string;
   tags?: string[];
-}) {
+} & RecipeDetailsInput) {
   if (!title) {
     throw new Error("Title is required");
   }
@@ -282,8 +287,10 @@ export async function updateRecipe({
         hidden,
         imageId,
         author,
+        ...(serving !== undefined && { serving: serving.trim().slice(0, 60) }),
         ...(category !== undefined && { category: isCategory(category) ? category : "" }),
         ...(tags !== undefined && { tags: await canonicalTags(tags) }),
+        ...cleanDetails(details),
       },
     });
 
@@ -499,5 +506,32 @@ async function canonicalTags(tags: string[] | undefined) {
     const tag = byKey.get(tagKey(t)) ?? t;
     if (!out.some((x) => tagKey(x) === tagKey(tag))) out.push(tag);
   }
+  return out;
+}
+
+type RecipeDetailsInput = {
+  prepTime?: number | null;
+  cookTime?: number | null;
+  extraTime?: number | null;
+  extraTimeLabel?: string | null;
+  cuisine?: string | null;
+  notes?: string | null;
+};
+
+/** Keeps only sensible values: whole minutes up to a week, short trimmed text. */
+function cleanDetails(d: RecipeDetailsInput) {
+  const mins = (v: unknown) => {
+    const n = Math.round(Number(v));
+    return Number.isFinite(n) && n > 0 ? Math.min(n, 10080) : null;
+  };
+  const text = (v: unknown, max: number) =>
+    typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null;
+  const out: RecipeDetailsInput = {};
+  if ("prepTime" in d) out.prepTime = mins(d.prepTime);
+  if ("cookTime" in d) out.cookTime = mins(d.cookTime);
+  if ("extraTime" in d) out.extraTime = mins(d.extraTime);
+  if ("extraTimeLabel" in d) out.extraTimeLabel = text(d.extraTimeLabel, 30);
+  if ("cuisine" in d) out.cuisine = text(d.cuisine, 40);
+  if ("notes" in d) out.notes = text(d.notes, 4000);
   return out;
 }

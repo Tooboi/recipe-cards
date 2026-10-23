@@ -125,7 +125,7 @@ export default function Profile() {
               <p className="text-lg font-medium">
                 {user.name ?? "Unnamed User"}
               </p>
-              <p className="text-sm text-stone-700">{user.email}</p>
+              <p className="text-sm text-ink-soft">{user.email}</p>
             </div>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function Profile() {
             </Link>
           </div>
           <div className="items-end h-full pb-2">
-            <div className="text-[0.6rem] text-stone-500 text-end">{user.id}</div>
+            <div className="text-[0.6rem] text-ink-soft text-end">{user.id}</div>
           </div>
         </div>
       </div>

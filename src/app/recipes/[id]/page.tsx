@@ -1,3 +1,4 @@
+import type React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,12 +14,17 @@ import CldImage from "@/components/wrappers/CldImageWrapper";
 import BookmarkButton from "@/components/wrappers/BookmarkButton";
 import PrintButton from "@/components/recipes/PrintButton";
 import IngredientChecklist from "@/components/recipes/IngredientChecklist";
-import { formatIngredient, parseIngredient } from "@/lib/recipe-format";
+import { formatIngredient, formatMinutes, parseIngredient, totalMinutes } from "@/lib/recipe-format";
 import { getCategory, tagLabel } from "@/lib/taxonomy";
 import CategoryArt from "@/components/recipes/CategoryArt";
 import StarRating from "@/components/recipes/StarRating";
 import RateRecipe from "@/components/recipes/RateRecipe";
 import { getMyRating } from "@/lib/actions/rating.actions";
+import AdSlot from "@/components/ads/AdSlot";
+import RecipeGrid from "@/components/recipes/RecipeGrid";
+import { toCardData } from "@/components/recipes/RecipeCard";
+import { ADS, recipeAdEnabled } from "@/lib/ads";
+import { getFallbackRecipes } from "@/lib/recipe-queries";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -52,13 +58,36 @@ export default async function RecipeDetails({ params }: Props) {
   const category = getCategory(recipe.category);
   const tags = recipe.tags ?? [];
   const myRating = session?.user?.id ? await getMyRating(recipe.id) : null;
+  // If the ad below the directions doesn't load, show related recipes there instead.
+  const related = recipeAdEnabled ? await getFallbackRecipes([recipe.id], 3, recipe.category) : [];
 
-  const facts = [
-    recipe.serving ? { label: "Yield", value: recipe.serving } : null,
-    { label: "Ingredients", value: String(ingredients.length) },
-    { label: "Steps", value: String(steps.length) },
-    { label: "Updated", value: format(recipe.updatedAt, "MMM d, yyyy") },
-  ].filter(Boolean) as { label: string; value: string }[];
+  const total = totalMinutes(recipe);
+  const hasTimes = !!(recipe.prepTime || recipe.cookTime || recipe.extraTime);
+  const facts = (
+    hasTimes
+      ? [
+          recipe.prepTime ? { label: "Prep", value: formatMinutes(recipe.prepTime) } : null,
+          recipe.cookTime ? { label: "Cook", value: formatMinutes(recipe.cookTime) } : null,
+          recipe.extraTime
+            ? { label: recipe.extraTimeLabel || "Additional", value: formatMinutes(recipe.extraTime) }
+            : null,
+          { label: "Total", value: formatMinutes(total) },
+          recipe.serving ? { label: "Servings", value: recipe.serving } : null,
+          recipe.cuisine ? { label: "Cuisine", value: recipe.cuisine } : null,
+        ]
+      : [
+          recipe.serving ? { label: "Yield", value: recipe.serving } : null,
+          { label: "Ingredients", value: String(ingredients.length) },
+          { label: "Steps", value: String(steps.length) },
+          recipe.cuisine
+            ? { label: "Cuisine", value: recipe.cuisine }
+            : { label: "Updated", value: format(recipe.updatedAt, "MMM d, yyyy") },
+        ]
+  ).filter(Boolean) as { label: string; value: string }[];
+  const noteParas = (recipe.notes ?? "")
+    .split(/\n+/)
+    .map((p: string) => p.trim())
+    .filter(Boolean);
 
   return (
     <article className="mx-auto max-w-5xl px-4 py-8 print:max-w-none print:px-0 print:py-0">
@@ -72,7 +101,7 @@ export default async function RecipeDetails({ params }: Props) {
         </Link>
         <ChevronRightIcon className="h-3 w-3" />
         <Link href="/explore" className="hover:text-brand">
-          The Vault
+          Recipes
         </Link>
         {category.slug && (
           <>
@@ -96,8 +125,8 @@ export default async function RecipeDetails({ params }: Props) {
         {category.slug && (
           <Link
             href={`/explore?category=${category.slug}`}
-            className="eyebrow mb-2 inline-block hover:underline print:hidden"
-            style={{ color: category.ink }}
+            className="eyebrow cat-text mb-2 inline-block hover:underline print:hidden"
+            style={{ "--cat": category.ink } as React.CSSProperties}
           >
             {category.label}
           </Link>
@@ -175,7 +204,11 @@ export default async function RecipeDetails({ params }: Props) {
       )}
 
       {/* Quick facts */}
-      <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-4">
+      <dl
+        className={`mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line ${
+          facts.length > 4 ? "sm:grid-cols-3 lg:grid-cols-6" : "sm:grid-cols-4"
+        }`}
+      >
         {facts.map((f) => (
           <div key={f.label} className="bg-paper px-4 py-3">
             <dt className="eyebrow">{f.label}</dt>
@@ -222,6 +255,34 @@ export default async function RecipeDetails({ params }: Props) {
         </section>
       </div>
 
+      {recipeAdEnabled && (
+        <div className="mt-10 print:hidden">
+          <AdSlot
+            variant="banner"
+            slot={ADS.recipeSlot}
+            fallback={
+              related.length > 0 ? (
+                <section>
+                  <h2 className="section-title mb-4 border-b-2 border-brand pb-2">You might also like</h2>
+                  <RecipeGrid recipes={related.map((r) => toCardData(r))} />
+                </section>
+              ) : null
+            }
+          />
+        </div>
+      )}
+
+      {noteParas.length > 0 && (
+        <section className="mt-10 rounded-lg border border-line bg-paper p-5 sm:p-6">
+          <h2 className="section-title border-b-2 border-brand pb-2">Notes</h2>
+          <div className="mt-3 space-y-2 text-[1.02rem] leading-relaxed text-ink">
+            {noteParas.map((p: string, i: number) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="mt-12">
         <RateRecipe
           recipeId={recipe.id}
@@ -236,7 +297,7 @@ export default async function RecipeDetails({ params }: Props) {
       {/* Print-out call to action */}
       <aside className="mt-6 flex flex-col items-start justify-between gap-4 rounded-lg border border-dashed border-brand/50 bg-brand-soft/40 p-6 sm:flex-row sm:items-center print:hidden">
         <div>
-          <p className="font-serif text-xl font-bold text-ink">Take a copy out of the vault</p>
+          <p className="font-serif text-xl font-bold text-ink">Keep a copy in your recipe box</p>
           <p className="text-sm text-ink-soft">
             Download a full-page printout or a classic 3×5 / 4×6 recipe card.
           </p>

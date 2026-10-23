@@ -7,6 +7,7 @@ import PdfOptionsPanel from "@/components/pdf/PdfOptionsPanel";
 import PdfPreview from "@/components/pdf/PdfPreview";
 import RowControls from "@/components/pdf/RowControls";
 import { useMediaQuery } from "@/lib/use-media-query";
+import { getCategory } from "@/lib/taxonomy";
 import { parseIngredient, type Ingredient } from "@/lib/recipe-format";
 import {
   defaultPdfOptions,
@@ -28,6 +29,16 @@ type SafeRecipe = {
   imageId: string | null;
   author: string | null;
   serving: string;
+  category?: string | null;
+  tags?: string[] | null;
+  cuisine?: string | null;
+  prepTime?: number | null;
+  cookTime?: number | null;
+  extraTime?: number | null;
+  extraTimeLabel?: string | null;
+  notes?: string | null;
+  ratingAvg?: number | null;
+  ratingCount?: number | null;
 };
 
 function move<T>(list: T[], index: number, direction: "up" | "down") {
@@ -48,6 +59,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
     (recipe.ingredients ?? []).map(parseIngredient)
   );
   const [instructions, setInstructions] = useState<string[]>(recipe.instructions || []);
+  const [notes, setNotes] = useState(recipe.notes || "");
 
   const [options, setOptions] = useState<RecipePdfOptions>(() =>
     defaultPdfOptions({
@@ -67,6 +79,15 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
     ingredients,
     instructions,
     imageId: recipe.imageId,
+    notes,
+    course: recipe.category ? getCategory(recipe.category).label : "",
+    cuisine: recipe.cuisine,
+    tags: recipe.tags ?? [],
+    prepTime: recipe.prepTime,
+    cookTime: recipe.cookTime,
+    extraTime: recipe.extraTime,
+    extraTimeLabel: recipe.extraTimeLabel,
+    rating: recipe.ratingCount ? { average: recipe.ratingAvg ?? 0, count: recipe.ratingCount } : null,
   };
 
   const updateIngredient = (i: number, patch: Partial<Ingredient>) =>
@@ -99,9 +120,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
             <PdfOptionsPanel
               options={options}
               onChange={setOptions}
-              hasImage={!!recipe.imageId}
-              hasDescription={!!description.trim()}
-              hasAuthor={!!author.trim()}
+              recipe={pdfRecipe}
             />
           </section>
 
@@ -191,6 +210,18 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
                 <button type="button" className="btn-ghost mt-2 px-2" onClick={() => setInstructions((p) => [...p, ""])}>
                   <PlusIcon className="h-4 w-4" /> Add step
                 </button>
+              </div>
+
+              <div>
+                <label htmlFor="pdf-notes" className="field-label">Notes</label>
+                <textarea
+                  id="pdf-notes"
+                  rows={3}
+                  className="field"
+                  placeholder="Storage, freezing, substitutions… (one per line)"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
               </div>
             </div>
           </details>

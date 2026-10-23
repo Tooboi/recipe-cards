@@ -63,9 +63,9 @@ export default function ChangeUsernamePage() {
         className="panel w-full max-w-md mt-10 p-6"
       >
         <h1 className="text-xl font-semibold mb-4">Change Username</h1>
-        <p className="text-sm mb-3 text-stone-700">
+        <p className="text-sm mb-3 text-ink-soft">
           Signed in as:{" "}
-          <span className="font-medium text-stone-900">
+          <span className="font-medium text-ink">
             {session.user.name ?? "Not set"}
           </span>
         </p>
