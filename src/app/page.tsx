@@ -1,31 +1,41 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
-import RecipesList from "@/components/RecipesList";
+import RecipeGrid from "@/components/recipes/RecipeGrid";
+import { HOME_AD_POSITIONS, HOME_AD_POSITIONS_COMPACT, infeedEnabled } from "@/lib/ads";
+import { getDensity } from "@/lib/density";
 import { toCardData } from "@/components/recipes/RecipeCard";
 import CategoryArt from "@/components/recipes/CategoryArt";
 import SearchBar from "@/components/browse/SearchBar";
-import { getCategoryCounts, getPopularTags } from "@/lib/recipe-queries";
+import { getCategoryCounts, getFallbackRecipes, getPopularTags } from "@/lib/recipe-queries";
 import { tagLabel } from "@/lib/taxonomy";
 
 export default async function Home() {
+  const compact = (await getDensity()) === "compact";
+  // Card counts that fill whole rows: compact grids are 2/3/4 across, comfortable 1/2/3.
+  const latestCount = compact ? 12 : 6;
+  const topCount = compact ? 4 : 3;
+  const adPositions = compact ? HOME_AD_POSITIONS_COMPACT : HOME_AD_POSITIONS;
   const include = { user: { select: { username: true } } } as const;
-  const [latest, topRated, categories, tags] = await Promise.all([
+  const [latest, topRated, categories, tags, vaultCount] = await Promise.all([
     prisma.recipe.findMany({
       where: { hidden: false },
       include,
       orderBy: { updatedAt: "desc" },
-      take: 6,
+      // 6 cards in "Latest": 5 recipes + 1 ad card when ads are on
+      take: infeedEnabled ? latestCount - adPositions.length : latestCount,
     }),
     prisma.recipe
       .findMany({
         where: { hidden: false, ratingCount: { gte: 1 } },
         include,
         orderBy: [{ ratingAvg: "desc" }, { ratingCount: "desc" }],
-        take: 3,
+        take: topCount,
       })
       .catch(() => []),
     getCategoryCounts(),
     getPopularTags(8),
+    // Every recipe kept in the vault (private ones too) — shown on the hero stamp.
+    prisma.recipe.count().catch(() => 0),
   ]);
 
   return (
@@ -34,7 +44,7 @@ export default async function Home() {
       <section className="border-b border-line bg-paper">
         <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 md:grid-cols-[1.2fr_1fr] md:py-16">
           <div>
-            <p className="eyebrow mb-3">The family recipe vault</p>
+            <p className="eyebrow mb-3">Your family cookbook</p>
             <h1 className="font-serif text-4xl leading-tight font-bold text-ink md:text-5xl">
               Every recipe worth keeping, <em className="text-brand">safe in the vault.</em>
             </h1>
@@ -56,7 +66,7 @@ export default async function Home() {
               ))}
             </div>
           </div>
-          <HeroCards />
+          <HeroCards count={vaultCount} />
         </div>
       </section>
 
@@ -83,17 +93,25 @@ export default async function Home() {
 
       {/* Latest */}
       <section className="mx-auto max-w-6xl px-4 pt-12">
-        <SectionHeader title="Fresh in the Vault" href="/explore" link="See all →" />
+        <SectionHeader title="Latest Recipes" href="/explore" link="See all →" />
         {latest.length === 0 ? (
           <div className="panel px-6 py-16 text-center">
-            <p className="font-serif text-2xl text-ink">The vault is empty.</p>
-            <p className="mt-2 text-ink-soft">Be the first to put a recipe inside.</p>
+            <p className="font-serif text-2xl text-ink">No recipes yet.</p>
+            <p className="mt-2 text-ink-soft">Be the first to add one.</p>
             <Link href="/new-recipe" className="btn-brand mt-6">
               Add a Recipe
             </Link>
           </div>
         ) : (
-          <RecipesList recipes={latest.map((r) => toCardData(r))} />
+          <RecipeGrid
+            recipes={latest.map((r) => toCardData(r))}
+            adPositions={adPositions}
+            fallbacks={(infeedEnabled
+              ? await getFallbackRecipes(latest.map((r) => r.id), adPositions.length)
+              : []
+            ).map((r) => toCardData(r))}
+            compact={compact}
+          />
         )}
       </section>
 
@@ -101,7 +119,7 @@ export default async function Home() {
       {topRated.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 pt-12">
           <SectionHeader title="Top rated" href="/explore?sort=top-rated" link="See more →" />
-          <RecipesList recipes={topRated.map((r) => toCardData(r))} />
+          <RecipeGrid recipes={topRated.map((r) => toCardData(r))} compact={compact} />
         </section>
       )}
     </div>
@@ -120,16 +138,18 @@ function SectionHeader({ title, href, link }: { title: string; href: string; lin
 }
 
 /** Decorative stack of index cards with a vault seal. */
-function HeroCards() {
+function HeroCards({ count }: { count: number }) {
   return (
     <div className="relative mx-auto hidden h-64 w-full max-w-sm md:block" aria-hidden>
       <div className="absolute -right-2 -bottom-6 z-10 flex h-28 w-28 rotate-[-12deg] flex-col items-center justify-center rounded-full border-4 border-double border-brand bg-paper text-center text-brand shadow-md">
         <span className="text-[9px] font-bold tracking-[0.2em] uppercase">Kept safe</span>
         <span className="font-serif text-lg leading-tight font-bold">in the</span>
         <span className="font-serif text-xl leading-none font-bold">Vault</span>
-        <span className="mt-1 text-[9px] font-bold tracking-[0.2em] uppercase">No. 0001</span>
+        <span className="mt-1 text-[9px] font-bold tracking-[0.2em] uppercase">
+          No. {String(Math.max(count, 1)).padStart(4, "0")}
+        </span>
       </div>
-      <div className="absolute inset-x-6 top-6 h-48 rotate-[-5deg] rounded-md border border-line bg-[#fdf9f1] shadow-md" />
+      <div className="absolute inset-x-6 top-6 h-48 rotate-[-5deg] rounded-md border border-line bg-[#fdf9f1] dark:bg-[#3d352f] shadow-md" />
       <div className="absolute inset-x-2 top-2 h-52 rotate-[3deg] rounded-md border border-line bg-paper p-5 shadow-lg">
         <p className="font-serif text-xl font-bold text-brand">Grandma&apos;s Apple Pie</p>
         <p className="text-xs text-ink-soft italic">From the kitchen of June · Serves 8</p>

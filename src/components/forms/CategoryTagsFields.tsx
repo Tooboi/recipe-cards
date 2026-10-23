@@ -252,7 +252,7 @@ export default function CategoryTagsFields({
         {tags.length < MAX_TAGS && available.length > 0 && (
           <div className="mt-1">
             <p className="mb-1.5 text-xs font-semibold text-ink-soft">
-              {fromVault ? "Tags already in the vault — tap to add:" : "Suggestions — tap to add:"}
+              {fromVault ? "Tags already in use — tap to add:" : "Suggestions — tap to add:"}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {visible.map((t) => (

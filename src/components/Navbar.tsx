@@ -18,6 +18,7 @@ import {
 import { auth } from "@/auth";
 import CldImageWrapper from "./wrappers/CldImageWrapper";
 import VaultMark from "./VaultMark";
+import ThemeToggle from "./ThemeToggle";
 
 const navLink =
   "relative py-1 text-sm font-semibold whitespace-nowrap text-ink-soft transition-colors hover:text-brand";
@@ -35,10 +36,10 @@ export default async function Navbar() {
   }
 
   const links = [
-    { href: "/explore", label: "Browse the Vault" },
+    { href: "/explore", label: "Recipes" },
     ...(isSignedIn && internalUserId
       ? [
-          { href: `/users/${internalUserId}`, label: "My Vault" },
+          { href: `/users/${internalUserId}`, label: "My Recipes" },
           { href: `/users/${internalUserId}/bookmarks`, label: "Saved" },
         ]
       : []),
@@ -61,7 +62,7 @@ export default async function Navbar() {
         </Link>
 
         <div className="flex-1" />
-        <SearchBar size="sm" placeholder="Search the vault…" className="hidden w-52 lg:block xl:w-64" />
+        <SearchBar size="sm" placeholder="Search recipes…" className="hidden w-52 lg:block xl:w-64" />
 
         {/* Desktop links, grouped with the actions on the right */}
         <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
@@ -73,7 +74,8 @@ export default async function Navbar() {
         </nav>
         <span className="mx-1 hidden h-6 w-px bg-line md:block" aria-hidden />
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <ThemeToggle />
           <Link
             href="/explore"
             aria-label="Search recipes"
@@ -107,7 +109,7 @@ export default async function Navbar() {
                 <DropdownMenuLabel className="truncate">{session.user.name}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href={`/users/${internalUserId}`}>My Vault</Link>
+                  <Link href={`/users/${internalUserId}`}>My Recipes</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href={`/users/${internalUserId}/bookmarks`}>

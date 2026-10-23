@@ -1,7 +1,8 @@
 /* Vector PDF layout for a recipe, rendered with @react-pdf/renderer.
  * Only import this module dynamically from client code (see ./generate.ts). */
 import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
-import { formatIngredient } from "@/lib/recipe-format";
+import { formatIngredient, formatMinutes, totalMinutes } from "@/lib/recipe-format";
+import RecipePagePdf from "./RecipePagePdf";
 import { PDF_ACCENTS, type RecipePdfData, type RecipePdfOptions } from "./options";
 
 // Page sizes in points (72pt = 1in). Cards are landscape, like a real index card.
@@ -45,6 +46,11 @@ export default function RecipePdfDocument({
   /** Shrinks text so a recipe fits on one index card (see generate.ts). */
   scale?: number;
 }) {
+  // The website-style layout lives in its own component.
+  if (options.theme === "page") {
+    return <RecipePagePdf recipe={recipe} options={options} imageSrc={imageSrc} scale={scale} />;
+  }
+
   const { size, theme, font } = options;
   const base = METRICS[size];
   const m: Metrics = {
@@ -120,8 +126,10 @@ export default function RecipePdfDocument({
     },
     meta: {
       flexDirection: "row",
+      flexWrap: "wrap",
       justifyContent: centered ? "center" : "flex-start",
-      gap: isCard ? 10 : 24,
+      columnGap: isCard ? 10 : 18,
+      rowGap: 3,
       fontSize: m.small,
       color: MUTED,
       paddingVertical: isCard ? 2 : 6,
@@ -213,16 +221,30 @@ export default function RecipePdfDocument({
     </View>
   );
 
+  const total = options.showTimes ? totalMinutes(recipe) : 0;
+  const serving = options.showServings ? recipe.serving?.trim() : "";
+  const rating = options.showRating && recipe.rating?.count ? recipe.rating : null;
+  const notes = options.showNotes ? (recipe.notes ?? "").trim() : "";
+
   const bylineParts = [
     author ? `From the kitchen of ${author}` : "",
-    isCard && recipe.serving?.trim() ? `Makes ${recipe.serving.trim()}` : "",
+    isCard && serving ? `Makes ${serving}` : "",
+    isCard && total ? `Ready in ${formatMinutes(total)}` : "",
+    rating ? `Rated ${rating.average.toFixed(1)}/5 (${rating.count})` : "",
   ].filter(Boolean);
 
   const metaItems = [
-    recipe.serving?.trim() ? ["Yield", recipe.serving.trim()] : null,
-    ingredients.length ? ["Ingredients", String(ingredients.length)] : null,
-    steps.length ? ["Steps", String(steps.length)] : null,
+    options.showCourse && recipe.course?.trim() ? ["Course", recipe.course.trim()] : null,
+    options.showCourse && recipe.cuisine?.trim() ? ["Cuisine", recipe.cuisine.trim()] : null,
+    serving ? ["Yield", serving] : null,
+    options.showTimes && recipe.prepTime ? ["Prep", formatMinutes(recipe.prepTime)] : null,
+    options.showTimes && recipe.cookTime ? ["Cook", formatMinutes(recipe.cookTime)] : null,
+    options.showTimes && recipe.extraTime
+      ? [recipe.extraTimeLabel?.trim() || "Additional", formatMinutes(recipe.extraTime)]
+      : null,
+    total ? ["Total", formatMinutes(total)] : null,
   ].filter(Boolean) as [string, string][];
+  const keywords = options.showKeywords && recipe.tags?.length ? recipe.tags.join(", ") : "";
 
   return (
     <Document title={recipe.title || "Recipe"} author={recipe.author || undefined} creator="Recipe Card Vault">
@@ -257,11 +279,16 @@ export default function RecipePdfDocument({
           <View style={s.meta}>
             {metaItems.map(([label, value]) => (
               <Text key={label}>
-                <Text style={s.metaLabel}>{label}: </Text>
-                {value}
+                <Text style={s.metaLabel}>{label}:{"\u00a0"}</Text>
+                {value.replace(/ /g, "\u00a0")}
               </Text>
             ))}
           </View>
+        )}
+        {!isCard && keywords && (
+          <Text style={[s.byline, { marginTop: -m.gap * 0.6, marginBottom: m.gap, textAlign: centered ? "center" : "left" }]}>
+            Keywords: {keywords}
+          </Text>
         )}
 
         {isCard ? (
@@ -288,6 +315,28 @@ export default function RecipePdfDocument({
             </Text>
             {stepList}
           </>
+        )}
+
+        {notes && (
+          <View style={{ marginTop: isCard ? 4 : m.gap }}>
+            {notes
+              .split(/\n+/)
+              .map((p) => p.trim())
+              .filter(Boolean)
+              .map((p, i) =>
+                i === 0 ? (
+                  // heading stays with the first paragraph
+                  <View key={i} wrap={false}>
+                    <Text style={s.heading}>Notes</Text>
+                    <Text style={[s.line, { marginBottom: isCard ? 1 : 4 }]}>{p}</Text>
+                  </View>
+                ) : (
+                  <Text key={i} style={[s.line, { marginBottom: isCard ? 1 : 4 }]}>
+                    {p}
+                  </Text>
+                )
+              )}
+          </View>
         )}
 
         {!isCard && (

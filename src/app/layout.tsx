@@ -6,7 +6,10 @@ import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { connectToDatabase } from "@/lib/mongo";
 import AuthSessionProvider from "@/components/wrappers/SessionProvider";
+import ThemeProvider from "@/components/wrappers/ThemeProvider";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
+import { ADS, adsEnabled } from "@/lib/ads";
 
 // Serif display face for titles, friendly sans for body copy.
 const display = Playfair_Display({
@@ -26,7 +29,9 @@ export const metadata: Metadata = {
     template: "%s | Recipe Card Vault",
   },
   description:
-    "Keep your family recipes safe in the vault, share them, and print them as full pages or classic 3×5 and 4×6 recipe cards.",
+    "Keep your family recipes safe, share them, and print them as full pages or classic 3×5 and 4×6 recipe cards.",
+  // Lets AdSense verify the site during sign-up.
+  ...(adsEnabled && { other: { "google-adsense-account": ADS.client } }),
 };
 
 export default async function RootLayout({
@@ -37,10 +42,12 @@ export default async function RootLayout({
   await connectToDatabase;
 
   return (
-    <html lang="en">
+    // next-themes sets the "dark" class on <html> before React loads, hence suppressHydrationWarning.
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${display.variable} ${body.variable} font-sans antialiased bg-cream text-ink`}
       >
+        <ThemeProvider>
         <AuthSessionProvider>
           <div className="flex min-h-screen min-w-[300px] flex-col">
             <Navbar />
@@ -48,8 +55,18 @@ export default async function RootLayout({
             <Footer />
           </div>
           <Analytics />
+          {adsEnabled && (
+            <Script
+              id="adsbygoogle-init"
+              async
+              strategy="afterInteractive"
+              crossOrigin="anonymous"
+              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADS.client}`}
+            />
+          )}
           <Toaster position="bottom-right" />
         </AuthSessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

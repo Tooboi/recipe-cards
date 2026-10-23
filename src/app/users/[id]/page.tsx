@@ -4,7 +4,10 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 import CldImageWrapper from "@/components/wrappers/CldImageWrapper";
-import RecipeCard, { toCardData } from "@/components/recipes/RecipeCard";
+import { toCardData } from "@/components/recipes/RecipeCard";
+import RecipeGrid from "@/components/recipes/RecipeGrid";
+import DensityToggle from "@/components/browse/DensityToggle";
+import { getDensity } from "@/lib/density";
 
 export default async function UserIDpage({
   params,
@@ -13,6 +16,7 @@ export default async function UserIDpage({
 }) {
   const selectedUser = (await params).id;
   const session = await auth();
+  const density = await getDensity();
   if (!session?.user) redirect("/");
 
   const isMe = session.user.id === selectedUser;
@@ -55,9 +59,9 @@ export default async function UserIDpage({
             />
           )}
           <div className="min-w-0">
-            <p className="eyebrow mb-1">{isMe ? "My vault" : "Recipe vault"}</p>
-            <h1 className="truncate font-serif text-3xl font-bold text-ink md:text-4xl">
-              {user.username}&apos;s Vault
+            <p className="eyebrow mb-1">{isMe ? "My recipes" : "Recipes by"}</p>
+            <h1 className="font-serif text-3xl leading-tight font-bold break-words text-ink md:text-4xl">
+              {isMe ? `${user.username}'s Recipes` : user.username}
             </h1>
             <p className="text-sm text-ink-soft">
               {recipes.length} recipe{recipes.length === 1 ? "" : "s"}
@@ -67,24 +71,23 @@ export default async function UserIDpage({
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pt-8">
+        <div className="mb-4 flex justify-end">
+          <DensityToggle value={density} />
+        </div>
         {recipes.length === 0 ? (
           <div className="panel px-6 py-16 text-center">
-            <p className="font-serif text-2xl text-ink">This vault is empty.</p>
+            <p className="font-serif text-2xl text-ink">No recipes here yet.</p>
             {isMe && (
               <Link href="/new-recipe" className="btn-brand mt-6">
-                Put your first recipe in the vault
+                Add your first recipe
               </Link>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {recipes.map((recipe) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={toCardData({ ...recipe, user }, { showPrivate: isMe })}
-              />
-            ))}
-          </div>
+          <RecipeGrid
+            recipes={recipes.map((recipe) => toCardData({ ...recipe, user }, { showPrivate: isMe }))}
+            compact={density === "compact"}
+          />
         )}
       </section>
     </div>

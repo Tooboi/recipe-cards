@@ -37,6 +37,13 @@ model Recipe {
   ratingAvg    Float?   @default(0)
   ratingCount  Int?     @default(0)
   ratings      Rating[]
+  // Printout / recipe-page details (all optional)
+  prepTime       Int?    // minutes
+  cookTime       Int?    // minutes
+  extraTime      Int?    // minutes, e.g. chilling or rising
+  extraTimeLabel String? // "Chilling", "Rising"…
+  cuisine        String?
+  notes          String?
 
   @@index([category])
   @@index([tags])

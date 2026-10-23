@@ -3,7 +3,9 @@
 import { updateRecipe } from "@/app/actions";
 import { useRouter } from "next/navigation";
 import CategoryTagsFields from "@/components/forms/CategoryTagsFields";
+import RecipeDetailsFields, { detailsFromRecipe, detailsToData } from "@/components/forms/RecipeDetailsFields";
 import { useState } from "react";
+import RecipePhotoField from "@/components/forms/RecipePhotoField";
 import { toast } from "sonner";
 
 type Ingredient = {
@@ -24,8 +26,15 @@ type SafeRecipe = {
   hidden: boolean;
   imageId: string | null;
   author: string | null;
+  serving?: string | null;
   category?: string | null;
   tags?: string[] | null;
+  prepTime?: number | null;
+  cookTime?: number | null;
+  extraTime?: number | null;
+  extraTimeLabel?: string | null;
+  cuisine?: string | null;
+  notes?: string | null;
 };
 
 export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
@@ -44,6 +53,14 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState(recipe.category ?? "");
   const [tags, setTags] = useState<string[]>(recipe.tags ?? []);
+  const [details, setDetails] = useState(() => detailsFromRecipe(recipe));
+  const [imageId, setImageId] = useState(recipe.imageId ?? "");
+  // Servings are stored as one string ("12 cookies"); edit as amount + unit like the New Recipe form.
+  const [yieldAmount, setYieldAmount] = useState(() => (recipe.serving ?? "").trim().split(/\s+/)[0] ?? "");
+  const [yieldUnit, setYieldUnit] = useState(() =>
+    (recipe.serving ?? "").trim().split(/\s+/).slice(1).join(" ")
+  );
+  const [author, setAuthor] = useState(recipe.author ?? "");
   const router = useRouter();
 
   const updateField = (
@@ -132,6 +149,10 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
         hidden,
         category,
         tags,
+        imageId,
+        author: author.trim(),
+        serving: [yieldAmount.trim(), yieldUnit.trim()].filter(Boolean).join(" "),
+        ...detailsToData(details),
       });
       toast.success("Recipe updated!");
       router.push(`/recipes/${recipe.id}`);
@@ -176,6 +197,44 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               onChange={(e) => setUpdatedDescription(e.target.value)}
               value={updatedDescription}
             />
+          </div>
+
+          <div className="grid gap-4 pt-4 sm:grid-cols-2">
+            <div>
+              <span className="field-label">Servings / yield</span>
+              <div className="grid grid-cols-[5rem_1fr] gap-2">
+                <input
+                  className="field"
+                  placeholder="12"
+                  aria-label="Yield amount"
+                  value={yieldAmount}
+                  onChange={(e) => setYieldAmount(e.target.value)}
+                />
+                <input
+                  className="field"
+                  placeholder="cookies, servings…"
+                  aria-label="Yield unit"
+                  value={yieldUnit}
+                  onChange={(e) => setYieldUnit(e.target.value)}
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="author" className="field-label">
+                From the kitchen of
+              </label>
+              <input
+                id="author"
+                className="field"
+                placeholder="Author name"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="pt-4">
+            <RecipePhotoField imageId={imageId} onChange={setImageId} />
           </div>
 
           <h2 className="field-label pt-4">Ingredients</h2>
@@ -392,6 +451,14 @@ export default function RecipeEdit({ recipe }: { recipe: SafeRecipe }) {
               tags={tags}
               onTagsChange={setTags}
             />
+          </div>
+
+          <div className="mt-6 border-t border-line pt-6">
+            <h2 className="mb-3 font-serif text-lg font-bold text-ink">
+              Times, cuisine &amp; notes{" "}
+              <span className="font-sans text-sm font-normal text-ink-soft">(optional)</span>
+            </h2>
+            <RecipeDetailsFields value={details} onChange={setDetails} />
           </div>
 
           <div className="mt-4">

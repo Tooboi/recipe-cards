@@ -57,7 +57,7 @@ const ORDER: Record<SortOption, Prisma.RecipeOrderByWithRelationInput[]> = {
   "a-z": [{ title: "asc" }],
 };
 
-export async function searchRecipes(params: BrowseParams) {
+export async function searchRecipes(params: BrowseParams, pageSize = PAGE_SIZE) {
   const { q, category, tag, sort, page } = params;
   const where: Prisma.RecipeWhereInput = {
     hidden: false,
@@ -79,12 +79,12 @@ export async function searchRecipes(params: BrowseParams) {
       where,
       include: { user: { select: { username: true } } },
       orderBy: ORDER[sort],
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     }),
     prisma.recipe.count({ where }),
   ]);
-  return { recipes, total, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
+  return { recipes, total, pages: Math.max(1, Math.ceil(total / pageSize)) };
 }
 
 /** Most-used tags on public recipes, topped up with suggestions when the vault is small. */
@@ -110,4 +110,25 @@ export async function getCategoryCounts() {
   const counts: Record<string, number> = {};
   for (const r of rows) if (r.category) counts[r.category] = r._count._all;
   return CATEGORIES.map((c) => ({ ...c, count: counts[c.slug] ?? 0 }));
+}
+
+/**
+ * Recipes to show if an ad slot comes back empty (or is blocked): well-rated
+ * public recipes that aren't already on the page, optionally from one category.
+ */
+export async function getFallbackRecipes(excludeIds: string[], count: number, category?: string | null) {
+  if (count <= 0) return [];
+  const pick = (where: Prisma.RecipeWhereInput) =>
+    prisma.recipe
+      .findMany({
+        where: { hidden: false, id: { notIn: excludeIds }, ...where },
+        include: { user: { select: { username: true } } },
+        orderBy: [{ ratingAvg: "desc" }, { updatedAt: "desc" }],
+        take: count,
+      })
+      .catch(() => []);
+  const sameCategory = category ? await pick({ category }) : [];
+  if (sameCategory.length >= count) return sameCategory;
+  const more = await pick({ id: { notIn: [...excludeIds, ...sameCategory.map((r) => r.id)] } });
+  return [...sameCategory, ...more].slice(0, count);
 }

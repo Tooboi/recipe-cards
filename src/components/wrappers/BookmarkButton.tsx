@@ -37,7 +37,7 @@ export default function BookmarkButton({ recipeId, variant = 'icon' }: BookmarkB
 
     try {
       await toggleBookmark(recipeId);
-      toast.success(next ? 'Saved to your vault' : 'Removed from saved recipes');
+      toast.success(next ? 'Saved to your recipes' : 'Removed from saved recipes');
     } catch {
       // Rollback on error
       setBookmarked(!next);

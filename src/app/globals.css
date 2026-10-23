@@ -60,6 +60,58 @@ body::-webkit-scrollbar {
   --ring: #b5452c;
 }
 
+/* Dark mode: same names, night-time values. Toggled by the "dark" class on <html>
+   (next-themes), which follows the system setting until the visitor picks one. */
+.dark {
+  --color-cream: #26211d;
+  --color-paper: #332c27;
+  --color-ink: #f7f1e8;
+  --color-ink-soft: #cbbfb2;
+  --color-line: #4d443c;
+  --color-brand: #e8663f;
+  --color-brand-dark: #ff9370;
+  --color-brand-soft: #55301f;
+  --color-sage: #a3d0a0;
+
+  --background: #26211d;
+  --foreground: #f7f1e8;
+  --card: #332c27;
+  --card-foreground: #f7f1e8;
+  --popover: #332c27;
+  --popover-foreground: #f7f1e8;
+  --primary: #e8663f;
+  --primary-foreground: #ffffff;
+  --secondary: #3a322c;
+  --secondary-foreground: #f7f1e8;
+  --muted: #3a322c;
+  --muted-foreground: #cbbfb2;
+  --accent: #55301f;
+  --accent-foreground: #f7f1e8;
+  --destructive: #ff7a6e;
+  --border: #4d443c;
+  --input: #5c5148;
+  --ring: #e8663f;
+  color-scheme: dark;
+}
+
+/* Category-coloured text (card labels etc.): set --cat inline; lighter at night */
+.cat-text {
+  color: var(--cat);
+}
+.dark .cat-text {
+  color: color-mix(in srgb, var(--cat) 40%, #ffffff);
+}
+
+/* No-photo illustrations: pastel by day, deep tint of the same colour at night */
+.category-art {
+  --art-bg: var(--art-tint);
+  --art-fg: var(--art-ink);
+}
+.dark .category-art {
+  --art-bg: color-mix(in srgb, var(--art-ink) 58%, #2a2420);
+  --art-fg: color-mix(in srgb, var(--art-ink) 25%, #ffffff);
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -154,5 +206,24 @@ select.field option {
 @media print {
   body {
     background: #fff !important;
+  }
+  /* Always print in the light palette, even when the site is in dark mode */
+  .dark {
+    --color-cream: #faf6ef;
+    --color-paper: #ffffff;
+    --color-ink: #2b2420;
+    --color-ink-soft: #5f554d;
+    --color-line: #e7dfd3;
+    --color-brand: #b5452c;
+    --color-brand-dark: #8f3420;
+    --color-brand-soft: #f7e7df;
+    --background: #ffffff;
+    --foreground: #2b2420;
+    --border: #e7dfd3;
+    color-scheme: light;
+  }
+  .dark .category-art {
+    --art-bg: var(--art-tint);
+    --art-fg: var(--art-ink);
   }
 }

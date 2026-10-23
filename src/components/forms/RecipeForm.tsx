@@ -6,8 +6,6 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { CldImage, CldUploadWidget } from "next-cloudinary";
-import { PhotoIcon } from "@heroicons/react/24/solid";
 import { ArrowDownTrayIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { createRecipe } from "@/app/actions";
 import PdfOptionsPanel from "@/components/pdf/PdfOptionsPanel";
@@ -18,14 +16,13 @@ import { defaultPdfOptions, type RecipePdfOptions } from "@/lib/pdf/options";
 import type { Ingredient } from "@/lib/recipe-format";
 import { useMediaQuery } from "@/lib/use-media-query";
 import CategoryTagsFields from "@/components/forms/CategoryTagsFields";
-
-function formatBytes(fileSize: number): string {
-  const sizes = ["B", "KB", "MB"];
-  if (fileSize === 0) return "0 B";
-  const i = Math.floor(Math.log(fileSize) / Math.log(1024));
-  const formatted = (fileSize / Math.pow(1024, i)).toFixed(1);
-  return `${formatted.endsWith(".0") ? formatted.split(".")[0] : formatted} ${sizes[i]}`;
-}
+import RecipePhotoField from "@/components/forms/RecipePhotoField";
+import RecipeDetailsFields, {
+  detailsToData,
+  emptyDetails,
+  type RecipeDetails,
+} from "@/components/forms/RecipeDetailsFields";
+import { getCategory } from "@/lib/taxonomy";
 
 function move<T>(list: T[], index: number, direction: "up" | "down") {
   const next = [...list];
@@ -36,7 +33,6 @@ function move<T>(list: T[], index: number, direction: "up" | "down") {
 }
 
 const emptyIngredient = (): Ingredient => ({ quantity: "", unit: "", item: "" });
-const maxFileSize = 41943040; // 40MB
 
 export default function RecipeForm() {
   const { data: session } = useSession();
@@ -57,6 +53,7 @@ export default function RecipeForm() {
   const [hidden, setHidden] = useState(true);
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [details, setDetails] = useState<RecipeDetails>(emptyDetails);
   const [pdfOptions, setPdfOptions] = useState<RecipePdfOptions>(() =>
     defaultPdfOptions({ showImage: false })
   );
@@ -76,6 +73,9 @@ export default function RecipeForm() {
     ingredients: ingredients.filter((i) => i.item || i.quantity),
     instructions,
     imageId,
+    course: category ? getCategory(category).label : "",
+    tags,
+    ...detailsToData(details),
   };
 
   const handleCreateRecipe = async () => {
@@ -95,6 +95,7 @@ export default function RecipeForm() {
         serving,
         category,
         tags,
+        ...detailsToData(details),
       });
 
       setTitle("");
@@ -104,6 +105,7 @@ export default function RecipeForm() {
       setHidden(true);
       setCategory("");
       setTags([]);
+      setDetails(emptyDetails());
       setImageId("");
       setYieldAmount("1");
       setYieldUnit("Serving");
@@ -224,65 +226,20 @@ export default function RecipeForm() {
                   onTagsChange={setTags}
                 />
 
-                <div>
-                  <span className="field-label">Photo</span>
-                  {imageId ? (
-                    <div className="flex items-center gap-4">
-                      <CldImage
-                        alt="Recipe photo"
-                        src={imageId}
-                        width="160"
-                        height="160"
-                        crop="fill"
-                        className="h-24 w-24 rounded-md object-cover"
-                      />
-                      <button
-                        type="button"
-                        className="btn-ghost"
-                        onClick={() => {
-                          setImageId("");
-                          setPdfOptions((o) => ({ ...o, showImage: false }));
-                        }}
-                      >
-                        Remove photo
-                      </button>
-                    </div>
-                  ) : (
-                    <CldUploadWidget
-                      uploadPreset="recipe"
-                      options={{
-                        maxImageFileSize: maxFileSize,
-                        maxFiles: 1,
-                        sources: ["local", "dropbox", "google_drive", "instagram", "unsplash"],
-                        autoMinimize: true,
-                      }}
-                      onSuccess={(result: any) => {
-                        setImageId(result.info.public_id);
-                        setPdfOptions((o) => ({ ...o, showImage: true }));
-                      }}
-                    >
-                      {({ open }) => (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            open();
-                          }}
-                          className="flex w-full items-center gap-3 rounded-md border-2 border-dashed border-line bg-cream px-4 py-4 text-left text-ink-soft transition-colors hover:border-brand hover:text-brand"
-                        >
-                          <PhotoIcon className="h-8 w-8 shrink-0" />
-                          <span className="text-sm">
-                            <span className="block font-semibold">Add a photo</span>
-                            Optional · max {formatBytes(maxFileSize)}
-                          </span>
-                        </button>
-                      )}
-                    </CldUploadWidget>
-                  )}
-                </div>
+                <RecipePhotoField
+                  imageId={imageId}
+                  onChange={(id) => {
+                    setImageId(id);
+                    setPdfOptions((o) => ({ ...o, showImage: !!id }));
+                  }}
+                />
 
                 <div>
                   <h2 className="field-label">Ingredients</h2>
+                  <p className="-mt-0.5 mb-2 text-xs text-ink-soft">
+                    Tip: put prep notes after a comma (&ldquo;butter, softened&rdquo;) or in
+                    brackets &mdash; they print in grey on the Recipe page PDF.
+                  </p>
                   <ul className="space-y-3 sm:space-y-2">
                     {ingredients.map((ing, i) => (
                       <li
@@ -376,6 +333,14 @@ export default function RecipeForm() {
                   </button>
                 </div>
 
+                <div className="border-t border-line pt-5">
+                  <h2 className="mb-3 font-serif text-lg font-bold text-ink">
+                    Times, cuisine &amp; notes{" "}
+                    <span className="font-sans text-sm font-normal text-ink-soft">(optional)</span>
+                  </h2>
+                  <RecipeDetailsFields value={details} onChange={setDetails} />
+                </div>
+
                 <label className="flex cursor-pointer items-center gap-2 text-sm">
                   <input
                     type="checkbox"
@@ -393,9 +358,7 @@ export default function RecipeForm() {
                 <PdfOptionsPanel
                   options={pdfOptions}
                   onChange={setPdfOptions}
-                  hasImage={!!imageId}
-                  hasDescription={!!description.trim()}
-                  hasAuthor={!!authorName.trim()}
+                  recipe={pdfRecipe}
                 />
                 {!isDesktop && <PdfPreview recipe={pdfRecipe} options={pdfOptions} />}
               </div>

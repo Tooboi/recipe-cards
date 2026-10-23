@@ -107,7 +107,7 @@ export default function PdfPreview({
   return (
     <div className={className}>
       {/* Inline preview (tablet/desktop) */}
-      <div className="hidden rounded-lg border border-line bg-[#e9e3d9] p-3 md:block">
+      <div className="hidden rounded-lg border border-line bg-[#e9e3d9] dark:bg-[#3d352f] p-3 md:block">
         <div
           className="relative mx-auto w-full overflow-hidden rounded-sm bg-white shadow-md"
           style={{ aspectRatio: ASPECT[options.size], maxHeight: "75vh" }}
@@ -129,7 +129,7 @@ export default function PdfPreview({
       </div>
 
       {/* Phone: a mini card silhouette instead of an inline PDF */}
-      <div className="flex items-center gap-4 rounded-lg border border-line bg-[#e9e3d9] p-4 md:hidden">
+      <div className="flex items-center gap-4 rounded-lg border border-line bg-[#e9e3d9] dark:bg-[#3d352f] p-4 md:hidden">
         <div
           className="w-16 shrink-0 rounded-[3px] border border-line bg-white shadow"
           style={{ aspectRatio: ASPECT[options.size] }}

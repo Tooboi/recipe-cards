@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import RecipeCard, { toCardData } from "@/components/recipes/RecipeCard";
+import { toCardData } from "@/components/recipes/RecipeCard";
+import RecipeGrid from "@/components/recipes/RecipeGrid";
+import DensityToggle from "@/components/browse/DensityToggle";
+import { getDensity } from "@/lib/density";
+import { BROWSE_AD_POSITIONS, infeedEnabled } from "@/lib/ads";
 import SearchBar from "@/components/browse/SearchBar";
 import LinkSelect from "@/components/browse/LinkSelect";
 import Pagination from "@/components/browse/Pagination";
@@ -9,13 +13,14 @@ import {
   PAGE_SIZE,
   browseHref,
   getCategoryCounts,
+  getFallbackRecipes,
   getPopularTags,
   parseBrowseParams,
   searchRecipes,
 } from "@/lib/recipe-queries";
 import { SORT_OPTIONS, getCategory, tagLabel } from "@/lib/taxonomy";
 
-export const metadata: Metadata = { title: "Browse the Vault" };
+export const metadata: Metadata = { title: "Browse Recipes" };
 
 const TOP_TAGS = 8;
 
@@ -23,10 +28,13 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 
 export default async function ExplorePage({ searchParams }: Props) {
   const params = parseBrowseParams(await searchParams);
-  const [{ recipes, total, pages }, categories, allTags] = await Promise.all([
-    searchRecipes(params),
+  // With ads on, each page holds 10 recipes + 2 ad cards, so the grid stays 12 cards.
+  const pageSize = infeedEnabled ? PAGE_SIZE - BROWSE_AD_POSITIONS.length : PAGE_SIZE;
+  const [{ recipes, total, pages }, categories, allTags, density] = await Promise.all([
+    searchRecipes(params, pageSize),
     getCategoryCounts(),
     getPopularTags(TOP_TAGS + 24),
+    getDensity(),
   ]);
 
   // Filter changes always go back to page 1.
@@ -40,8 +48,15 @@ export default async function ExplorePage({ searchParams }: Props) {
   if (params.tag && !topTags.includes(params.tag)) topTags.push(params.tag);
   const moreTags = allTags.slice(TOP_TAGS).filter((t) => t !== params.tag);
 
-  const first = total === 0 ? 0 : (params.page - 1) * PAGE_SIZE + 1;
-  const last = Math.min(params.page * PAGE_SIZE, total);
+  const first = total === 0 ? 0 : (params.page - 1) * pageSize + 1;
+  const last = Math.min(params.page * pageSize, total);
+  const fallbacks = infeedEnabled
+    ? await getFallbackRecipes(
+        recipes.map((r) => r.id),
+        BROWSE_AD_POSITIONS.length,
+        params.category
+      )
+    : [];
 
   const chip = (active: boolean) =>
     `inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold whitespace-nowrap transition-colors ${
@@ -59,13 +74,13 @@ export default async function ExplorePage({ searchParams }: Props) {
       {/* Title + search + categories */}
       <section className="border-b border-line bg-paper">
         <div className="mx-auto max-w-6xl px-4 pt-8 pb-6">
-          <p className="eyebrow mb-1">Recipe Card Vault</p>
+          <p className="eyebrow mb-1">Browse</p>
           <h1 className="font-serif text-3xl font-bold text-ink md:text-4xl">
-            {activeCategory ? activeCategory.label : "Browse the Vault"}
+            {activeCategory ? activeCategory.label : "All Recipes"}
           </h1>
           <SearchBar
             size="lg"
-            placeholder="Search the vault…"
+            placeholder="Search recipes…"
             className="mt-5 max-w-2xl"
             defaultValue={params.q}
             keep={{ category: params.category, tag: params.tag, sort: params.sort === "newest" ? "" : params.sort }}
@@ -162,18 +177,21 @@ export default async function ExplorePage({ searchParams }: Props) {
               </Link>
             )}
           </div>
-          <LinkSelect
-            label="Sort by"
-            value={params.sort}
-            options={SORT_OPTIONS.map((o) => ({ ...o, href: to({ sort: o.value }) }))}
-          />
+          <div className="flex items-center gap-2">
+            <LinkSelect
+              label="Sort by"
+              value={params.sort}
+              options={SORT_OPTIONS.map((o) => ({ ...o, href: to({ sort: o.value }) }))}
+            />
+            <DensityToggle value={density} />
+          </div>
         </div>
 
         {/* Results */}
         {recipes.length === 0 ? (
           <div className="panel mt-8 px-6 py-16 text-center">
             <p className="font-serif text-2xl text-ink">
-              {total > 0 ? "There's nothing on this page." : "Nothing in the vault matches that."}
+              {total > 0 ? "There's nothing on this page." : "No recipes match that."}
             </p>
             <p className="mt-2 text-ink-soft">
               {total > 0 ? "Head back to the first page." : "Try a different word, or clear a filter."}
@@ -184,10 +202,13 @@ export default async function ExplorePage({ searchParams }: Props) {
           </div>
         ) : (
           <>
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {recipes.map((r) => (
-                <RecipeCard key={r.id} recipe={toCardData(r)} />
-              ))}
+            <div className="mt-6">
+              <RecipeGrid
+                recipes={recipes.map((r) => toCardData(r))}
+                adPositions={BROWSE_AD_POSITIONS}
+                fallbacks={fallbacks.map((r) => toCardData(r))}
+                compact={density === "compact"}
+              />
             </div>
             <Pagination page={params.page} pages={pages} href={(n) => browseHref(params, { page: n })} />
             <p className="mt-3 text-center text-xs text-ink-soft">

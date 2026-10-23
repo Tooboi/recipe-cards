@@ -1,3 +1,4 @@
+import type React from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Beef,
@@ -96,11 +97,12 @@ export default function CategoryArt({
 
   return (
     <div
-      className={`relative h-full w-full overflow-hidden ${className}`}
-      style={{ backgroundColor: cat.tint }}
+      className={`category-art relative h-full w-full overflow-hidden ${className}`}
+      // Colours go through CSS variables so dark mode can swap them (see globals.css).
+      style={{ "--art-tint": cat.tint, "--art-ink": cat.ink, backgroundColor: "var(--art-bg)" } as React.CSSProperties}
       aria-hidden
     >
-      <svg className="absolute inset-0 h-full w-full" style={{ color: cat.ink, opacity: 0.16 }}>
+      <svg className="absolute inset-0 h-full w-full" style={{ color: "var(--art-fg)", opacity: 0.16 }}>
         <defs>
           <pattern
             id={patternId}
@@ -125,13 +127,16 @@ export default function CategoryArt({
       {/* soft vignette so the centerpiece pops */}
       <div
         className="absolute inset-0"
-        style={{ background: `radial-gradient(circle at 50% 50%, ${cat.tint} 0%, ${cat.tint}cc 30%, transparent 70%)` }}
+        style={{
+          background:
+            "radial-gradient(circle at 50% 50%, var(--art-bg) 0%, color-mix(in srgb, var(--art-bg) 80%, transparent) 30%, transparent 70%)",
+        }}
       />
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div
           className={`flex ${badge} items-center justify-center rounded-full border-2 bg-paper/80 shadow-sm`}
-          style={{ borderColor: `${cat.ink}33`, color: cat.ink }}
+          style={{ borderColor: "color-mix(in srgb, var(--art-fg) 22%, transparent)", color: "var(--art-fg)" }}
         >
           <Main size={icon} strokeWidth={1.5} />
         </div>

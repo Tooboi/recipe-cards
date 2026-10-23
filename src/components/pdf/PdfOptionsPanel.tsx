@@ -5,7 +5,9 @@ import {
   PDF_FONTS,
   PDF_SIZES,
   PDF_THEMES,
+  availableDetails,
   type PdfSize,
+  type RecipePdfData,
   type RecipePdfOptions,
 } from "@/lib/pdf/options";
 
@@ -13,16 +15,14 @@ import {
 export default function PdfOptionsPanel({
   options,
   onChange,
-  hasImage = true,
-  hasDescription = true,
-  hasAuthor = true,
+  recipe,
 }: {
   options: RecipePdfOptions;
   onChange: (next: RecipePdfOptions) => void;
-  hasImage?: boolean;
-  hasDescription?: boolean;
-  hasAuthor?: boolean;
+  /** Used to grey out "Include" options this recipe has nothing for. */
+  recipe: RecipePdfData;
 }) {
+  const has = availableDetails(recipe);
   const set = <K extends keyof RecipePdfOptions>(key: K, value: RecipePdfOptions[K]) =>
     onChange({ ...options, [key]: value });
 
@@ -56,14 +56,21 @@ export default function PdfOptionsPanel({
 
       <fieldset>
         <legend className="field-label">Design</legend>
-        <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+        <div className="grid gap-2 sm:grid-cols-2">
           {PDF_THEMES.map((theme) => {
             const active = options.theme === theme.value;
             return (
               <button
                 key={theme.value}
                 type="button"
-                onClick={() => set("theme", theme.value)}
+                onClick={() =>
+                  onChange({
+                    ...options,
+                    theme: theme.value,
+                    // The website-style page reads best in a clean sans.
+                    ...(theme.value === "page" && options.font === "Times-Roman" ? { font: "Helvetica" as const } : {}),
+                  })
+                }
                 aria-pressed={active}
                 className={`rounded-md border px-3 py-2.5 text-left transition-colors ${
                   active
@@ -123,27 +130,22 @@ export default function PdfOptionsPanel({
         </fieldset>
       </div>
 
-      <fieldset className="space-y-1">
+      <fieldset>
         <legend className="field-label">Include</legend>
-        <Toggle
-          label="Photo"
-          checked={options.showImage}
-          disabled={!hasImage}
-          hint={hasImage ? undefined : "No photo on this recipe"}
-          onChange={(v) => set("showImage", v)}
-        />
-        <Toggle
-          label="Description"
-          checked={options.showDescription}
-          disabled={!hasDescription}
-          onChange={(v) => set("showDescription", v)}
-        />
-        <Toggle
-          label='"From the kitchen of" line'
-          checked={options.showAuthor}
-          disabled={!hasAuthor}
-          onChange={(v) => set("showAuthor", v)}
-        />
+        <div className="grid gap-x-6 sm:grid-cols-2">
+          <Toggle label="Photo" checked={options.showImage} disabled={!recipe.imageId} hint={recipe.imageId ? undefined : "no photo"} onChange={(v) => set("showImage", v)} />
+          <Toggle label="Description" checked={options.showDescription} disabled={!recipe.description?.trim()} onChange={(v) => set("showDescription", v)} />
+          <Toggle label="Star rating" checked={options.showRating} disabled={!has.rating} hint={has.rating ? undefined : "no ratings yet"} onChange={(v) => set("showRating", v)} />
+          <Toggle label="Author" checked={options.showAuthor} disabled={!recipe.author?.trim()} onChange={(v) => set("showAuthor", v)} />
+          <Toggle label="Course & cuisine" checked={options.showCourse} disabled={!has.course} onChange={(v) => set("showCourse", v)} />
+          <Toggle label="Keywords (tags)" checked={options.showKeywords} disabled={!has.keywords} onChange={(v) => set("showKeywords", v)} />
+          <Toggle label="Prep, cook & total time" checked={options.showTimes} disabled={!has.times} onChange={(v) => set("showTimes", v)} />
+          <Toggle label="Servings" checked={options.showServings} disabled={!has.servings} onChange={(v) => set("showServings", v)} />
+          <Toggle label="Notes" checked={options.showNotes} disabled={!has.notes} onChange={(v) => set("showNotes", v)} />
+        </div>
+        {(!has.times || !has.notes || !has.course) && (
+          <p className="mt-1 text-xs text-ink-soft">Greyed-out items have nothing to show yet — add them when editing the recipe.</p>
+        )}
       </fieldset>
     </div>
   );
