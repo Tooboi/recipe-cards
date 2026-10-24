@@ -6,6 +6,8 @@ import { ChevronLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
 import PdfOptionsPanel from "@/components/pdf/PdfOptionsPanel";
 import PdfPreview from "@/components/pdf/PdfPreview";
 import RowControls from "@/components/pdf/RowControls";
+import ScaleControl from "@/components/recipes/ScaleControl";
+import { scaleIngredient, scaleServing, withScale } from "@/lib/scale";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { getCategory } from "@/lib/taxonomy";
 import { parseIngredient, type Ingredient } from "@/lib/recipe-format";
@@ -49,15 +51,34 @@ function move<T>(list: T[], index: number, direction: "up" | "down") {
   return next;
 }
 
-export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
+export default function RecipeDownload({
+  recipe,
+  initialScale = 1,
+}: {
+  recipe: SafeRecipe;
+  initialScale?: number;
+}) {
+  const originalIngredients = (recipe.ingredients ?? []).map(parseIngredient);
+  const originalServing = recipe.serving || "";
+
   // Text can be tweaked for this printout only; nothing here is saved to the recipe.
   const [title, setTitle] = useState(recipe.title || "");
   const [description, setDescription] = useState(recipe.description || "");
   const [author, setAuthor] = useState(recipe.author || recipe.user.username || "");
-  const [serving, setServing] = useState(recipe.serving || "");
-  const [ingredients, setIngredients] = useState<Ingredient[]>(
-    (recipe.ingredients ?? []).map(parseIngredient)
+  // Starts at the size chosen on the recipe page (?scale=), and can be changed here.
+  const [scale, setScale] = useState(initialScale);
+  const [serving, setServing] = useState(() => scaleServing(originalServing, initialScale));
+  const [ingredients, setIngredients] = useState<Ingredient[]>(() =>
+    originalIngredients.map((ing) => scaleIngredient(ing, initialScale))
   );
+
+  // Re-scaling starts again from the saved recipe, so hand edits to amounts and yield reset.
+  const changeScale = (next: number) => {
+    setScale(next);
+    setServing(scaleServing(originalServing, next));
+    setIngredients(originalIngredients.map((ing) => scaleIngredient(ing, next)));
+    window.history.replaceState(null, "", withScale(window.location.pathname, next));
+  };
   const [instructions, setInstructions] = useState<string[]>(recipe.instructions || []);
   const [notes, setNotes] = useState(recipe.notes || "");
 
@@ -96,7 +117,7 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 md:py-8">
       <Link
-        href={`/recipes/${recipe.id}`}
+        href={withScale(`/recipes/${recipe.id}`, scale)}
         className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-ink-soft hover:text-brand"
       >
         <ChevronLeftIcon className="h-4 w-4" />
@@ -115,6 +136,16 @@ export default function RecipeDownload({ recipe }: { recipe: SafeRecipe }) {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
         <div className="space-y-6">
+          {originalIngredients.length > 0 && (
+            <section className="panel p-4 sm:p-6">
+              <h2 className="font-serif text-xl font-bold">Batch size</h2>
+              <p className="mb-3 text-sm text-ink-soft">
+                Halve, double or triple the ingredient amounts on the printout.
+              </p>
+              <ScaleControl factor={scale} onChange={changeScale} serving={originalServing} />
+            </section>
+          )}
+
           <section className="panel p-4 sm:p-6">
             <h2 className="mb-4 font-serif text-xl font-bold">Layout &amp; design</h2>
             <PdfOptionsPanel

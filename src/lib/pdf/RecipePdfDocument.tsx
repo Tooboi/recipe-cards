@@ -169,6 +169,8 @@ export default function RecipePdfDocument({
     // dynamic page-number text when it inherits a lineHeight.
     // fontSize must be explicit wherever lineHeight is set.
     line: { flex: 1, fontSize: m.body, lineHeight: 1.4 },
+    // Not flex: in a column, flex: 1 collapses each paragraph to zero height and they overlap.
+    note: { fontSize: m.body, lineHeight: 1.4, marginBottom: isCard ? 1 : 4 },
 
     footerLeft: {
       position: "absolute",
@@ -328,10 +330,10 @@ export default function RecipePdfDocument({
                   // heading stays with the first paragraph
                   <View key={i} wrap={false}>
                     <Text style={s.heading}>Notes</Text>
-                    <Text style={[s.line, { marginBottom: isCard ? 1 : 4 }]}>{p}</Text>
+                    <Text style={s.note}>{p}</Text>
                   </View>
                 ) : (
-                  <Text key={i} style={[s.line, { marginBottom: isCard ? 1 : 4 }]}>
+                  <Text key={i} style={s.note}>
                     {p}
                   </Text>
                 )
