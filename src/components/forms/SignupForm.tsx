@@ -8,6 +8,7 @@ import { signIn } from "next-auth/react";
 // import { useRouter } from "next/navigation";
 import { doSocialLogin } from "../../app/actions/index.js";
 // import Link from "next/link";
+import AppRedirectInput from "@/components/app/AppRedirectInput";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -160,6 +161,7 @@ export default function SignupForm() {
             </div>
           </form>
           <form className="flex flex-col gap-2" action={doSocialLogin}>
+            <AppRedirectInput />
             <button
               type="submit"
               name="action"

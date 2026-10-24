@@ -4,6 +4,8 @@
 import { useRouter } from "next/navigation";
 import { doCredentialLogin } from "../../app/actions/index.js";
 import Link from "next/link";
+import { isStandalone } from "@/lib/app-mode";
+import AppRedirectInput from "@/components/app/AppRedirectInput";
 import { doSocialLogin } from "../../app/actions/index.js";
 // import { revalidatePath } from "next/cache";
 // import { useState } from "react";
@@ -28,7 +30,8 @@ export default function SigninForm() {
         // revalidatePath("/new-recipe");
         // revalidatePath("/profile");
         router.refresh();
-        router.replace("/");
+        // The installed app goes back to your recipes; the website to the homepage.
+        router.replace(isStandalone() ? "/me" : "/");
       }
     } catch (e) {
       console.error(e);
@@ -112,6 +115,7 @@ export default function SigninForm() {
             </button>
           </form>
           <form className="flex flex-col gap-2" action={doSocialLogin}>
+            <AppRedirectInput />
             <button
               type="submit"
               name="action"

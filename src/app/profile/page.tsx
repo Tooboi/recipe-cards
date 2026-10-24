@@ -9,6 +9,7 @@ import { CldUploadWidget } from "next-cloudinary";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import CldImageWrapper from "@/components/wrappers/CldImageWrapper";
+import Logout from "@/components/buttons/Logout";
 // import { revalidatePath } from "next/cache";
 
 export default function Profile() {
@@ -147,6 +148,7 @@ export default function Profile() {
               Change Password
             </Link>
           </div>
+          <Logout className="btn-ghost w-full py-2.5 text-brand" label="Sign out" />
           <div className="items-end h-full pb-2">
             <div className="text-[0.6rem] text-ink-soft text-end">{user.id}</div>
           </div>

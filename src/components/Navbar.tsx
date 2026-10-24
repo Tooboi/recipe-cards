@@ -19,6 +19,8 @@ import { auth } from "@/auth";
 import CldImageWrapper from "./wrappers/CldImageWrapper";
 import VaultMark from "./VaultMark";
 import ThemeToggle from "./ThemeToggle";
+import AppTabBar from "./app/AppTabBar";
+import AppServiceWorker from "./app/AppServiceWorker";
 
 const navLink =
   "relative py-1 text-sm font-semibold whitespace-nowrap text-ink-soft transition-colors hover:text-brand";
@@ -45,11 +47,24 @@ export default async function Navbar() {
       : []),
   ];
 
+  // In the installed app (standalone:), the top bar slims down to logo, search and theme;
+  // everything else moves to the bottom tab bar.
   return (
+    <>
     <header className="sticky top-0 z-50 border-b border-line bg-paper/95 backdrop-blur print:hidden">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
         {/* Brand */}
-        <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2.5" aria-label="Recipe Card Vault home">
+        <Link
+          href={isSignedIn ? "/me" : "/explore"}
+          className="hidden min-w-0 shrink-0 items-center gap-2.5 standalone:flex"
+          aria-label="My recipes"
+        >
+          <VaultMark className="h-9 w-9 shrink-0" />
+          <span className="font-serif text-xl font-bold whitespace-nowrap text-ink">
+            Recipe <span className="text-brand">Vault</span>
+          </span>
+        </Link>
+        <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2.5 standalone:hidden!" aria-label="Recipe Card Vault home">
           <VaultMark className="h-9 w-9 shrink-0" />
           <span className="flex flex-col leading-none">
             <span className="font-serif text-xl font-bold whitespace-nowrap text-ink sm:text-2xl">
@@ -65,14 +80,14 @@ export default async function Navbar() {
         <SearchBar size="sm" placeholder="Search recipes…" className="hidden w-52 lg:block xl:w-64" />
 
         {/* Desktop links, grouped with the actions on the right */}
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+        <nav className="hidden items-center gap-6 md:flex standalone:hidden!" aria-label="Main">
           {links.map((l) => (
             <Link key={l.href} href={l.href} className={navLink}>
               {l.label}
             </Link>
           ))}
         </nav>
-        <span className="mx-1 hidden h-6 w-px bg-line md:block" aria-hidden />
+        <span className="mx-1 hidden h-6 w-px bg-line md:block standalone:hidden!" aria-hidden />
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <ThemeToggle />
@@ -83,13 +98,13 @@ export default async function Navbar() {
           >
             <MagnifyingGlassIcon className="h-5 w-5" />
           </Link>
-          <Link href="/new-recipe" className="btn-brand hidden sm:inline-flex">
+          <Link href="/new-recipe" className="btn-brand hidden sm:inline-flex standalone:hidden!">
             <PlusIcon className="h-4 w-4" />
             Add Recipe
           </Link>
 
           {!isSignedIn && (
-            <Link href="/signin" className="btn-outline hidden md:inline-flex">
+            <Link href="/signin" className="btn-outline hidden md:inline-flex standalone:hidden!">
               Sign In
             </Link>
           )}
@@ -100,7 +115,7 @@ export default async function Navbar() {
                 <button
                   id="avatar"
                   aria-label="Account menu"
-                  className="hidden overflow-hidden rounded-full ring-2 ring-line transition hover:ring-brand md:block"
+                  className="hidden overflow-hidden rounded-full ring-2 ring-line transition hover:ring-brand md:block standalone:hidden!"
                 >
                   <Avatar image={session.user.image} seed={internalUserId} />
                 </button>
@@ -135,7 +150,7 @@ export default async function Navbar() {
             <DropdownMenuTrigger asChild>
               <button
                 aria-label="Open menu"
-                className="flex h-10 w-10 items-center justify-center rounded-md border border-line text-ink transition-colors hover:border-brand hover:text-brand md:hidden"
+                className="flex h-10 w-10 items-center justify-center rounded-md border border-line text-ink transition-colors hover:border-brand hover:text-brand md:hidden standalone:hidden!"
               >
                 {isSignedIn ? (
                   <Avatar image={session.user.image} seed={internalUserId} small />
@@ -191,6 +206,9 @@ export default async function Navbar() {
         </div>
       </div>
     </header>
+    <AppTabBar userId={internalUserId} />
+    <AppServiceWorker userId={internalUserId} />
+    </>
   );
 }
 
