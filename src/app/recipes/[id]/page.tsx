@@ -13,7 +13,9 @@ import { auth } from "@/auth";
 import CldImage from "@/components/wrappers/CldImageWrapper";
 import BookmarkButton from "@/components/wrappers/BookmarkButton";
 import PrintButton from "@/components/recipes/PrintButton";
-import IngredientChecklist from "@/components/recipes/IngredientChecklist";
+import ScalableIngredients from "@/components/recipes/ScalableIngredients";
+import ScaledLink from "@/components/recipes/ScaledLink";
+import { parseScale } from "@/lib/scale";
 import { formatIngredient, formatMinutes, parseIngredient, totalMinutes } from "@/lib/recipe-format";
 import { getCategory, tagLabel } from "@/lib/taxonomy";
 import CategoryArt from "@/components/recipes/CategoryArt";
@@ -26,7 +28,10 @@ import { toCardData } from "@/components/recipes/RecipeCard";
 import { ADS, recipeAdEnabled } from "@/lib/ads";
 import { getFallbackRecipes } from "@/lib/recipe-queries";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ scale?: string | string[] }>;
+};
 
 async function getRecipe(id: string) {
   try {
@@ -44,8 +49,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : { title: "Recipe not found" };
 }
 
-export default async function RecipeDetails({ params }: Props) {
+export default async function RecipeDetails({ params, searchParams }: Props) {
   const recipeId = (await params).id;
+  const initialScale = parseScale((await searchParams)?.scale);
   const [session, recipe] = await Promise.all([auth(), getRecipe(recipeId)]);
   if (!recipe) notFound();
 
@@ -169,10 +175,10 @@ export default async function RecipeDetails({ params }: Props) {
         <div className="mt-6 flex flex-wrap gap-2 print:hidden">
           <BookmarkButton recipeId={recipe.id} variant="pill" />
           <PrintButton />
-          <Link href={`/recipes/download/${recipe.id}`} className="btn-brand">
+          <ScaledLink href={`/recipes/download/${recipe.id}`} className="btn-brand">
             <ArrowDownTrayIcon className="h-4 w-4" />
             Recipe Card PDF
-          </Link>
+          </ScaledLink>
           {isOwner && (
             <Link href={`/recipes/edit/${recipe.id}`} className="btn-ghost">
               <PencilSquareIcon className="h-4 w-4" />
@@ -223,7 +229,13 @@ export default async function RecipeDetails({ params }: Props) {
           <div className="md:sticky md:top-24">
             <h2 className="section-title border-b-2 border-brand pb-2">Ingredients</h2>
             {ingredients.length ? (
-              <IngredientChecklist items={ingredients} />
+              <ScalableIngredients
+                ingredients={recipe.ingredients
+                  .map((s: string) => parseIngredient(s))
+                  .filter((i: { quantity: string; item: string }) => i.item.trim() || i.quantity.trim())}
+                serving={recipe.serving}
+                initialFactor={initialScale}
+              />
             ) : (
               <p className="py-3 text-ink-soft italic">No ingredients listed.</p>
             )}
@@ -302,10 +314,10 @@ export default async function RecipeDetails({ params }: Props) {
             Download a full-page printout or a classic 3×5 / 4×6 recipe card.
           </p>
         </div>
-        <Link href={`/recipes/download/${recipe.id}`} className="btn-brand shrink-0">
+        <ScaledLink href={`/recipes/download/${recipe.id}`} className="btn-brand shrink-0">
           <ArrowDownTrayIcon className="h-4 w-4" />
           Make a Recipe Card
-        </Link>
+        </ScaledLink>
       </aside>
     </article>
   );
