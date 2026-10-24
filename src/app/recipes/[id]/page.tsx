@@ -13,6 +13,7 @@ import { auth } from "@/auth";
 import CldImage from "@/components/wrappers/CldImageWrapper";
 import BookmarkButton from "@/components/wrappers/BookmarkButton";
 import PrintButton from "@/components/recipes/PrintButton";
+import CookMode from "@/components/recipes/CookMode";
 import ScalableIngredients from "@/components/recipes/ScalableIngredients";
 import ScaledLink from "@/components/recipes/ScaledLink";
 import { parseScale } from "@/lib/scale";
@@ -174,6 +175,14 @@ export default async function RecipeDetails({ params, searchParams }: Props) {
 
         <div className="mt-6 flex flex-wrap gap-2 print:hidden">
           <BookmarkButton recipeId={recipe.id} variant="pill" />
+          <CookMode
+            title={recipe.title}
+            steps={steps}
+            ingredients={recipe.ingredients
+              .map((s: string) => parseIngredient(s))
+              .filter((i: { quantity: string; item: string }) => i.item.trim() || i.quantity.trim())}
+            serving={recipe.serving}
+          />
           <PrintButton />
           <ScaledLink href={`/recipes/download/${recipe.id}`} className="btn-brand">
             <ArrowDownTrayIcon className="h-4 w-4" />

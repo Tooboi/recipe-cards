@@ -4,8 +4,10 @@ import { signIn, signOut } from "@/auth";
 
 export async function doSocialLogin(formData) {
   const action = formData.get("action");
+  // The installed app asks to come back to /me; anything else goes to Explore.
+  const redirectTo = formData.get("redirectTo") === "/me" ? "/me" : "/explore";
 
-  await signIn(action, { redirectTo: "/explore" });
+  await signIn(action, { redirectTo });
 }
 
 export async function doLogout() {

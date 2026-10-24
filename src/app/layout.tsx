@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import InstallBanner from "@/components/app/InstallBanner";
 import { Toaster } from "@/components/ui/sonner";
 import { connectToDatabase } from "@/lib/mongo";
 import AuthSessionProvider from "@/components/wrappers/SessionProvider";
@@ -34,8 +35,20 @@ export const metadata: Metadata = {
   ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
     verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
   }),
+  // Installed-app settings for iPhone (Android reads app/manifest.ts).
+  appleWebApp: { capable: true, title: "Recipe Vault", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
   // Lets AdSense verify the site during sign-up.
   ...(adsEnabled && { other: { "google-adsense-account": ADS.client } }),
+};
+
+export const viewport: Viewport = {
+  // "cover" lets the app reach under the iPhone home bar; safe-area padding keeps content clear.
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#332c27" },
+  ],
 };
 
 export default async function RootLayout({
@@ -55,8 +68,9 @@ export default async function RootLayout({
         <AuthSessionProvider>
           <div className="flex min-h-screen min-w-[300px] flex-col">
             <Navbar />
-            <main className="flex-1 pb-12">{children}</main>
+            <main className="flex-1 pb-12 standalone:pb-[calc(6rem+env(safe-area-inset-bottom))]">{children}</main>
             <Footer />
+            <InstallBanner />
           </div>
           <Analytics />
           {adsEnabled && (

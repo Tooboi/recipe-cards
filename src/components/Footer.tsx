@@ -3,7 +3,7 @@ import VaultMark from "./VaultMark";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-line bg-[#2b2420] text-[#faf6ef]/80 dark:bg-[#1a1613] print:hidden">
+    <footer className="border-t border-line bg-[#2b2420] text-[#faf6ef]/80 dark:bg-[#1a1613] print:hidden standalone:hidden">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-3">
         <div>
           <div className="flex items-center gap-2.5">
