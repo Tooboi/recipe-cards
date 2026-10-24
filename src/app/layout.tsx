@@ -30,6 +30,10 @@ export const metadata: Metadata = {
   },
   description:
     "Keep your family recipes safe, share them, and print them as full pages or classic 3×5 and 4×6 recipe cards.",
+  // Google Search Console ownership check (the content="…" value from its HTML tag).
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
+    verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
+  }),
   // Lets AdSense verify the site during sign-up.
   ...(adsEnabled && { other: { "google-adsense-account": ADS.client } }),
 };
