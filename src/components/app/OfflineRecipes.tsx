@@ -6,14 +6,9 @@ import { ChevronRightIcon } from "@heroicons/react/24/outline";
 type Saved = { href: string; title: string };
 
 function titleFrom(html: string) {
-  const m = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-  const t = (m?.[1] ?? "")
-    .replace(/&amp;/g, "&")
-    .replace(/&#x27;|&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/\s*\|\s*Recipe Card Vault\s*$/, "")
-    .trim();
-  return t || "Untitled recipe";
+  // Let the browser read the <title> so entities like &amp; are decoded exactly once.
+  const title = new DOMParser().parseFromString(html, "text/html").title;
+  return title.replace(/\s*\|\s*Recipe Card Vault\s*$/, "").trim() || "Untitled recipe";
 }
 
 /** Lists the recipe pages saved by the app's offline helper. Plain <a> links on purpose:
